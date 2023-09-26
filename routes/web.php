@@ -24,6 +24,8 @@ Route::get('/', function () {
     ]);
 });
 
+Route::post('login-web3', \App\Actions\LoginUsingWeb3::class);
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
