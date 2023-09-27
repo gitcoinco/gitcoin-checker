@@ -55,4 +55,17 @@ class Round extends Model
     {
         return $this->hasMany(RoundQuestion::class);
     }
+
+    // a Round connects to a Project via RoundApplications with Project.id_addr = RoundApplication.eth_addr
+    public function projects()
+    {
+        return $this->hasManyThrough(
+            Project::class,
+            RoundApplication::class,
+            'round_id',  // Foreign key on RoundApplication table...
+            'id_addr',   // Foreign key on Project table...
+            'id',        // Local key on Round table...
+            'project_addr'  // Local key on RoundApplication table...
+        );
+    }
 }

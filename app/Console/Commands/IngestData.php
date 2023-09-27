@@ -54,7 +54,7 @@ class IngestData extends Command
 
         $this->info('Fetching directory list...');
 
-        $directories = Cache::remember('directories1', now()->addDay(), function () use ($indexerUrl, $directoryParser) {
+        $directories = Cache::remember('directories3', now()->addDay(), function () use ($indexerUrl, $directoryParser) {
             $response = Http::get($indexerUrl);
             $json = $directoryParser->parse($response->body());
 

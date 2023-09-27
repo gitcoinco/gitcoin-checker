@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccessControlController;
+use App\Http\Controllers\RoundController;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,13 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::prefix('round')->group(function () {
+        Route::get('/', [RoundController::class, 'index'])->name('round.index');
+        Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
+        Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
+    });
+
 
     Route::prefix('access-control')->group(function () {
         Route::get('/', [AccessControlController::class, 'index'])->name('access-control.index');

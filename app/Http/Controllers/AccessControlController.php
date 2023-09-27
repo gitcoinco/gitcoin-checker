@@ -18,7 +18,7 @@ class AccessControlController extends Controller
 
     public function index()
     {
-        $accessControls = AccessControl::all();
+        $accessControls = AccessControl::orderBy('id', 'desc')->get();
         return inertia('AccessControl/Index', ['accessControls' => $accessControls]);
     }
 

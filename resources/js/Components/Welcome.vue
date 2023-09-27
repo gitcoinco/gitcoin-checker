@@ -35,7 +35,12 @@ import { Link } from "@inertiajs/vue3";
                         />
                     </svg>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
-                        <a href="https://laravel.com/docs">Admins</a>
+                        <Link
+                            :href="route('access-control.index')"
+                            class="text-blue-500 hover:underline"
+                        >
+                            Admins</Link
+                        >
                     </h2>
                 </div>
 
@@ -79,23 +84,25 @@ import { Link } from "@inertiajs/vue3";
                         />
                     </svg>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
-                        <a href="https://laracasts.com">Laracasts</a>
+                        <Link
+                            :href="route('round.index')"
+                            class="text-blue-500 hover:underline"
+                        >
+                            Rounds</Link
+                        >
                     </h2>
                 </div>
 
                 <p class="mt-4 text-gray-500 text-sm leading-relaxed">
-                    Laracasts offers thousands of video tutorials on Laravel,
-                    PHP, and JavaScript development. Check them out, see for
-                    yourself, and massively level up your development skills in
-                    the process.
+                    See a list of rounds.
                 </p>
 
                 <p class="mt-4 text-sm">
-                    <a
-                        href="https://laracasts.com"
-                        class="inline-flex items-center font-semibold text-indigo-700"
+                    <Link
+                        :href="route('round.index')"
+                        class="text-blue-500 hover:underline"
                     >
-                        Start watching Laracasts
+                        Rounds
 
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +115,7 @@ import { Link } from "@inertiajs/vue3";
                                 clip-rule="evenodd"
                             />
                         </svg>
-                    </a>
+                    </Link>
                 </p>
             </div>
 

@@ -16,7 +16,9 @@ class DirectoryParser
     {
         $crawler = new Crawler($html);
 
-        $directories = $crawler->filter('#files > li > a')->each(function (Crawler $node) {
+
+
+        $directories = $crawler->filter('#files > li:not(.header) > a')->each(function (Crawler $node) {
             $name = $node->filter('.name')->text();
             $size = $node->filter('.size')->text();
             $date = $node->filter('.date')->text();
@@ -25,8 +27,6 @@ class DirectoryParser
             return compact('name', 'size', 'date', 'href');
         });
 
-        // Remove the first element as it's the header
-        array_shift($directories);
 
         return json_encode(['directories' => $directories], JSON_PRETTY_PRINT);
     }
