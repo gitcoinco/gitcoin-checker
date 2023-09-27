@@ -5,3 +5,30 @@
 [x-cloak] {
     display: none;
 }
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+/* Styling the table headings */
+th {
+    background-color: #f2f2f2;
+    color: #333;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+/* Styling the table cells */
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Adding a hover effect to the rows */
+tr:hover {
+    background-color: #f1f1f1;
+}

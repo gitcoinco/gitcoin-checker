@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Models\AccessControl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Elliptic\EC;
@@ -22,8 +23,17 @@ class LoginUsingWeb3
         }
 
         Auth::login(User::firstOrCreate([
-            'eth_address' => $request->address
+            'eth_addr' => $request->address
         ]));
+
+        // if there's only one user, ensure they're an admin in AccessControl
+        if (User::count() === 1) {
+            $user = User::first();
+            AccessControl::firstOrCreate([
+                'eth_addr' => $user->eth_addr,
+                'role' => 'admin',
+            ]);
+        }
 
         return Redirect::route('dashboard');
     }

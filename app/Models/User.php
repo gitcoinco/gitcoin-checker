@@ -27,6 +27,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'eth_addr',
     ];
 
     /**
@@ -58,4 +59,12 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get the user's access control and bind on eth_addr.
+     */
+    public function accessControl()
+    {
+        return $this->hasOne(AccessControl::class, 'eth_addr', 'eth_addr');
+    }
 }

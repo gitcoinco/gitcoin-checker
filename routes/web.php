@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AccessControlController;
+use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,4 +36,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::prefix('access-control')->group(function () {
+        Route::get('/', [AccessControlController::class, 'index'])->name('access-control.index');
+        Route::post('/upsert', [AccessControlController::class, 'upsert'])->name('access-control.upsert');
+        Route::delete('/delete/{accessControl}', [AccessControlController::class, 'destroy'])->name('access-control.delete');
+    });
 });

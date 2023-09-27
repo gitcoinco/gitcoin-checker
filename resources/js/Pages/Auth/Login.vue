@@ -60,15 +60,15 @@ const loginWeb3 = async () => {
                 Login with MetaMask
             </PrimaryButton>
         </div>
-        <div class="py-6 text-sm text-gray-500 text-center">
+        <!-- <div class="py-6 text-sm text-gray-500 text-center">
             or login with your credentials…
-        </div>
+        </div> -->
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <!-- <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
                 <TextInput
@@ -120,6 +120,6 @@ const loginWeb3 = async () => {
                     Log in
                 </PrimaryButton>
             </div>
-        </form>
+        </form> -->
     </AuthenticationCard>
 </template>

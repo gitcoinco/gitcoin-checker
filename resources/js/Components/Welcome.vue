@@ -1,5 +1,6 @@
 <script setup>
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import { Link } from "@inertiajs/vue3";
 </script>
 
 <template>
@@ -34,24 +35,20 @@ import ApplicationLogo from "@/Components/ApplicationLogo.vue";
                         />
                     </svg>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
-                        <a href="https://laravel.com/docs">Documentation</a>
+                        <a href="https://laravel.com/docs">Admins</a>
                     </h2>
                 </div>
 
                 <p class="mt-4 text-gray-500 text-sm leading-relaxed">
-                    Laravel has wonderful documentation covering every aspect of
-                    the framework. Whether you're new to the framework or have
-                    previous experience, we recommend reading all of the
-                    documentation from beginning to end.
+                    Who is allowed to access this tool?
                 </p>
 
                 <p class="mt-4 text-sm">
-                    <a
-                        href="https://laravel.com/docs"
-                        class="inline-flex items-center font-semibold text-indigo-700"
+                    <Link
+                        :href="route('access-control.index')"
+                        class="text-blue-500 hover:underline"
                     >
-                        Explore the documentation
-
+                        Setup access
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -63,7 +60,7 @@ import ApplicationLogo from "@/Components/ApplicationLogo.vue";
                                 clip-rule="evenodd"
                             />
                         </svg>
-                    </a>
+                    </Link>
                 </p>
             </div>
 
