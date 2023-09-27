@@ -18,4 +18,15 @@ class Project extends Model
         'owners',
         'created_at_block',
     ];
+
+    protected $casts = [
+        'metadata' => 'array',
+        'owners' => 'array',
+    ];
+
+
+    public function applications()
+    {
+        return $this->hasMany(RoundApplication::class, 'project_addr', 'id_addr');
+    }
 }

@@ -17,4 +17,9 @@ class RoundApplication extends Model
         'version',
         'metadata',
     ];
+
+    public function round()
+    {
+        return $this->belongsTo(Round::class);
+    }
 }

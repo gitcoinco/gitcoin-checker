@@ -6,14 +6,14 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 
-const rounds = ref(usePage().props.rounds.valueOf());
+const projects = ref(usePage().props.projects.valueOf());
 
 const searchTerm = ref("");
 
 const search = async () => {
     try {
-        const response = await axios.get("/round/search/" + searchTerm.value);
-        rounds.value = response.data;
+        const response = await axios.get("/project/search/" + searchTerm.value);
+        projects.value = response.data;
 
         // Check if the URL already contains a ?
         var urlContainsQuestionMark = window.location.href.indexOf("?") !== -1;
@@ -51,13 +51,13 @@ if (urlParams.has("search")) {
     <AppLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Rounds
+                Projects
             </h2>
         </template>
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <table v-if="rounds && rounds.data.length > 0">
+                <table v-if="projects && projects.data.length > 0">
                     <thead>
                         <tr>
                             <th>
@@ -67,19 +67,18 @@ if (urlParams.has("search")) {
                                     @keyup="onKeyup"
                                 />
                             </th>
-                            <th>Chain</th>
-                            <th># Projects</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(round, index) in rounds.data" :key="index">
-                            <td>{{ round.name }}</td>
-                            <td>{{ round.chain.chain_id }}</td>
-                            <td>{{ round.project_count }}</td>
+                        <tr
+                            v-for="(project, index) in projects.data"
+                            :key="index"
+                        >
+                            <td>{{ project.title }}</td>
                             <td>
                                 <Link
-                                    :href="route('round.show', round.id)"
+                                    :href="route('project.show', project.id)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     View
@@ -89,7 +88,7 @@ if (urlParams.has("search")) {
                     </tbody>
                 </table>
 
-                <Pagination :links="rounds.links" />
+                <Pagination :links="projects.links" />
             </div>
         </div>
     </AppLayout>

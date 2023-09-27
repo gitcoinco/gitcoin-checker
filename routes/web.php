@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AccessControlController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
+use App\Http\Controllers\DashboardController;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -34,14 +36,29 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Route::get('/dashboard', function () {
+
+    //     return Inertia::render('Dashboard', [
+    //         'indexData' => env('INDEXER_URL'),
+    //     ]);
+    // })->name('dashboard');
+
+    // Route::get('/dashboard', function () {
+    //     return Inertia::render('Dashboard');
+    // })->name('dashboard');
 
     Route::prefix('round')->group(function () {
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
+    });
+
+    Route::prefix('project')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('project.index');
+        Route::get('/show/{project}', [ProjectController::class, 'show'])->name('project.show');
+        Route::get('/search/{search?}', [ProjectController::class, 'search'])->name('project.search');
     });
 
 

@@ -8,6 +8,7 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import FlashNotifications from "@/Components/FlashNotifications.vue";
+import GitcoinLogo from "@/Components/Gitcoin/Logo.vue";
 
 defineProps({
     title: String,
@@ -45,9 +46,12 @@ const logout = () => {
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <!-- Logo -->
-                            <div class="shrink-0 flex items-center">
+                            <div class="shrink-0 flex items-left">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
+                                    <ApplicationMark
+                                        class="block h-9 w-auto"
+                                        style="width: 70px; height: 70px"
+                                    />
                                 </Link>
                             </div>
 

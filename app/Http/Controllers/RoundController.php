@@ -10,7 +10,7 @@ class RoundController extends Controller
 {
     public function index($search = null)
     {
-        $rounds = Round::orderBy('id', 'desc')->paginate();
+        $rounds = Round::orderBy('id', 'desc')->with('chain')->paginate();
 
         foreach ($rounds as $round) {
             $round->project_count = $round->projects()->count();
@@ -24,13 +24,14 @@ class RoundController extends Controller
 
     public function search($search = null)
     {
-        $rounds = Round::where('name', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate();
+        $rounds = Round::where('name', 'like', '%' . $search . '%')->orderBy('id', 'desc')->with('chain')->paginate();
         return $rounds;
     }
 
     public function show(Round $round)
     {
         $projects = $round->projects()->paginate();
+
 
         return Inertia::render('Round/Show', [
             'round' => $round,

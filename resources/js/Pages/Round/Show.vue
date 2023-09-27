@@ -8,6 +8,15 @@ import Pagination from "@/Components/Pagination.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
+
+// function to get website from metadata
+const getProp = (metadata, prop) => {
+    if (metadata[prop]) {
+        return metadata[prop];
+    }
+
+    return "";
+};
 </script>
 
 <template>
@@ -24,6 +33,9 @@ const projects = ref(usePage().props.projects.valueOf());
                     <thead>
                         <tr>
                             <th>Title</th>
+                            <th>Website</th>
+                            <th>Twitter</th>
+                            <th>Github</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -32,14 +44,37 @@ const projects = ref(usePage().props.projects.valueOf());
                             v-for="(project, index) in projects.data"
                             :key="index"
                         >
-                            <td>{{ project.title }}</td>
                             <td>
-                                <!-- <Link
-                                    :href="route('round.show', round.id)"
+                                {{ project.title }}
+                            </td>
+                            <td>
+                                <a
+                                    href="{{ getProp(project.metadata, 'website') }}"
+                                    _target="_blank"
+                                >
+                                    {{
+                                        getProp(
+                                            project.metadata,
+                                            "website"
+                                        ).replace("https://", "")
+                                    }}
+                                </a>
+                            </td>
+                            <td>
+                                {{
+                                    getProp(project.metadata, "projectTwitter")
+                                }}
+                            </td>
+                            <td>
+                                {{ getProp(project.metadata, "projectGithub") }}
+                            </td>
+                            <td>
+                                <Link
+                                    :href="route('project.show', project.id)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     View
-                                </Link> -->
+                                </Link>
                             </td>
                         </tr>
                     </tbody>

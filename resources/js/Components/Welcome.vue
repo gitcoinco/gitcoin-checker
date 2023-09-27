@@ -135,15 +135,17 @@ import { Link } from "@inertiajs/vue3";
                         />
                     </svg>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
-                        <a href="https://tailwindcss.com/">Tailwind</a>
+                        <Link
+                            :href="route('project.index')"
+                            class="text-blue-500 hover:underline"
+                        >
+                            Projects
+                        </Link>
                     </h2>
                 </div>
 
                 <p class="mt-4 text-gray-500 text-sm leading-relaxed">
-                    Laravel Jetstream is built with Tailwind, an amazing utility
-                    first CSS framework that doesn't get in your way. You'll be
-                    amazed how easily you can build and maintain fresh, modern
-                    designs with this wonderful framework at your fingertips.
+                    List of projects
                 </p>
             </div>
 
@@ -163,16 +165,12 @@ import { Link } from "@inertiajs/vue3";
                         />
                     </svg>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
-                        Authentication
+                        FAQ
                     </h2>
                 </div>
 
                 <p class="mt-4 text-gray-500 text-sm leading-relaxed">
-                    Authentication and registration views are included with
-                    Laravel Jetstream, as well as support for user email
-                    verification and resetting forgotten passwords. So, you're
-                    free to get started with what matters most: building your
-                    application.
+                    ...here
                 </p>
             </div>
         </div>

@@ -52,7 +52,7 @@ const loginWeb3 = async () => {
 
     <AuthenticationCard>
         <template #logo>
-            <AuthenticationCardLogo />
+            <AuthenticationCardLogo style="width: 60%; margin: 0 auto" />
         </template>
 
         <div class="text-center pt-4 pb-8 border-b border-gray-200">

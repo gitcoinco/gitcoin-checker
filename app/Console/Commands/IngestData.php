@@ -14,6 +14,7 @@ use App\Models\RoundApplicationMetadata;
 use App\Models\RoundMetadata;
 use App\Services\DirectoryParser;
 use Directory;
+use Illuminate\Support\Str;
 
 // ... other models ...
 
@@ -32,6 +33,8 @@ class IngestData extends Command
      * @var string
      */
     protected $description = 'Ingest data from the specified URL and populate the database';
+
+    protected $cacheName = 'ingest-cache';
 
     /**
      * Create a new command instance.
@@ -54,7 +57,7 @@ class IngestData extends Command
 
         $this->info('Fetching directory list...');
 
-        $directories = Cache::remember('directories3', now()->addDay(), function () use ($indexerUrl, $directoryParser) {
+        $directories = Cache::remember($this->cacheName . '-directories', now()->addDay(), function () use ($indexerUrl, $directoryParser) {
             $response = Http::get($indexerUrl);
             $json = $directoryParser->parse($response->body());
 
@@ -67,7 +70,7 @@ class IngestData extends Command
             foreach ($directories as $directory) {
                 $chainId = $directory['name'];  // Assuming 'name' contains the chain ID
 
-                $this->info("Processing data for chain ID: {$chainId}...");
+                // $this->info("Processing data for chain ID: {$chainId}...");
                 $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
 
                 $this->info("Processing project data for chain ID: {$chainId}...");
@@ -75,6 +78,14 @@ class IngestData extends Command
 
                 $this->info("Processing rounds data for chain ID: {$chainId}...");
                 $this->updateRounds($chain);
+
+                $this->info("Processing application data for chain ID: {$chainId}...");
+                $rounds = Round::where('chain_id', $chain->id)->get();
+                foreach ($rounds as $round) {
+                    if (Str::lower($round->round_addr) == '0x8de918f0163b2021839a8d84954dd7e8e151326d') {
+                        $this->updateApplications($round);
+                    }
+                }
             }
         } else {
             $this->info("No directories available");
@@ -88,7 +99,7 @@ class IngestData extends Command
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $roundsData = Cache::remember("rounds_data_2{$chain->chain_id}", now()->addDay(), function () use ($indexerUrl, $chain) {
+        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addDay(), function () use ($indexerUrl, $chain) {
             $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds.json");
             return json_decode($response->body(), true);
         });
@@ -98,7 +109,7 @@ class IngestData extends Command
 
                 $this->info("Processing round ID: {$roundData['id']}...");
                 $round = Round::updateOrCreate(
-                    ['round_addr' => $roundData['id'], 'chain_id' => $chain->id],
+                    ['round_addr' => Str::lower($roundData['id']), 'chain_id' => $chain->id],
                     [
                         'amountUSD' => $roundData['amountUSD'],
                         'votes' => $roundData['votes'],
@@ -120,8 +131,6 @@ class IngestData extends Command
                     $round->name = $roundData['metadata']['name'];
                     $round->save();
                 }
-
-                $this->updateApplications($round);
             }
         }
     }
@@ -130,17 +139,15 @@ class IngestData extends Command
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $projectData = Cache::remember("project_data{$chain->id}", now()->addDay(), function () use ($indexerUrl, $chain) {
+        $projectData = Cache::remember($this->cacheName . "-project_data{$chain->id}", now()->addDay(), function () use ($indexerUrl, $chain) {
             $response = Http::get("{$indexerUrl}/{$chain->chain_id}/projects.json");
             return json_decode($response->body(), true);
         });
 
-
         if ($projectData && count($projectData) > 0) {
             foreach ($projectData as $key => $data) {
-
                 $project = Project::updateOrCreate(
-                    ['id_addr' => $data['id']],
+                    ['id_addr' => Str::lower($data['id'])],
                     [
                         'project_number' => $data['projectNumber'],
                         'meta_ptr' => $data['metaPtr'],
@@ -163,17 +170,23 @@ class IngestData extends Command
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $applicationData = Cache::remember("rounds_application_data{$round->chain->chain_id}_{$round->id}", now()->addDay(), function () use ($indexerUrl, $round) {
+        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$round->chain->chain_id}_{$round->id}", now()->addDay(), function () use ($indexerUrl, $round) {
             $response = Http::get("{$indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/applications.json");
             return json_decode($response->body(), true);
         });
 
+
+
         if ($applicationData && count($applicationData) > 0) {
+
             foreach ($applicationData as $key => $data) {
+                $this->info("Processing application: {$data['projectId']}");
+
                 RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id],
+                    ['round_id' => $round->id, 'project_addr' => Str::lower($data['projectId'])],
                     [
-                        'project_addr' => $data['projectId'],
+                        'round_id' => $round->id,
+                        'project_addr' => Str::lower($data['projectId']),
                         'status' => $data['status'],
                         'metadata' => json_encode($data['metadata']),
                     ]
