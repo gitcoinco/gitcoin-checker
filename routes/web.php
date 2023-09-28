@@ -4,6 +4,7 @@ use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -29,11 +30,15 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/noaccess', function () {
+    return Inertia::render('AccessControl/NoAccess');
+})->name('noaccess');
+
 Route::post('login-web3', \App\Actions\LoginUsingWeb3::class);
 
 Route::middleware([
     'auth:sanctum',
-    config('jetstream.auth_session'),
+    CheckAccessControl::class,
     'verified',
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

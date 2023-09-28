@@ -55,7 +55,7 @@ const loginWeb3 = async () => {
             <AuthenticationCardLogo style="width: 60%; margin: 0 auto" />
         </template>
 
-        <div class="text-center pt-4 pb-8 border-b border-gray-200">
+        <div class="text-center">
             <PrimaryButton @click="loginWeb3">
                 Login with MetaMask
             </PrimaryButton>
