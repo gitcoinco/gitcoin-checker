@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,11 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Run the 'php artisan ingest:data' command
+        Artisan::call('ingest:data');
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Capture the output
+        $output = Artisan::output();
+
+        // Display the output in the console
+        $this->command->info($output);
     }
 }

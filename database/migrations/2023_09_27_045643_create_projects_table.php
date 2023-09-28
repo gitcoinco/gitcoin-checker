@@ -20,6 +20,7 @@ return new class extends Migration
             $table->json('metadata');
             $table->json('owners');
             $table->unsignedBigInteger('created_at_block');
+            $table->dateTime('highlighted_at')->nullable();
             $table->timestamps();
         });
     }

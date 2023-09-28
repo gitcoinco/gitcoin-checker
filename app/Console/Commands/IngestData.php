@@ -95,6 +95,22 @@ class IngestData extends Command
         return 0;
     }
 
+    // Some dates appear to be in seconds while others are in milliseconds.  Deal with it.
+    private function dateTimeConverter($datetime)
+    {
+        try {
+            if (strlen($datetime) == 10) {
+                return date('Y-m-d H:i:s.v', $datetime);
+            } else {
+                // slice the last 3 zeros off
+                $datetime = substr($datetime, 0, -3);
+                return date('Y-m-d H:i:s.v', $datetime);
+            }
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
+
     private function updateRounds($chain)
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
@@ -108,24 +124,29 @@ class IngestData extends Command
             foreach ($roundsData as $roundData) {
 
                 $this->info("Processing round ID: {$roundData['id']}...");
+
+                $this->info($roundData['applicationsStartTime']);
+
                 $round = Round::updateOrCreate(
                     ['round_addr' => Str::lower($roundData['id']), 'chain_id' => $chain->id],
                     [
-                        'amountUSD' => $roundData['amountUSD'],
+                        'amount_usd' => $roundData['amountUSD'],
                         'votes' => $roundData['votes'],
                         'token' => $roundData['token'],
-                        'matchAmount' => $roundData['matchAmount'],
-                        'matchAmountUSD' => $roundData['matchAmountUSD'],
-                        'uniqueContributors' => $roundData['uniqueContributors'],
-                        'applicationsStartTime' => $roundData['applicationsStartTime'],
-                        'applicationsEndTime' => $roundData['applicationsEndTime'],
-                        'roundStartTime' => $roundData['roundStartTime'],
-                        'roundEndTime' => $roundData['roundEndTime'],
-                        'createdAtBlock' => $roundData['createdAtBlock'],
-                        'updatedAtBlock' => $roundData['updatedAtBlock'],
+                        'match_amount' => $roundData['matchAmount'],
+                        'match_amount_usd' => $roundData['matchAmountUSD'],
+                        'unique_contributors' => $roundData['uniqueContributors'],
+                        'applications_start_time' => $this->dateTimeConverter($roundData['applicationsStartTime']),
+                        'applications_end_time' => $this->dateTimeConverter($roundData['applicationsEndTime']),
+                        'round_start_time' => $this->dateTimeConverter($roundData['roundStartTime']),
+                        'round_end_time' => $this->dateTimeConverter($roundData['roundEndTime']),
+                        'created_at_block' => $roundData['createdAtBlock'],
+                        'updated_at_block' => $roundData['updatedAtBlock'],
                         'metadata' => json_encode($roundData['metadata']),
                     ]
                 );
+
+
 
                 if (isset($roundData['metadata']['name'])) {
                     $round->name = $roundData['metadata']['name'];

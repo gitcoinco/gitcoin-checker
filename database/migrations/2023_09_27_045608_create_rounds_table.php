@@ -16,23 +16,25 @@ return new class extends Migration
             $table->integer('chain_id');
             $table->string('round_addr', 42)->unique();
             $table->string('name')->nullable();
-            $table->decimal('amount_usd', 10, 2)->default(0);
+            $table->decimal('amount_usd', 20, 2)->default(0);
             $table->integer('votes')->default(0);
             $table->string('token')->nullable();
             $table->string('match_amount')->nullable();
-            $table->decimal('match_amount_usd', 10, 2)->default(0)->nullable();
+            $table->decimal('match_amount_usd', 20, 2)->default(0)->nullable();
             $table->integer('unique_contributors')->default(0)->nullable();
             $table->string('application_meta_ptr')->nullable();
             $table->string('meta_ptr')->nullable();
-            $table->timestamp('applications_start_time')->nullable();
-            $table->timestamp('applications_end_time')->nullable();
-            $table->timestamp('round_start_time')->nullable();
-            $table->timestamp('round_end_time')->nullable();
+            $table->dateTime('applications_start_time', 3)->nullable();
+            $table->dateTime('applications_end_time', 3)->nullable();
+            $table->dateTime('round_start_time', 3)->nullable();
+            $table->dateTime('round_end_time', 3)->nullable();
             $table->integer('created_at_block')->nullable();
             $table->integer('updated_at_block')->nullable();
             $table->json('metadata')->nullable();
-            $table->timestamps();
+            $table->dateTime('highlighted_at')->nullable();
+            $table->timestamps(3);
         });
+
 
         Schema::create('round_applications', function (Blueprint $table) {
             $table->id();
