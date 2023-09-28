@@ -32,6 +32,13 @@ const search = async () => {
     }
 };
 
+const resetSearch = () => {
+    // remove all url parameters
+    window.history.pushState({}, "", window.location.href.split("?")[0]);
+    searchTerm.value = "";
+    search();
+};
+
 const onKeyup = (event) => {
     if (event.key === "Enter") {
         search();
@@ -45,6 +52,16 @@ if (urlParams.has("search")) {
     searchTerm.value = urlParams.get("search");
     search();
 }
+
+const flagRound = async (round) => {
+    try {
+        const response = await axios.post(`/round/flag/${round.id}`);
+        // Assuming the response contains the updated round data
+        round.flagged_at = response.data.flagged_at;
+    } catch (error) {
+        console.error("Error flagging round:", error);
+    }
+};
 </script>
 
 <template>
@@ -60,6 +77,7 @@ if (urlParams.has("search")) {
                 <table v-if="rounds && rounds.data.length > 0">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>
                                 <TextInput
                                     v-model="searchTerm"
@@ -74,6 +92,39 @@ if (urlParams.has("search")) {
                     </thead>
                     <tbody>
                         <tr v-for="(round, index) in rounds.data" :key="index">
+                            <td @click="flagRound(round)" class="pointer">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6 text-green-500"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    v-if="round.flagged_at"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6 text-gray-500"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    v-else
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </td>
+
                             <td>{{ round.name }}</td>
                             <td>{{ round.chain.chain_id }}</td>
                             <td>{{ round.project_count }}</td>
@@ -88,6 +139,13 @@ if (urlParams.has("search")) {
                         </tr>
                     </tbody>
                 </table>
+                <div v-else>
+                    <p>No rounds found for {{ searchTerm }}.</p>
+
+                    <PrimaryButton @click="resetSearch()" class="mt-4">
+                        Reset search
+                    </PrimaryButton>
+                </div>
 
                 <Pagination :links="rounds.links" />
             </div>

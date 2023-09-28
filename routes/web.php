@@ -58,6 +58,7 @@ Route::middleware([
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
+        Route::post('/flag/{id}', [RoundController::class, 'flag']);
     });
 
     Route::prefix('project')->group(function () {

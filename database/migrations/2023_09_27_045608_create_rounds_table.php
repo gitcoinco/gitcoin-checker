@@ -31,7 +31,7 @@ return new class extends Migration
             $table->integer('created_at_block')->nullable();
             $table->integer('updated_at_block')->nullable();
             $table->json('metadata')->nullable();
-            $table->dateTime('highlighted_at')->nullable();
+            $table->dateTime('flagged_at')->nullable();
             $table->timestamps(3);
         });
 

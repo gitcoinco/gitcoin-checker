@@ -12,6 +12,7 @@ class Round extends Model
     protected $fillable = [
         'chain_id',
         'round_addr',
+        'flagged_at',
         'amount_usd',
         'votes',
         'token',
