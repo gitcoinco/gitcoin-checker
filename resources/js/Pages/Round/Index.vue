@@ -62,6 +62,14 @@ const flagRound = async (round) => {
         console.error("Error flagging round:", error);
     }
 };
+
+function showDateInShortFormat(date) {
+    return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
 </script>
 
 <template>
@@ -85,6 +93,8 @@ const flagRound = async (round) => {
                                     @keyup="onKeyup"
                                 />
                             </th>
+                            <th>Date</th>
+                            <th>Amount</th>
                             <th>Chain</th>
                             <th># Projects</th>
                             <th></th>
@@ -126,6 +136,14 @@ const flagRound = async (round) => {
                             </td>
 
                             <td>{{ round.name }}</td>
+                            <td>
+                                {{
+                                    showDateInShortFormat(
+                                        round.round_start_time
+                                    )
+                                }}
+                            </td>
+                            <td>${{ round.amount_usd }}</td>
                             <td>{{ round.chain.chain_id }}</td>
                             <td>{{ round.project_count }}</td>
                             <td>
