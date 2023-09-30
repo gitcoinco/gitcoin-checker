@@ -5,6 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import { copyToClipboard, shortenAddress } from "@/utils.js";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
@@ -23,7 +24,17 @@ const getProp = (metadata, prop) => {
     <AppLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Projects for round {{ round.name }}
+                {{ round.name }}
+                <span class="text-sm">
+                    {{ shortenAddress(round.round_addr) }}
+
+                    <span
+                        @click="copyToClipboard(round.round_addr)"
+                        class="cursor-pointer"
+                    >
+                        <i class="fa fa-clone" aria-hidden="true"></i>
+                    </span>
+                </span>
             </h2>
         </template>
 
@@ -49,24 +60,19 @@ const getProp = (metadata, prop) => {
                             </td>
                             <td>
                                 <a
-                                    href="{{ getProp(project.metadata, 'website') }}"
+                                    href="{{ project.website }}"
                                     _target="_blank"
                                 >
                                     {{
-                                        getProp(
-                                            project.metadata,
-                                            "website"
-                                        ).replace("https://", "")
+                                        project.website.replace("https://", "")
                                     }}
                                 </a>
                             </td>
                             <td>
-                                {{
-                                    getProp(project.metadata, "projectTwitter")
-                                }}
+                                {{ project.projectTwitter }}
                             </td>
                             <td>
-                                {{ getProp(project.metadata, "projectGithub") }}
+                                {{ project.userGithub }}
                             </td>
                             <td>
                                 <Link

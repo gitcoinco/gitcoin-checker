@@ -70,21 +70,20 @@ class IngestData extends Command
             foreach ($directories as $directory) {
                 $chainId = $directory['name'];  // Assuming 'name' contains the chain ID
 
-                // $this->info("Processing data for chain ID: {$chainId}...");
+                $this->info("Processing data for chain ID: {$chainId}...");
                 $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
-
-                $this->info("Processing project data for chain ID: {$chainId}...");
-                $this->updateProjects($chain);
 
                 $this->info("Processing rounds data for chain ID: {$chainId}...");
                 $this->updateRounds($chain);
 
-                $this->info("Processing application data for chain ID: {$chainId}...");
+
                 $rounds = Round::where('chain_id', $chain->id)->get();
                 foreach ($rounds as $round) {
-                    if (Str::lower($round->round_addr) == '0x8de918f0163b2021839a8d84954dd7e8e151326d') {
-                        $this->updateApplications($round);
-                    }
+                    $this->info("Processing application data for chain ID: {$chainId}...");
+                    $this->updateApplications($round);
+
+                    $this->info("Processing project data for chain ID: {$chainId}...");
+                    $this->updateProjects($round);
                 }
             }
         } else {
@@ -128,7 +127,7 @@ class IngestData extends Command
                 $this->info($roundData['applicationsStartTime']);
 
                 $round = Round::updateOrCreate(
-                    ['round_addr' => Str::lower($roundData['id']), 'chain_id' => $chain->id],
+                    ['round_addr' => $roundData['id'], 'chain_id' => $chain->id],
                     [
                         'amount_usd' => $roundData['amountUSD'],
                         'votes' => $roundData['votes'],
@@ -156,32 +155,43 @@ class IngestData extends Command
         }
     }
 
-    private function updateProjects($chain)
+    private function updateProjects($round)
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $projectData = Cache::remember($this->cacheName . "-project_data{$chain->id}", now()->addDay(), function () use ($indexerUrl, $chain) {
-            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/projects.json");
+        $chain = $round->chain;
+
+        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addDay(), function () use ($indexerUrl, $chain, $round) {
+            $url = "{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
+            $response = Http::get($url);
             return json_decode($response->body(), true);
         });
 
-        if ($projectData && count($projectData) > 0) {
-            foreach ($projectData as $key => $data) {
-                $project = Project::updateOrCreate(
-                    ['id_addr' => Str::lower($data['id'])],
-                    [
-                        'project_number' => $data['projectNumber'],
-                        'meta_ptr' => $data['metaPtr'],
-                        'metadata' => json_encode($data['metadata']),
-                        'owners' => json_encode($data['owners']),
-                        'created_at_block' => $data['createdAtBlock'],
-                    ]
-                );
-                if (isset($data['metadata']['title'])) {
-                    $this->info("Processing project: {$data['metadata']['title']}");
+        if ($applicationData && count($applicationData) > 0) {
 
-                    $project->title = $data['metadata']['title'];
-                    $project->save();
+            foreach ($applicationData as $key => $data) {
+                if (isset($data['metadata']['application']['project'])) {
+
+                    $projectData = $data['metadata']['application']['project'];
+
+
+                    // restrict the length of description to 1000 characters
+                    $description = null;
+                    if (isset($projectData['description']) && strlen($projectData['description']) > 30000) {
+                        $projectData['description'] = substr($projectData['description'], 0, 30000);
+                    }
+
+                    $project = Project::updateOrCreate(
+                        ['id_addr' => $data['projectId']],
+                        [
+                            'title' => isset($projectData['title']) ? $projectData['title'] : null,
+                            'description' => $description,
+                            'website' => isset($projectData['website']) ? $projectData['website'] : null,
+                            'userGithub' => isset($projectData['userGithub']) ? $projectData['userGithub'] : null,
+                            'projectTwitter' => isset($projectData['projectTwitter']) ? $projectData['projectTwitter'] : null,
+                            'metadata' => json_encode($projectData),
+                        ]
+                    );
                 }
             }
         }
@@ -191,8 +201,10 @@ class IngestData extends Command
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$round->chain->chain_id}_{$round->id}", now()->addDay(), function () use ($indexerUrl, $round) {
-            $response = Http::get("{$indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/applications.json");
+        $chain = $round->chain;
+
+        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addDay(), function () use ($indexerUrl, $round, $chain) {
+            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
             return json_decode($response->body(), true);
         });
 
@@ -204,10 +216,10 @@ class IngestData extends Command
                 $this->info("Processing application: {$data['projectId']}");
 
                 RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => Str::lower($data['projectId'])],
+                    ['round_id' => $round->id, 'project_addr' => $data['projectId']],
                     [
                         'round_id' => $round->id,
-                        'project_addr' => Str::lower($data['projectId']),
+                        'project_addr' => $data['projectId'],
                         'status' => $data['status'],
                         'metadata' => json_encode($data['metadata']),
                     ]

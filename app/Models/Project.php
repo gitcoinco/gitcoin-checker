@@ -12,11 +12,12 @@ class Project extends Model
     protected $fillable = [
         'id_addr',
         'title',
-        'project_number',
-        'meta_ptr',
+        'description',
+        'website',
+        'userGithub',
+        'projectTwitter',
         'metadata',
-        'owners',
-        'created_at_block',
+        'flagged_at',
     ];
 
     protected $casts = [

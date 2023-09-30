@@ -68,6 +68,9 @@ if (urlParams.has("search")) {
                                 />
                             </th>
                             <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,6 +79,9 @@ if (urlParams.has("search")) {
                             :key="index"
                         >
                             <td>{{ project.title }}</td>
+                            <td>{{ project.website }}</td>
+                            <td>{{ project.projectTwitter }}</td>
+                            <td>{{ project.userGithub }}</td>
                             <td>
                                 <Link
                                     :href="route('project.show', project.id)"

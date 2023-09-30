@@ -20,6 +20,7 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "font-awesome": "^4.7.0",
         "web3": "^4.1.2"
     }
 }

@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('id_addr', 66)->unique();
             $table->string('title')->nullable();
-            $table->unsignedBigInteger('project_number');
-            $table->string('meta_ptr');
-            $table->json('metadata');
-            $table->json('owners');
-            $table->unsignedBigInteger('created_at_block');
+            $table->text('description')->nullable();
+            $table->string('website')->nullable();
+            $table->string('userGithub')->nullable();
+            $table->string('projectTwitter')->nullable();
+            $table->unsignedBigInteger('project_number')->nullable();
+            $table->json('metadata')->nullable();
             $table->dateTime('flagged_at')->nullable();
             $table->timestamps();
         });
