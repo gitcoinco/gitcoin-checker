@@ -30,6 +30,13 @@ class Round extends Model
         'updated_at_block',
         'metadata',
         'name',
+        'prompt_data',
+    ];
+
+    // metadata should be returned as json
+    protected $casts = [
+        'metadata' => 'array',
+        'prompt_data' => 'array',
     ];
 
     public function chain()
@@ -55,6 +62,11 @@ class Round extends Model
     public function questions()
     {
         return $this->hasMany(RoundQuestion::class);
+    }
+
+    public function prompt()
+    {
+        return $this->hasOne(RoundPrompt::class);
     }
 
     // a Round connects to a Project via RoundApplications with Project.id_addr = RoundApplication.eth_addr

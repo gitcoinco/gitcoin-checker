@@ -5,6 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import { formatDate } from "@/utils.js";
 
 const project = ref(usePage().props.project.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
@@ -19,12 +20,40 @@ const applications = ref(usePage().props.applications.valueOf());
         </template>
 
         <div>
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
+                <h2 class="text-xl">Project Details</h2>
+                <div>
+                    <div>
+                        {{ project.title }}
+                    </div>
+                    <div v-if="project.website">
+                        Website: {{ project.website }}
+                    </div>
+                    <div v-if="project.metadata.projectTwitter">
+                        Twitter: {{ project.metadata.projectTwitter }}
+                    </div>
+                    <div v-if="project.metadata.userGithub">
+                        Github: {{ project.metadata.userGithub }}
+                    </div>
+                    <div v-if="project.metadata.description" class="text-xs">
+                        {{ project.metadata.description }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
                 <table v-if="applications && applications.data.length > 0">
                     <thead>
                         <tr>
-                            <th>Round</th>
-                            <th></th>
+                            <th>Start</th>
+                            <th>
+                                Round<span v-if="applications.data.length > 1"
+                                    >s</span
+                                >
+                            </th>
+                            <th>Eligibility</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,7 +61,13 @@ const applications = ref(usePage().props.applications.valueOf());
                             v-for="(application, index) in applications.data"
                             :key="index"
                         >
-                            <td>{{ application.round.name }}</td>
+                            <td>
+                                {{
+                                    formatDate(
+                                        application.round.round_start_time
+                                    )
+                                }}
+                            </td>
                             <td>
                                 <Link
                                     :href="
@@ -43,8 +78,31 @@ const applications = ref(usePage().props.applications.valueOf());
                                     "
                                     class="text-blue-500 hover:underline"
                                 >
-                                    View
+                                    {{ application.round.name }}
                                 </Link>
+                            </td>
+                            <td>
+                                <div class="mb-2">
+                                    <strong>Description:</strong><br />
+
+                                    <div class="text-xs">
+                                        {{
+                                            application.round.metadata
+                                                .eligibility.description
+                                        }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <strong>Requirements:</strong><br />
+                                    <div
+                                        v-for="requirement in application.round
+                                            .metadata.eligibility.requirements"
+                                        :key="requirement"
+                                        class="text-xs"
+                                    >
+                                        {{ requirement.requirement }}
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

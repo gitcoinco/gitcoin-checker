@@ -6,9 +6,18 @@ use App\Models\Round;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class RoundController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+
     public function index($search = null)
     {
         $rounds = Round::orderBy('flagged_at', 'desc')->orderBy('round_start_time', 'desc')->with('chain')->paginate();
@@ -39,6 +48,8 @@ class RoundController extends Controller
             'projects' => $projects,
         ]);
     }
+
+
 
     public function flag($id)
     {

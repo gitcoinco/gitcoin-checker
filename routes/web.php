@@ -4,6 +4,7 @@ use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RoundPromptController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
@@ -57,6 +58,8 @@ Route::middleware([
     Route::prefix('round')->group(function () {
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
+        Route::get('/prompt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
+        Route::post('/prompt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
     });

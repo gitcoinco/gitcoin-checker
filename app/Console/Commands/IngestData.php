@@ -189,7 +189,7 @@ class IngestData extends Command
                             'website' => isset($projectData['website']) ? $projectData['website'] : null,
                             'userGithub' => isset($projectData['userGithub']) ? $projectData['userGithub'] : null,
                             'projectTwitter' => isset($projectData['projectTwitter']) ? $projectData['projectTwitter'] : null,
-                            'metadata' => json_encode($projectData),
+                            'metadata' => $projectData,
                         ]
                     );
                 }

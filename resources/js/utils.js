@@ -24,3 +24,32 @@ export function copyToClipboard(text) {
     document.execCommand("copy");
     document.body.removeChild(textarea);
 }
+
+export function formatDate(input) {
+    // Create a new Date object from the input string
+    const date = new Date(input);
+
+    // Array of month names
+    const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ];
+
+    // Extract day, month, and year from the Date object
+    const day = date.getDate();
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    // Return the formatted date
+    return `${day} ${month} ${year}`;
+}

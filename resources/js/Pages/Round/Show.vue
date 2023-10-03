@@ -40,6 +40,8 @@ const getProp = (metadata, prop) => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                <h2 class="text-xl">Projects</h2>
+
                 <table v-if="projects && projects.data.length > 0">
                     <thead>
                         <tr>
