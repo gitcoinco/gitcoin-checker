@@ -22,4 +22,14 @@ class RoundApplication extends Model
     {
         return $this->belongsTo(Round::class);
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_addr', 'id_addr');
+    }
+
+    public function results()
+    {
+        return $this->hasMany(RoundApplicationPromptResult::class, 'application_id', 'id');
+    }
 }

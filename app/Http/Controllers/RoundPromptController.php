@@ -21,11 +21,26 @@ class RoundPromptController extends Controller
 
     public function show(Round $round)
     {
-        $prompt = $round->prompt;
+        $prompt = RoundPromptController::ensurePromptExists($round);
+
         return Inertia::render('Round/Prompt', [
             'round' => $round,
             'prompt' => $prompt,
         ]);
+    }
+
+    public static function ensurePromptExists(Round $round)
+    {
+        $prompt = $round->prompt;
+        if (!$prompt) {
+            $prompt = $round->prompt()->create([
+                'system_prompt' => 'Act as a Gitcoin project evaluator.',
+                'prompt' => 'Evaluate the project below based on the following scoring criteria, and give each of the scores a value of 0-100. 100 is the best score, and 0 is the worst score. You can also add comments to each score to explain your reasoning.' . PHP_EOL . PHP_EOL . '1. Be an open-source project with meaningful Github activity in the prior 3 months that has demonstrated work completed towards the project’s mission.' . PHP_EOL . '2. Primarily focused on developing on top of or advancing the broader Ethereum and/or Web3 industry.
+                ',
+            ]);
+        }
+
+        return $prompt;
     }
 
 
@@ -43,12 +58,16 @@ class RoundPromptController extends Controller
             return redirect()->back()->withInput();
         }
 
+        $prompt = $round->prompt;
+
         // if the passed values are different to the current values
-        if ($round->prompt->system_prompt !== $request->system_prompt || $round->prompt->prompt !== $request->prompt) {
+        if ($prompt->system_prompt !== $request->system_prompt || $prompt->prompt !== $request->prompt) {
 
             // delete the current prompt if it exists and create a new prompt
             $round->prompt()->delete();
+
             $round->prompt()->create($request->all());
+
 
             $this->notificationService->success('New round criteria specified.');
         } else {

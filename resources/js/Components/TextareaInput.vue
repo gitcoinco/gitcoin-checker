@@ -5,7 +5,7 @@ defineProps({
     modelValue: String,
 });
 
-defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const textarea = ref(null);
 
@@ -18,7 +18,7 @@ onMounted(() => {
 
 function onInput(event) {
     autoResize();
-    $emit("update:modelValue", event.target.value);
+    emit("update:modelValue", event.target.value);
 }
 
 function autoResize() {
@@ -36,6 +36,5 @@ defineExpose({ focus: () => textarea.value.focus(), onInput });
         :value="modelValue"
         @input="onInput"
         style="width: 100%"
-    >
-    </textarea>
+    ></textarea>
 </template>

@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoundPromptController;
+use App\Http\Controllers\RoundApplicationController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
@@ -62,6 +63,10 @@ Route::middleware([
         Route::post('/prompt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
+        Route::prefix('application')->group(function () {
+            Route::get('/evaluate/{application}', [RoundApplicationController::class, 'evaluate'])->name('round.application.evaluate');
+            Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
+        });
     });
 
     Route::prefix('project')->group(function () {

@@ -30,8 +30,8 @@ const savePrompts = async () => {
         }),
         {
             onSuccess: (response) => {
-                form.system_prompt.value = response.props.system_prompt;
-                form.prompt.value = response.props.prompt;
+                // form.system_prompt.value = response.props.system_prompt;
+                // form.prompt.value = response.props.prompt;
             },
             onError: (error) => {},
         }

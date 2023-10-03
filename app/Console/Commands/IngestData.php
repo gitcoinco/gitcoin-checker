@@ -10,13 +10,11 @@ use App\Models\Chain;
 use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
-use App\Models\RoundApplicationMetadata;
-use App\Models\RoundMetadata;
 use App\Services\DirectoryParser;
-use Directory;
+use Exception;
+use \PsychoB\Ethereum\AddressValidator;
 use Illuminate\Support\Str;
-
-// ... other models ...
+use kornrunner\Keccak;
 
 class IngestData extends Command
 {
@@ -127,7 +125,7 @@ class IngestData extends Command
                 $this->info($roundData['applicationsStartTime']);
 
                 $round = Round::updateOrCreate(
-                    ['round_addr' => $roundData['id'], 'chain_id' => $chain->id],
+                    ['round_addr' => $this->getAddress($roundData['id']), 'chain_id' => $chain->id],
                     [
                         'amount_usd' => $roundData['amountUSD'],
                         'votes' => $roundData['votes'],
@@ -141,7 +139,7 @@ class IngestData extends Command
                         'round_end_time' => $this->dateTimeConverter($roundData['roundEndTime']),
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
-                        'metadata' => json_encode($roundData['metadata']),
+                        'metadata' => $roundData['metadata'],
                     ]
                 );
 
@@ -182,7 +180,7 @@ class IngestData extends Command
                     }
 
                     $project = Project::updateOrCreate(
-                        ['id_addr' => $data['projectId']],
+                        ['id_addr' => $this->getAddress($data['projectId'])],
                         [
                             'title' => isset($projectData['title']) ? $projectData['title'] : null,
                             'description' => $description,
@@ -216,7 +214,7 @@ class IngestData extends Command
                 $this->info("Processing application: {$data['projectId']}");
 
                 RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => $data['projectId']],
+                    ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])],
                     [
                         'round_id' => $round->id,
                         'project_addr' => $data['projectId'],
@@ -226,5 +224,42 @@ class IngestData extends Command
                 );
             }
         }
+    }
+
+
+    function getAddress($address)
+    {
+        if (Str::length($address) !== 42) {
+            return $address;
+        }
+
+        // Remove any leading '0x'
+        if (strpos($address, '0x') === 0) {
+            $address = substr($address, 2);
+        }
+
+        // Ensure the address is 40 characters long (20 bytes)
+        if (strlen($address) !== 40) {
+            throw new Exception("Invalid address length");
+        }
+
+        // Convert the address to lowercase
+        $address = strtolower($address);
+
+        // Calculate the keccak256 hash of the address
+        $hash = Keccak::hash($address, 256);
+
+        // Initialize an empty checksum address
+        $checksumAddress = '0x';
+
+        // Iterate over each character in the original address
+        for ($i = 0; $i < 40; $i++) {
+            // If the ith bit of the hash is 1, uppercase the ith character, otherwise leave it as is
+            $checksumAddress .= (hexdec($hash[$i]) >= 8)
+                ? strtoupper($address[$i])
+                : $address[$i];
+        }
+
+        return $checksumAddress;
     }
 }

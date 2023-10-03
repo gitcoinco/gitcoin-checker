@@ -10,14 +10,47 @@ import { copyToClipboard, shortenAddress } from "@/utils.js";
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
 
-// function to get website from metadata
-const getProp = (metadata, prop) => {
-    if (metadata[prop]) {
-        return metadata[prop];
+function scoreTotal(results) {
+    if (results && results.length > 0) {
+        let resultsData = results[0].results_data;
+
+        let total = 0;
+
+        // parse resultsData into a json object
+        resultsData = JSON.parse(resultsData);
+
+        // iterate over each result
+        let counter = 0;
+        for (let result of resultsData) {
+            // add the score to the total
+            total += result.score;
+            counter++;
+        }
+
+        total = total / counter;
+        return total + "%";
+    } else {
+        return "n/a";
     }
 
-    return "";
-};
+    // // Split the results_data by newline to get individual score objects
+    // let scoreObjects = resultsData.split("\n\n");
+
+    // // Initialize total score to 0
+    // let totalScore = 0;
+
+    // // Iterate over each score object
+    // for (let scoreObj of scoreObjects) {
+    //     // Parse the score object to get the score value
+    //     let parsedObj = JSON.parse(scoreObj);
+    //     totalScore += parsedObj.score;
+    // }
+
+    // // Return the aggregated score object
+    // return {
+    //     aggregated_score: totalScore,
+    // };
+}
 </script>
 
 <template>
@@ -49,6 +82,7 @@ const getProp = (metadata, prop) => {
                             <th>Website</th>
                             <th>Twitter</th>
                             <th>Github</th>
+                            <th>Score</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -58,7 +92,12 @@ const getProp = (metadata, prop) => {
                             :key="index"
                         >
                             <td>
-                                {{ project.title }}
+                                <Link :href="route('project.show', project.id)">
+                                    {{ project.title }}
+                                    >
+
+                                    {{ project.title }}
+                                </Link>
                             </td>
                             <td>
                                 <a
@@ -77,6 +116,11 @@ const getProp = (metadata, prop) => {
                                 {{ project.userGithub }}
                             </td>
                             <td>
+                                {{
+                                    scoreTotal(project.applications[0].results)
+                                }}
+                            </td>
+                            <td>
                                 <Link
                                     :href="route('project.show', project.id)"
                                     class="text-blue-500 hover:underline"
@@ -87,6 +131,8 @@ const getProp = (metadata, prop) => {
                         </tr>
                     </tbody>
                 </table>
+
+                <Pagination :links="projects.links" />
             </div>
         </div>
     </AppLayout>

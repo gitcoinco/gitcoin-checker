@@ -40,8 +40,11 @@ class RoundController extends Controller
 
     public function show(Round $round)
     {
-        $projects = $round->projects()->paginate();
-
+        $projects = $round->projects()->with(['applications' => function ($query) use ($round) {
+            $query->where('round_id', $round->id);
+        }, 'applications.results' => function ($query) {
+            $query->orderBy('id', 'desc')->limit(1);
+        }])->paginate();
 
         return Inertia::render('Round/Show', [
             'round' => $round,

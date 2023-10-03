@@ -54,6 +54,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                 >
                             </th>
                             <th>Eligibility</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,7 +83,12 @@ const applications = ref(usePage().props.applications.valueOf());
                                 </Link>
                             </td>
                             <td>
-                                <div class="mb-2">
+                                <div
+                                    class="mb-2"
+                                    v-if="
+                                        application.round.metadata.eligibility
+                                    "
+                                >
                                     <strong>Description:</strong><br />
 
                                     <div class="text-xs">
@@ -92,7 +98,11 @@ const applications = ref(usePage().props.applications.valueOf());
                                         }}
                                     </div>
                                 </div>
-                                <div>
+                                <div
+                                    v-if="
+                                        application.round.metadata.requirements
+                                    "
+                                >
                                     <strong>Requirements:</strong><br />
                                     <div
                                         v-for="requirement in application.round
@@ -103,6 +113,19 @@ const applications = ref(usePage().props.applications.valueOf());
                                         {{ requirement.requirement }}
                                     </div>
                                 </div>
+                            </td>
+                            <td>
+                                <Link
+                                    :href="
+                                        route(
+                                            'round.application.evaluate',
+                                            application.id
+                                        )
+                                    "
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    Evaluate
+                                </Link>
                             </td>
                         </tr>
                     </tbody>

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81c404d54f1e7db96b997158908d7aef",
+    "content-hash": "130ad574c5660dd9d3a9c02556f6674a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1073,6 +1073,56 @@
                 }
             ],
             "time": "2023-08-27T10:19:19+00:00"
+        },
+        {
+            "name": "haozi-team/chatgpt-php",
+            "version": "2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HaoZi-Team/ChatGPT-PHP.git",
+                "reference": "b6ceff8ae51eab93a70dd8c84234f4c079456fed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/HaoZi-Team/ChatGPT-PHP/zipball/b6ceff8ae51eab93a70dd8c84234f4c079456fed",
+                "reference": "b6ceff8ae51eab93a70dd8c84234f4c079456fed",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.2",
+                "php": ">=7.4",
+                "ramsey/uuid": "^4.2"
+            },
+            "require-dev": {
+                "pestphp/pest": "^1.22"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "HaoZiTeam\\ChatGPT\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "耗子",
+                    "email": "i@haozi.net"
+                }
+            ],
+            "description": "Real ChatGPT PHP SDK (Not GPT-3)",
+            "homepage": "https://github.com/HaoZi-Team/ChatGPT-PHP",
+            "keywords": [
+                "ChatGpt",
+                "openai"
+            ],
+            "support": {
+                "issues": "https://github.com/HaoZi-Team/ChatGPT-PHP/issues",
+                "source": "https://github.com/HaoZi-Team/ChatGPT-PHP/tree/2.1.2"
+            },
+            "time": "2023-07-17T13:32:23+00:00"
         },
         {
             "name": "inertiajs/inertia-laravel",
