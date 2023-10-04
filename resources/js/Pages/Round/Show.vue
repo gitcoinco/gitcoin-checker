@@ -7,9 +7,19 @@ import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { copyToClipboard, shortenAddress } from "@/utils.js";
 import axios from "axios";
+import Modal from "@/Components/Modal.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
+
+const openModalId = ref(null);
+function toggleModal(projectId) {
+    if (openModalId.value === projectId) {
+        openModalId.value = null; // Close the modal if it's already open
+    } else {
+        openModalId.value = projectId; // Open the modal for the clicked project
+    }
+}
 
 const form = useForm([]);
 
@@ -18,7 +28,9 @@ const isLoading = ref(false);
 // New state for loading indicator for each project
 const loadingStates = ref({});
 
-async function evaluateApplication(application) {
+async function evaluateApplication(event, application) {
+    event.preventDefault();
+
     // Start loading for this specific project
     loadingStates.value[application.id] = true;
 
@@ -39,12 +51,10 @@ async function evaluateApplication(application) {
             if (projectIndex !== -1) {
                 projects.value.data[projectIndex] = page.project;
             }
-            // Stop loading for this specific project
-            loadingStates.value[application.id] = false;
         })
         .finally(() => {
             // Stop loading for this specific project
-            loadingStates.value[application.id] = false;
+            delete loadingStates.value[application.id];
         });
 }
 
@@ -167,11 +177,71 @@ function scoreTotal(results) {
                                     <i class="fa fa-spinner fa-spin"></i>
                                 </span>
                                 <span v-else>
-                                    {{
-                                        scoreTotal(
-                                            project.applications[0].results
-                                        )
-                                    }}
+                                    <span>
+                                        <a
+                                            href="
+                                        #"
+                                            class="text-blue-500 hover:underline"
+                                            @click="toggleModal(project.id)"
+                                        >
+                                            {{
+                                                scoreTotal(
+                                                    project.applications[0]
+                                                        .results
+                                                )
+                                            }}
+                                        </a>
+                                    </span>
+                                    <Modal
+                                        :show="openModalId === project.id"
+                                        @close="toggleModal(project.id)"
+                                    >
+                                        <div class="modal-content">
+                                            <h2 class="modal-title">
+                                                Score Details for
+                                                {{ project.title }}
+                                            </h2>
+                                            <table class="score-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Score</th>
+                                                        <th>Criteria</th>
+                                                        <th>Reason</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr
+                                                        v-for="(
+                                                            result, index
+                                                        ) in JSON.parse(
+                                                            project
+                                                                .applications[0]
+                                                                .results[0]
+                                                                .results_data
+                                                        )"
+                                                        :key="
+                                                            'modal' +
+                                                            project.id +
+                                                            '-' +
+                                                            index
+                                                        "
+                                                    >
+                                                        <td class="score-value">
+                                                            {{ result.score }}
+                                                        </td>
+                                                        <td>
+                                                            {{
+                                                                result.criteria
+                                                            }}
+                                                        </td>
+                                                        <td>
+                                                            {{ result.reason }}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </Modal>
                                 </span>
                             </td>
                             <td>
@@ -186,6 +256,7 @@ function scoreTotal(results) {
                                 <a
                                     @click="
                                         evaluateApplication(
+                                            $event,
                                             project.applications[0]
                                         )
                                     "
@@ -215,5 +286,37 @@ function scoreTotal(results) {
 a[disabled] {
     pointer-events: none;
     opacity: 0.6;
+}
+
+.modal-content {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.modal-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.score-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.score-table th,
+.score-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+}
+
+.score-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.score-value {
+    font-weight: bold;
 }
 </style>
