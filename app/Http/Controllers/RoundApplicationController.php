@@ -66,15 +66,21 @@ class RoundApplicationController extends Controller
         return redirect()->route('round.application.evaluate', ['application' => $application->id, 'result' => $result]);
     }
 
+
     public function checkAgainstChatGPTList(RoundApplication $application)
     {
         $result = $this->chatGPT($application);
         $result = $application->results()->orderBy('id', 'desc')->first();
-        $projects = Project::orderBy('id', 'desc')->paginate();
-
         $round = $application->round;
+        $project = $round->projects()->where('projects.id', $application->project->id)->with(['applications' => function ($query) use ($round, $application) {
+            $query->where('round_id', $round->id);
+            $query->where('id', $application->id);
+        }, 'applications.results' => function ($query) {
+            $query->orderBy('id', 'desc');
+        }])->first();
 
-        return redirect()->route('round.show', ['round' => $round, 'projects' => $projects]);
+
+        return response()->json(['project' => $project]);
     }
 
 

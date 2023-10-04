@@ -3,28 +3,49 @@ import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
+import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { copyToClipboard, shortenAddress } from "@/utils.js";
+import axios from "axios";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
 
 const form = useForm([]);
 
-function evaluateApplication(application) {
-    form.post(
-        route("round.application.chatgpt.list", {
-            application: application.id,
-        }),
-        {
-            onSuccess: (response) => {
-                round.value = response.props.round;
-                projects.value = response.props.projects;
-            },
-            onError: (error) => {},
-        }
-    );
+const isLoading = ref(false);
+
+// New state for loading indicator for each project
+const loadingStates = ref({});
+
+async function evaluateApplication(application) {
+    // Start loading for this specific project
+    loadingStates.value[application.id] = true;
+
+    axios
+        .post(
+            route("round.application.chatgpt.list", {
+                application: application.id,
+            })
+        )
+        .then((response) => {
+            const page = response.data;
+            // Find the project in the projects array using its ID
+            const projectIndex = projects.value.data.findIndex((p) => {
+                return p.id_addr === page.project.id_addr;
+            });
+
+            // Update the specific project with the new data from the response
+            if (projectIndex !== -1) {
+                projects.value.data[projectIndex] = page.project;
+            }
+            // Stop loading for this specific project
+            loadingStates.value[application.id] = false;
+        })
+        .finally(() => {
+            // Stop loading for this specific project
+            loadingStates.value[application.id] = false;
+        });
 }
 
 function scoreTotal(results) {
@@ -135,9 +156,23 @@ function scoreTotal(results) {
                                 {{ project.userGithub }}
                             </td>
                             <td>
-                                {{
-                                    scoreTotal(project.applications[0].results)
-                                }}
+                                <span
+                                    v-if="
+                                        loadingStates[
+                                            project.applications[0].id
+                                        ]
+                                    "
+                                    class="ml-2"
+                                >
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                </span>
+                                <span v-else>
+                                    {{
+                                        scoreTotal(
+                                            project.applications[0].results
+                                        )
+                                    }}
+                                </span>
                             </td>
                             <td>
                                 <Link
@@ -148,7 +183,7 @@ function scoreTotal(results) {
                                 </Link>
                             </td>
                             <td>
-                                <Link
+                                <a
                                     @click="
                                         evaluateApplication(
                                             project.applications[0]
@@ -156,9 +191,14 @@ function scoreTotal(results) {
                                     "
                                     href="#"
                                     class="text-blue-500 hover:underline"
+                                    :disabled="
+                                        loadingStates[
+                                            project.applications[0].id
+                                        ]
+                                    "
                                 >
                                     Evaluate
-                                </Link>
+                                </a>
                             </td>
                         </tr>
                     </tbody>
@@ -169,3 +209,11 @@ function scoreTotal(results) {
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+/* Add styles for disabled link */
+a[disabled] {
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>
