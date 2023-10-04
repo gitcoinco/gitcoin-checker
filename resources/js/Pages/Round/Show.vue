@@ -10,46 +10,64 @@ import { copyToClipboard, shortenAddress } from "@/utils.js";
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
 
+const form = useForm([]);
+
+function evaluateApplication(application) {
+    form.post(
+        route("round.application.chatgpt.list", {
+            application: application.id,
+        }),
+        {
+            onSuccess: (response) => {
+                round.value = response.props.round;
+                projects.value = response.props.projects;
+            },
+            onError: (error) => {},
+        }
+    );
+}
+
 function scoreTotal(results) {
     if (results && results.length > 0) {
         let resultsData = results[0].results_data;
 
         let total = 0;
 
-        // parse resultsData into a json object
-        resultsData = JSON.parse(resultsData);
+        // Try to parse resultsData into a json object
+        try {
+            resultsData = JSON.parse(resultsData);
+
+            // Check if resultsData is an array and has items
+            if (!Array.isArray(resultsData) || resultsData.length === 0) {
+                return "n/a";
+            }
+        } catch (error) {
+            return resultsData; // Return "n/a" or any other appropriate value in case of a parsing error
+        }
 
         // iterate over each result
         let counter = 0;
         for (let result of resultsData) {
-            // add the score to the total
-            total += result.score;
-            counter++;
+            // Check if result has a score property and it's a number
+            if (result && typeof result.score === "number") {
+                // add the score to the total
+                total += result.score;
+                counter++;
+            }
+        }
+
+        // Check if counter is not zero to avoid division by zero
+        if (counter === 0) {
+            return "n/a";
         }
 
         total = total / counter;
+        // set total to a max of 1 decimal
+        total = total.toFixed(1);
         return total + "%";
     } else {
         return "n/a";
     }
-
-    // // Split the results_data by newline to get individual score objects
-    // let scoreObjects = resultsData.split("\n\n");
-
-    // // Initialize total score to 0
-    // let totalScore = 0;
-
-    // // Iterate over each score object
-    // for (let scoreObj of scoreObjects) {
-    //     // Parse the score object to get the score value
-    //     let parsedObj = JSON.parse(scoreObj);
-    //     totalScore += parsedObj.score;
-    // }
-
-    // // Return the aggregated score object
-    // return {
-    //     aggregated_score: totalScore,
-    // };
 }
 </script>
 
@@ -83,6 +101,7 @@ function scoreTotal(results) {
                             <th>Twitter</th>
                             <th>Github</th>
                             <th>Score</th>
+                            <th></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -126,6 +145,19 @@ function scoreTotal(results) {
                                     class="text-blue-500 hover:underline"
                                 >
                                     View
+                                </Link>
+                            </td>
+                            <td>
+                                <Link
+                                    @click="
+                                        evaluateApplication(
+                                            project.applications[0]
+                                        )
+                                    "
+                                    href="#"
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    Evaluate
                                 </Link>
                             </td>
                         </tr>

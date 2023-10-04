@@ -8,20 +8,22 @@ import { copyToClipboard, shortenAddress } from "@/utils.js";
 const round = ref(usePage().props.round.valueOf());
 const application = ref(usePage().props.application.valueOf());
 const prompt = ref(usePage().props.prompt.valueOf());
-let result = ref(usePage().props.result.valueOf());
+const result = ref(usePage().props.result.valueOf());
 
 const form = useForm({});
 
 let response = "";
 
 const checkAgainstChatGPT = async () => {
+    result.value = null;
+
     form.post(
         route("round.application.chatgpt", {
             application: application.value.id,
         }),
         {
             onSuccess: (response) => {
-                result = response.props.result;
+                result.value = response.props.result;
             },
             onError: (error) => {},
         }

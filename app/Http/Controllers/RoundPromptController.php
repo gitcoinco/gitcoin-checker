@@ -34,7 +34,7 @@ class RoundPromptController extends Controller
         $prompt = $round->prompt;
         if (!$prompt) {
             $prompt = $round->prompt()->create([
-                'system_prompt' => 'Act as a Gitcoin project evaluator.',
+                'system_prompt' => 'Act as a Gitcoin project evaluator that needs to decide whether a specific project needs to be included in a Gitcoin round based on a set of criteria.',
                 'prompt' => 'Evaluate the project below based on the following scoring criteria, and give each of the scores a value of 0-100. 100 is the best score, and 0 is the worst score. You can also add comments to each score to explain your reasoning.' . PHP_EOL . PHP_EOL . '1. Be an open-source project with meaningful Github activity in the prior 3 months that has demonstrated work completed towards the project’s mission.' . PHP_EOL . '2. Primarily focused on developing on top of or advancing the broader Ethereum and/or Web3 industry.
                 ',
             ]);

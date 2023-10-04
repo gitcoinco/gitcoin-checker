@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class RoundApplicationController extends Controller
         ]);
     }
 
-    public function checkAgainstChatGPT(RoundApplication $application)
+    private function chatGPT(RoundApplication $application)
     {
         $result = new RoundApplicationPromptResult();
         $result->application_id = $application->id;
@@ -55,16 +56,28 @@ class RoundApplicationController extends Controller
         $result->results_data = $answer;
         $result->save();
 
-        $result = $application->results()->orderBy('id', 'desc')->first();
-
-
-        return redirect()->route('round.application.evaluate', ['application' => $application->id, 'result' => $result]);
-
-
-        // $results = ApplicationGPTAction::make($result)->send($result->prompt_data);
-
-        // dd($results);
+        return $result;;
     }
+
+    public function checkAgainstChatGPT(RoundApplication $application)
+    {
+        $result = $this->chatGPT($application);
+        $result = $application->results()->orderBy('id', 'desc')->first();
+        return redirect()->route('round.application.evaluate', ['application' => $application->id, 'result' => $result]);
+    }
+
+    public function checkAgainstChatGPTList(RoundApplication $application)
+    {
+        $result = $this->chatGPT($application);
+        $result = $application->results()->orderBy('id', 'desc')->first();
+        $projects = Project::orderBy('id', 'desc')->paginate();
+
+        $round = $application->round;
+
+        return redirect()->route('round.show', ['round' => $round, 'projects' => $projects]);
+    }
+
+
 
     // load the prompt for the application
     public static function getPrompt(RoundApplication $application)
@@ -77,7 +90,7 @@ class RoundApplicationController extends Controller
 
         $data = [
             'system_prompt' => $prompt->system_prompt,
-            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . 'Project twitter: ' . $project->twitter . PHP_EOL . 'Project github: ' . $project->github . PHP_EOL . PHP_EOL . 'Results should be an array of comma separated objects and returned in json format:' . PHP_EOL . PHP_EOL . '[{
+            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . 'Project twitter: ' . $project->projectTwitter . PHP_EOL . 'Project github: ' . $project->userGithub . PHP_EOL . PHP_EOL . 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
                 "score": 15,
                 "reason": "A specific reason for the score",
                 "criteria": "A specific bit of evaluation criteria"

@@ -25,7 +25,7 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        $applications = $project->applications()->with('round')->paginate();
+        $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
 
         return Inertia::render('Project/Show', [
             'project' => $project,
