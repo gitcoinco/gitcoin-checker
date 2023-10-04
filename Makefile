@@ -11,3 +11,6 @@ down:
 in:
 	docker exec -it checker-laravel.test-1 /bin/bash
 
+.PHONY: test
+test:
+	./vendor/bin/phpunit

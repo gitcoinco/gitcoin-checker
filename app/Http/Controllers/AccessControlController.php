@@ -18,17 +18,19 @@ class AccessControlController extends Controller
 
     public function index()
     {
-        $accessControls = AccessControl::orderBy('id', 'desc')->get();
+        $accessControls = AccessControl::orderBy('id', 'desc')->with(['user'])->get();
         return inertia('AccessControl/Index', ['accessControls' => $accessControls]);
     }
 
     public function upsert(Request $request)
     {
-
+        $this->authorize('update', AccessControl::class);
 
         $validator = Validator::make(request()->all(), [
             'eth_addr' => 'required|unique:access_controls',
             'role' => 'required',
+            'name' => 'required',
+            'email' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -37,10 +39,9 @@ class AccessControlController extends Controller
             return redirect()->back()->withInput();
         }
 
-
         AccessControl::updateOrCreate(
             ['eth_addr' => $request->eth_addr],
-            ['role' => $request->role]
+            ['role' => $request->role, 'name' => $request->name, 'email' => $request->email]
         );
 
         $accessControls = AccessControl::all();

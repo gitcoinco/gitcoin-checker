@@ -52,6 +52,8 @@ const deleteAccessControl = async (id) => {
                 <table v-if="accessControls && accessControls.length > 0">
                     <thead>
                         <tr>
+                            <th>Name</th>
+                            <th>Email</th>
                             <th>Ethereum Address</th>
                             <th>Role</th>
                             <th>Actions</th>
@@ -62,6 +64,20 @@ const deleteAccessControl = async (id) => {
                             v-for="(accessControl, index) in accessControls"
                             :key="index"
                         >
+                            <td>
+                                {{
+                                    accessControl.user
+                                        ? accessControl.user.name
+                                        : ""
+                                }}
+                            </td>
+                            <td>
+                                {{
+                                    accessControl.user
+                                        ? accessControl.user.email
+                                        : ""
+                                }}
+                            </td>
                             <td>{{ accessControl.eth_addr }}</td>
                             <td>{{ accessControl.role }}</td>
                             <td>

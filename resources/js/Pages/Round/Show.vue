@@ -70,10 +70,10 @@ function scoreTotal(results) {
 
             // Check if resultsData is an array and has items
             if (!Array.isArray(resultsData) || resultsData.length === 0) {
-                return "n/a";
+                return null;
             }
         } catch (error) {
-            return resultsData; // Return "n/a" or any other appropriate value in case of a parsing error
+            return resultsData;
         }
 
         // iterate over each result
@@ -89,7 +89,7 @@ function scoreTotal(results) {
 
         // Check if counter is not zero to avoid division by zero
         if (counter === 0) {
-            return "n/a";
+            return null;
         }
 
         total = total / counter;
@@ -97,7 +97,7 @@ function scoreTotal(results) {
         total = total.toFixed(1);
         return total + "%";
     } else {
-        return "n/a";
+        return null;
     }
 }
 </script>

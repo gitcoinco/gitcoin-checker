@@ -56,6 +56,8 @@ class RoundController extends Controller
 
     public function flag($id)
     {
+        $this->authorize('update', AccessControl::class);
+
         $round = Round::findOrFail($id);
         if ($round->flagged_at) {
             $round->flagged_at = null;

@@ -13,4 +13,9 @@ class AccessControl extends Model
         'eth_addr',
         'role',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'eth_addr', 'eth_addr');
+    }
 }

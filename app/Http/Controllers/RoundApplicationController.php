@@ -14,6 +14,8 @@ class RoundApplicationController extends Controller
 {
     public function evaluate(RoundApplication $application)
     {
+        $this->authorize('update', AccessControl::class);
+
         $round = $application->round;
 
         $application->load('project');
@@ -61,6 +63,8 @@ class RoundApplicationController extends Controller
 
     public function checkAgainstChatGPT(RoundApplication $application)
     {
+        $this->authorize('update', AccessControl::class);
+
         $result = $this->chatGPT($application);
         $result = $application->results()->orderBy('id', 'desc')->first();
         return redirect()->route('round.application.evaluate', ['application' => $application->id, 'result' => $result]);
@@ -69,6 +73,8 @@ class RoundApplicationController extends Controller
 
     public function checkAgainstChatGPTList(RoundApplication $application)
     {
+        $this->authorize('update', AccessControl::class);
+
         $result = $this->chatGPT($application);
         $result = $application->results()->orderBy('id', 'desc')->first();
         $round = $application->round;

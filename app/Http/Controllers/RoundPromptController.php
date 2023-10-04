@@ -46,6 +46,7 @@ class RoundPromptController extends Controller
 
     public function upsert(Round $round, Request $request)
     {
+        $this->authorize('update', AccessControl::class);
 
         $validator = Validator::make(request()->all(), [
             'system_prompt' => 'required',
