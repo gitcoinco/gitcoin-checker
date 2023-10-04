@@ -4,10 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Import the DB facade to run database queries
+use App\Services\NotificationService;
 
 class CheckAccessControl
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -24,6 +31,12 @@ class CheckAccessControl
         if (!$hasAccessControl) {
             // redirect to no access page
             return redirect()->route('noaccess');
+        }
+
+        // If the user doesn't have an email and name specified, redirect to the profile page
+        if (!$user->email || !$user->name) {
+            $this->notificationService->info('Please update your profile information.');
+            return redirect()->route('profile.show');
         }
 
         return $next($request); // If the user exists, proceed with the request
