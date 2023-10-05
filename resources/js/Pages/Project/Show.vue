@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { formatDate } from "@/utils.js";
+import Tooltip from "@/Components/Tooltip.vue";
 
 const project = ref(usePage().props.project.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
@@ -124,8 +125,19 @@ const applications = ref(usePage().props.applications.valueOf());
                                     "
                                     class="text-blue-500 hover:underline"
                                 >
-                                    Evaluate
+                                    Generated Prompt
                                 </Link>
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="This is the last application date for the round"
+                                    ></i>
+                                    <template #content>
+                                        The criteria that will be passed on to
+                                        ChatGPT for an evaluation.
+                                    </template>
+                                </Tooltip>
                             </td>
                         </tr>
                     </tbody>
