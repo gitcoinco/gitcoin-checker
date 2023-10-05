@@ -64,6 +64,5 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -i ~/.ssh/id_rsa -v ubuntu@checker.gitcoin.co exit
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co 'cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co 'cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm i && npm run build'
