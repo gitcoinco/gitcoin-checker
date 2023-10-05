@@ -48,3 +48,8 @@ http://localhost
 make in                             # SSH into the php container
 make test                           # Run phpunit tests
 ```
+
+### Icons
+
+Use the font-awesome 4 library:
+https://fontawesome.com/v4/icons/

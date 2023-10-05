@@ -20,7 +20,7 @@ class RoundController extends Controller
 
     public function index($search = null)
     {
-        $rounds = Round::orderBy('flagged_at', 'desc')->orderBy('round_start_time', 'desc')->with('chain')->paginate();
+        $rounds = Round::orderBy('flagged_at', 'desc')->orderBy('last_application_at', 'desc')->with('chain')->paginate();
 
         foreach ($rounds as $round) {
             $round->project_count = $round->projects()->count();

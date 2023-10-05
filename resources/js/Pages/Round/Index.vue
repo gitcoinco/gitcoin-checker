@@ -5,6 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import Tooltip from "@/Components/Tooltip.vue";
 
 const rounds = ref(usePage().props.rounds.valueOf());
 
@@ -93,7 +94,20 @@ function showDateInShortFormat(date) {
                                     @keyup="onKeyup"
                                 />
                             </th>
-                            <th>Date</th>
+                            <th>
+                                Date
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="This is the last application date for the round"
+                                    ></i>
+                                    <template #content>
+                                        The date the last application for the
+                                        round as received.
+                                    </template>
+                                </Tooltip>
+                            </th>
                             <th>Amount</th>
                             <th>Chain</th>
                             <th># Projects</th>
@@ -140,7 +154,7 @@ function showDateInShortFormat(date) {
                             <td>
                                 {{
                                     showDateInShortFormat(
-                                        round.round_start_time
+                                        round.last_application_at
                                     )
                                 }}
                             </td>

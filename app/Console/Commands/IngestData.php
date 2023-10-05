@@ -211,7 +211,20 @@ class IngestData extends Command
         if ($applicationData && count($applicationData) > 0) {
 
             foreach ($applicationData as $key => $data) {
+
                 $this->info("Processing application: {$data['projectId']}");
+
+                // TODO:::Unsure if project.createdAt is the correct field to use here
+                $createdAt = null;
+                if (isset($data['metadata']['application']['project']['createdAt'])) {
+                    $createdAt = date('Y-m-d H:i:s', $data['metadata']['application']['project']['createdAt'] / 1000);
+                    // update round last_updated_at if it's newer than the current value
+                    if ($createdAt > $round->last_application_at) {
+                        $round->last_application_at = $createdAt;
+                        $round->save();
+                    }
+                }
+
 
                 RoundApplication::updateOrCreate(
                     ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])],
@@ -220,6 +233,8 @@ class IngestData extends Command
                         'project_addr' => $data['projectId'],
                         'status' => $data['status'],
                         'metadata' => json_encode($data['metadata']),
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
                     ]
                 );
             }

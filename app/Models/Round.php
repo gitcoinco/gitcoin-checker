@@ -81,4 +81,9 @@ class Round extends Model
             'project_addr'  // Local key on RoundApplication table...
         );
     }
+
+    public function applications()
+    {
+        return $this->hasMany(RoundApplication::class);
+    }
 }
