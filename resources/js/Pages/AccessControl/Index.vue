@@ -25,6 +25,10 @@ const addAccessControl = () => {
 };
 
 const deleteAccessControl = async (id) => {
+    if (!confirm("Are you sure you want to delete this access control?")) {
+        return;
+    }
+
     await useForm({ id }).delete(route("access-control.delete", id), {
         onSuccess: (response) => {
             accessControls.value = response.props.accessControls;
