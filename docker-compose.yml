@@ -1,5 +1,5 @@
 services:
-    checker.test:
+    laravel.test:
         container_name: checker.php
         build:
             context: ./docker/8.2
