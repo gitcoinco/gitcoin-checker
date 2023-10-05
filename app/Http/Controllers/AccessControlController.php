@@ -29,8 +29,6 @@ class AccessControlController extends Controller
         $validator = Validator::make(request()->all(), [
             'eth_addr' => 'required|unique:access_controls',
             'role' => 'required',
-            'name' => 'required',
-            'email' => 'required',
         ]);
 
         if ($validator->fails()) {
