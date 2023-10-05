@@ -57,8 +57,8 @@ class AccessControlController extends Controller
 
     public function destroy(AccessControl $accessControl)
     {
-        if ($accessControl->role === 'admin' && AccessControl::where('role', 'admin')->count() === 1) {
-            $this->notificationService->error('Cannot delete the only admin.');
+        if ($accessControl->role === 'admin' && AccessControl::where('role', 'admin')->count() <= 3) {
+            $this->notificationService->error('You need a minimum of 3 administrators.');
             return redirect()->route('access-control.index');
         }
 
