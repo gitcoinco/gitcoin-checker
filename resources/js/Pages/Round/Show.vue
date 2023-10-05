@@ -133,7 +133,7 @@ function scoreTotal(results) {
                             <th>Website</th>
                             <th>Twitter</th>
                             <th>Github</th>
-                            <th>Score</th>
+                            <th class="nowrap">Score</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -167,7 +167,7 @@ function scoreTotal(results) {
                             <td>
                                 {{ project.userGithub }}
                             </td>
-                            <td>
+                            <td class="nowrap">
                                 <span
                                     v-if="
                                         loadingStates[
@@ -182,8 +182,7 @@ function scoreTotal(results) {
                                     <span>
                                         <span>
                                             <a
-                                                href="
-                                        #"
+                                                href="#"
                                                 class="text-blue-500 hover:underline"
                                                 @click="toggleModal(project.id)"
                                             >
@@ -195,7 +194,7 @@ function scoreTotal(results) {
                                                                 .results
                                                         )
                                                     }}
-                                                    <span
+                                                    <Tooltip
                                                         v-if="
                                                             project
                                                                 .applications[0]
@@ -211,20 +210,17 @@ function scoreTotal(results) {
                                                                 latestPrompt.id
                                                         "
                                                     >
-                                                        <Tooltip>
-                                                            <i
-                                                                class="fa fa-exclamation-circle text-red-500"
-                                                                aria-hidden="true"
-                                                            ></i>
-                                                            <template #content>
-                                                                This score was
-                                                                calculated using
-                                                                an older version
-                                                                of the scoring
-                                                                criteria.
-                                                            </template>
-                                                        </Tooltip>
-                                                    </span>
+                                                        <i
+                                                            class="fa fa-exclamation-circle text-red-500"
+                                                            aria-hidden="true"
+                                                        ></i>
+                                                        <template #content>
+                                                            This score was
+                                                            calculated using an
+                                                            older version of the
+                                                            scoring criteria.
+                                                        </template>
+                                                    </Tooltip>
                                                 </span>
                                             </a>
                                         </span>

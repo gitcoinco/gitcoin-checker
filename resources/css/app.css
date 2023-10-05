@@ -36,3 +36,7 @@ tr:hover {
 .pointer {
     cursor: pointer;
 }
+
+.nowrap {
+    white-space: nowrap;
+}
