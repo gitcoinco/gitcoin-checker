@@ -1,7 +1,7 @@
 on: push
 name: CI
 jobs:
-  phpunit:
+  testing:
     runs-on: ubuntu-latest
     container:
       image: kirschbaumdevelopment/laravel-test-runner:8.2
@@ -44,3 +44,21 @@ jobs:
 
       - name: Run Testsuite
         run: ./vendor/bin/phpunit
+
+  deploy:
+    needs: testing # This ensures deployment only happens if testing job passes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH key
+        env:
+          PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan your-server-ip >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          rsync -av --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
+          ssh ubuntu@checker.gitcoin.co 'cp cd /var/www/checker/desploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
