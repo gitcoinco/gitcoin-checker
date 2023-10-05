@@ -34,6 +34,9 @@ Route::get('/', function () {
 
 Route::prefix('public')->group(
     function () {
+        Route::get('/', function () {
+            return redirect()->route('public.projects.index');
+        });
         Route::get('/projects', [ProjectController::class, 'indexPublic'])->name('public.projects.index');
         Route::get('/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
     }
