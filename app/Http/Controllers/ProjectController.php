@@ -32,4 +32,26 @@ class ProjectController extends Controller
             'applications' => $applications
         ]);
     }
+
+    public function indexPublic($search = null)
+    {
+        $projects = Project::orderBy('id', 'desc')->paginate();
+
+        return Inertia::render('Public/Project/Index', [
+            'projects' => $projects,
+            'canLogin' => true,
+
+        ]);
+    }
+
+    public function showPublic(Project $project)
+    {
+        $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
+
+        return Inertia::render('Public/Project/Show', [
+            'project' => $project,
+            'applications' => $applications,
+            'canLogin' => true,
+        ]);
+    }
 }
