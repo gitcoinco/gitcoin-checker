@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\AccessControl;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AccessControlController extends Controller
@@ -18,7 +19,13 @@ class AccessControlController extends Controller
 
     public function index()
     {
-        $accessControls = AccessControl::orderBy('id', 'desc')->with(['user'])->get();
+        $accessControls = AccessControl::orderBy('id', 'desc')->get();
+
+        // TODO::: For some or other weird reason, lazy loading with AccessControl::orderBy('id', 'desc')->with('user')->get(); is only loading the user relationship on the last row.  Do a little hack, as this isn't accessed very often.
+        foreach ($accessControls as $accessControl) {
+            $accessControl->user;
+        }
+
         return inertia('AccessControl/Index', ['accessControls' => $accessControls]);
     }
 
