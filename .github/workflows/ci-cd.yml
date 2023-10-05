@@ -61,4 +61,4 @@ jobs:
       - name: Deploy to server
         run: |
           rsync -av --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh ubuntu@checker.gitcoin.co 'cp cd /var/www/checker/desploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
+          ssh ubuntu@checker.gitcoin.co 'cp /var/www/checker.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
