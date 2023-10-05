@@ -49,19 +49,21 @@ jobs:
     # needs: testing # This ensures deployment only happens if testing job passes
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
+        with:
+          fetch-depth: 1
+
       - name: Install SSH key
         env:
           PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "xxxxxxx"
-          echo "$PRIVATE_KEY"
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
 
       - name: Deploy to server
         run: |
-          ssh -v ubuntu@checker.gitcoin.co
-          rsync -av --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh ubuntu@checker.gitcoin.co 'cp /var/www/checker.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
+          ssh -i ~/.ssh/id_rsa -v ubuntu@checker.gitcoin.co exit
+          rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co 'cp /var/www/checker.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm run build'
