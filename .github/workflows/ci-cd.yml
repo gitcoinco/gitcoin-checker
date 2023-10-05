@@ -21,6 +21,10 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Install composer dependencies
+        run: |
+          composer install --no-scripts
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -30,10 +34,6 @@ jobs:
         run: |
           npm ci
           npm run build
-
-      - name: Install composer dependencies
-        run: |
-          composer install --no-scripts
 
       - name: Prepare Laravel Application
         run: |

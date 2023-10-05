@@ -19,7 +19,7 @@
         "laravel/tinker": "^2.8",
         "simplito/elliptic-php": "^1.0",
         "symfony/dom-crawler": "^6.3",
-        "tightenco/ziggy": "^1.0"
+        "tightenco/ziggy": "^1.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
