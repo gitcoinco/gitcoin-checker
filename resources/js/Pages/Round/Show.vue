@@ -8,9 +8,11 @@ import Pagination from "@/Components/Pagination.vue";
 import { copyToClipboard, shortenAddress } from "@/utils.js";
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
+import Tooltip from "@/Components/Tooltip.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
+const latestPrompt = ref(usePage().props.latestPrompt.valueOf());
 
 const openModalId = ref(null);
 function toggleModal(projectId) {
@@ -178,70 +180,111 @@ function scoreTotal(results) {
                                 </span>
                                 <span v-else>
                                     <span>
-                                        <a
-                                            href="
+                                        <span>
+                                            <a
+                                                href="
                                         #"
-                                            class="text-blue-500 hover:underline"
-                                            @click="toggleModal(project.id)"
-                                        >
-                                            {{
-                                                scoreTotal(
-                                                    project.applications[0]
-                                                        .results
-                                                )
-                                            }}
-                                        </a>
-                                    </span>
-                                    <Modal
-                                        :show="openModalId === project.id"
-                                        @close="toggleModal(project.id)"
-                                    >
-                                        <div class="modal-content">
-                                            <h2 class="modal-title">
-                                                Score Details for
-                                                {{ project.title }}
-                                            </h2>
-                                            <table class="score-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Score</th>
-                                                        <th>Criteria</th>
-                                                        <th>Reason</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr
-                                                        v-for="(
-                                                            result, index
-                                                        ) in JSON.parse(
+                                                class="text-blue-500 hover:underline"
+                                                @click="toggleModal(project.id)"
+                                            >
+                                                <span>
+                                                    {{
+                                                        scoreTotal(
                                                             project
                                                                 .applications[0]
-                                                                .results[0]
-                                                                .results_data
-                                                        )"
-                                                        :key="
-                                                            'modal' +
-                                                            project.id +
-                                                            '-' +
-                                                            index
+                                                                .results
+                                                        )
+                                                    }}
+                                                    <span
+                                                        v-if="
+                                                            project
+                                                                .applications[0]
+                                                                .results &&
+                                                            project
+                                                                .applications[0]
+                                                                .results
+                                                                .length > 0 &&
+                                                            project
+                                                                .applications[0]
+                                                                .results
+                                                                .prompt_id !==
+                                                                latestPrompt.id
                                                         "
                                                     >
-                                                        <td class="score-value">
-                                                            {{ result.score }}
-                                                        </td>
-                                                        <td>
-                                                            {{
-                                                                result.criteria
-                                                            }}
-                                                        </td>
-                                                        <td>
-                                                            {{ result.reason }}
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </Modal>
+                                                        <Tooltip>
+                                                            <i
+                                                                class="fa fa-exclamation-circle text-red-500"
+                                                                aria-hidden="true"
+                                                            ></i>
+                                                            <template #content>
+                                                                This score was
+                                                                calculated using
+                                                                an older version
+                                                                of the scoring
+                                                                criteria.
+                                                            </template>
+                                                        </Tooltip>
+                                                    </span>
+                                                </span>
+                                            </a>
+                                        </span>
+                                        <Modal
+                                            :show="openModalId === project.id"
+                                            @close="toggleModal(project.id)"
+                                        >
+                                            <div class="modal-content">
+                                                <h2 class="modal-title">
+                                                    Score Details for
+                                                    {{ project.title }}
+                                                </h2>
+                                                <table class="score-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Score</th>
+                                                            <th>Criteria</th>
+                                                            <th>Reason</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr
+                                                            v-for="(
+                                                                result, index
+                                                            ) in JSON.parse(
+                                                                project
+                                                                    .applications[0]
+                                                                    .results[0]
+                                                                    .results_data
+                                                            )"
+                                                            :key="
+                                                                'modal' +
+                                                                project.id +
+                                                                '-' +
+                                                                index
+                                                            "
+                                                        >
+                                                            <td
+                                                                class="score-value"
+                                                            >
+                                                                {{
+                                                                    result.score
+                                                                }}
+                                                            </td>
+                                                            <td>
+                                                                {{
+                                                                    result.criteria
+                                                                }}
+                                                            </td>
+                                                            <td>
+                                                                {{
+                                                                    result.reason
+                                                                }}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </Modal>
+                                    </span>
                                 </span>
                             </td>
                             <td>

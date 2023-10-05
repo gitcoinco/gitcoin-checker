@@ -46,9 +46,12 @@ class RoundController extends Controller
             $query->orderBy('id', 'desc');
         }])->paginate();
 
+        $latestPrompt = $round->prompt()->orderBy('id', 'desc')->first();
+
         return Inertia::render('Round/Show', [
             'round' => $round,
             'projects' => $projects,
+            'latestPrompt' => $latestPrompt,
         ]);
     }
 
