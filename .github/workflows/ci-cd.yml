@@ -29,8 +29,8 @@ jobs:
         run: |
           cp .env.ci .env
           php artisan key:generate
-          chmod +x wait-for.sh
-          ./wait-for.sh mysql php artisan migrate
+          chmod +x docker/mysql/wait-for.sh
+          ./docker/mysql/wait-for.sh mysql php artisan migrate
 
       - name: Run Testsuite
         run: ./vendor/bin/phpunit
