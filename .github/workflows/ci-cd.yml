@@ -1,52 +1,52 @@
 on: push
 name: CI
 jobs:
-  # testing:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: kirschbaumdevelopment/laravel-test-runner:8.2
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:8.2
 
-  #   services:
-  #     mysql:
-  #       image: mysql:8.0
-  #       env:
-  #         MYSQL_ROOT_PASSWORD: password
-  #         MYSQL_DATABASE: testing
-  #       ports:
-  #         - 33306:3306
-  #       options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 33306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
 
-  #     - name: Install composer dependencies
-  #       run: |
-  #         composer install --no-scripts
+      - name: Install composer dependencies
+        run: |
+          composer install --no-scripts
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "18"
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
 
-  #     - name: Install npm dependencies and build assets
-  #       run: |
-  #         npm ci
-  #         npm run build
+      - name: Install npm dependencies and build assets
+        run: |
+          npm ci
+          npm run build
 
-  #     - name: Prepare Laravel Application
-  #       run: |
-  #         cp .env.ci .env
-  #         php artisan key:generate
-  #         chmod +x docker/mysql/wait-for.sh
-  #         ./docker/mysql/wait-for.sh mysql php artisan migrate
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.ci .env
+          php artisan key:generate
+          chmod +x docker/mysql/wait-for.sh
+          ./docker/mysql/wait-for.sh mysql php artisan migrate
 
-  #     - name: Run Testsuite
-  #       run: ./vendor/bin/phpunit
+      - name: Run Testsuite
+        run: ./vendor/bin/phpunit
 
   deploy:
-    # needs: testing # This ensures deployment only happens if testing job passes
+    needs: testing # This ensures deployment only happens if testing job passes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
@@ -65,4 +65,4 @@ jobs:
       - name: Deploy to server
         run: |
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && rsync -av --delete --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
