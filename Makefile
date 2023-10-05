@@ -9,7 +9,7 @@ down:
 
 .PHONY: in
 in:
-	docker exec -it checker-laravel.test-1 /bin/bash
+	docker exec -it checker.php /bin/bash
 
 .PHONY: test
 test:

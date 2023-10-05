@@ -1,5 +1,6 @@
 services:
-    laravel.test:
+    checker.test:
+        container_name: checker.php
         build:
             context: ./docker/8.2
             dockerfile: Dockerfile
@@ -22,24 +23,9 @@ services:
         networks:
             - sail
         depends_on:
-            - redis
             - mysql
-    redis:
-        image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'sail-redis:/data'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
     mysql:
+        container_name: checker.mysql
         image: 'mysql/mysql-server:8.0'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
@@ -67,7 +53,5 @@ networks:
     sail:
         driver: bridge
 volumes:
-    sail-redis:
-        driver: local
     sail-mysql:
         driver: local
