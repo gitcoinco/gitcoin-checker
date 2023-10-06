@@ -55,7 +55,7 @@ class IngestData extends Command
 
         $this->info('Fetching directory list...');
 
-        $directories = Cache::remember($this->cacheName . '-directories', now()->addDay(), function () use ($indexerUrl, $directoryParser) {
+        $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($indexerUrl, $directoryParser) {
             $response = Http::get($indexerUrl);
             $json = $directoryParser->parse($response->body());
 
@@ -112,7 +112,7 @@ class IngestData extends Command
     {
         $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
-        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addDay(), function () use ($indexerUrl, $chain) {
+        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
             $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds.json");
             return json_decode($response->body(), true);
         });
@@ -159,7 +159,7 @@ class IngestData extends Command
 
         $chain = $round->chain;
 
-        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addDay(), function () use ($indexerUrl, $chain, $round) {
+        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($indexerUrl, $chain, $round) {
             $url = "{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
             $response = Http::get($url);
             return json_decode($response->body(), true);
@@ -201,7 +201,7 @@ class IngestData extends Command
 
         $chain = $round->chain;
 
-        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addDay(), function () use ($indexerUrl, $round, $chain) {
+        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($indexerUrl, $round, $chain) {
             $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
             return json_decode($response->body(), true);
         });
