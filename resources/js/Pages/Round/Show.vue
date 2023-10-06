@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
@@ -31,6 +32,10 @@ const isLoading = ref(false);
 
 // New state for loading indicator for each project
 const loadingStates = ref({});
+
+const roundPrompt = () => {
+    router.visit(route("round.prompt.show", { round: round.value.id }));
+};
 
 async function evaluateApplication(event, application) {
     event.preventDefault();
@@ -136,6 +141,7 @@ function scoreTotal(results) {
                             <th>Twitter</th>
                             <th>Github</th>
                             <th class="nowrap">Score</th>
+                            <th></th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -294,24 +300,45 @@ function scoreTotal(results) {
                                     View
                                 </Link>
                             </td>
+                            <td></td>
                             <td>
-                                <a
-                                    @click="
-                                        evaluateApplication(
-                                            $event,
-                                            project.applications[0]
-                                        )
-                                    "
-                                    href="#"
-                                    class="text-blue-500 hover:underline"
-                                    :disabled="
-                                        loadingStates[
-                                            project.applications[0].id
-                                        ]
-                                    "
-                                >
-                                    Evaluate
-                                </a>
+                                <template v-if="latestPrompt">
+                                    <a
+                                        @click="
+                                            evaluateApplication(
+                                                $event,
+                                                project.applications[0]
+                                            )
+                                        "
+                                        href="#"
+                                        class="text-blue-500 hover:underline"
+                                        :disabled="
+                                            loadingStates[
+                                                project.applications[0].id
+                                            ]
+                                        "
+                                    >
+                                        Evaluate
+                                    </a>
+                                </template>
+                                <template v-else>
+                                    <Tooltip>
+                                        <i
+                                            class="fa fa-exclamation-circle text-red-500"
+                                            aria-hidden="true"
+                                        ></i>
+                                        <template #content>
+                                            Cannot evaluate if a prompt is not
+                                            set for this round.<br /><br />
+                                            <SecondaryButton
+                                                @click="roundPrompt"
+                                                class="text-blue-500 hover:underline"
+                                            >
+                                                Set Evaluation Criteria
+                                            </SecondaryButton>
+                                        </template>
+                                    </Tooltip>
+                                </template>
                             </td>
                         </tr>
                     </tbody>

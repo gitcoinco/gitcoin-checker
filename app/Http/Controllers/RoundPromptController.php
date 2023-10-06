@@ -21,7 +21,13 @@ class RoundPromptController extends Controller
 
     public function show(Round $round)
     {
+        $prompt = $round->prompt;
+        if (!$prompt) {
+            $this->notificationService->info('We have populated the prompt with some default text.');
+        }
+
         $prompt = RoundPromptController::ensurePromptExists($round);
+
 
         return Inertia::render('Round/Prompt', [
             'round' => $round,
