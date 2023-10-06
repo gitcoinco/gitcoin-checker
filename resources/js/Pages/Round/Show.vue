@@ -6,7 +6,7 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import { copyToClipboard, shortenAddress } from "@/utils.js";
+import { copyToClipboard, shortenAddress, scoreTotal } from "@/utils.js";
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
 import Tooltip from "@/Components/Tooltip.vue";
@@ -66,67 +66,36 @@ async function evaluateApplication(event, application) {
             delete loadingStates.value[application.id];
         });
 }
-
-function scoreTotal(results) {
-    if (results && results.length > 0) {
-        let resultsData = results[0].results_data;
-
-        let total = 0;
-
-        // Try to parse resultsData into a json object
-        try {
-            resultsData = JSON.parse(resultsData);
-
-            // Check if resultsData is an array and has items
-            if (!Array.isArray(resultsData) || resultsData.length === 0) {
-                return null;
-            }
-        } catch (error) {
-            return resultsData;
-        }
-
-        // iterate over each result
-        let counter = 0;
-        for (let result of resultsData) {
-            // Check if result has a score property and it's a number
-            if (result && typeof result.score === "number") {
-                // add the score to the total
-                total += result.score;
-                counter++;
-            }
-        }
-
-        // Check if counter is not zero to avoid division by zero
-        if (counter === 0) {
-            return null;
-        }
-
-        total = total / counter;
-        // set total to a max of 1 decimal
-        total = total.toFixed(1);
-        return total + "%";
-    } else {
-        return null;
-    }
-}
 </script>
 
 <template>
     <AppLayout title="Profile">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ round.name }}
-                <span class="text-sm">
-                    {{ shortenAddress(round.round_addr) }}
-
-                    <span
-                        @click="copyToClipboard(round.round_addr)"
-                        class="cursor-pointer"
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2
+                        class="font-semibold text-xl text-gray-800 leading-tight"
                     >
-                        <i class="fa fa-clone" aria-hidden="true"></i>
-                    </span>
-                </span>
-            </h2>
+                        {{ round.name }}
+                        <span class="text-sm">
+                            {{ shortenAddress(round.round_addr) }}
+
+                            <span
+                                @click="copyToClipboard(round.round_addr)"
+                                class="cursor-pointer"
+                            >
+                                <i class="fa fa-clone" aria-hidden="true"></i>
+                            </span>
+                        </span>
+                    </h2>
+                </div>
+                <Link
+                    :href="route('round.evaluate.all.show', round.id)"
+                    class="text-blue-500 hover:underline"
+                >
+                    Evaluate Entire Round
+                </Link>
+            </div>
         </template>
 
         <div>
@@ -214,7 +183,7 @@ function scoreTotal(results) {
                                                             latestPrompt &&
                                                             project
                                                                 .applications[0]
-                                                                .results
+                                                                .results[0]
                                                                 .prompt_id !==
                                                                 latestPrompt.id
                                                         "

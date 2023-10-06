@@ -15,4 +15,14 @@ class RoundPrompt extends Model
         'system_prompt',
         'prompt',
     ];
+
+    public function round()
+    {
+        return $this->belongsTo(Round::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(RoundApplication::class);
+    }
 }

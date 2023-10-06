@@ -53,3 +53,47 @@ export function formatDate(input) {
     // Return the formatted date
     return `${day} ${month} ${year}`;
 }
+
+// Takes the GPT results and calculates the average score
+export function scoreTotal(results) {
+    if (results && results.length > 0) {
+        let resultsData = results[0].results_data;
+
+        let total = 0;
+
+        // Try to parse resultsData into a json object
+        try {
+            resultsData = JSON.parse(resultsData);
+
+            // Check if resultsData is an array and has items
+            if (!Array.isArray(resultsData) || resultsData.length === 0) {
+                return null;
+            }
+        } catch (error) {
+            return resultsData;
+        }
+
+        // iterate over each result
+        let counter = 0;
+        for (let result of resultsData) {
+            // Check if result has a score property and it's a number
+            if (result && typeof result.score === "number") {
+                // add the score to the total
+                total += result.score;
+                counter++;
+            }
+        }
+
+        // Check if counter is not zero to avoid division by zero
+        if (counter === 0) {
+            return null;
+        }
+
+        total = total / counter;
+        // set total to a max of 1 decimal
+        total = total.toFixed(1);
+        return total + "%";
+    } else {
+        return null;
+    }
+}

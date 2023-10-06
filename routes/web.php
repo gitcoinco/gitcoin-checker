@@ -74,6 +74,7 @@ Route::middleware([
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
         Route::prefix('application')->group(function () {
+            Route::get('/evaluate-all/{round}', [RoundApplicationController::class, 'evaluateAllShow'])->name('round.evaluate.all.show');
             Route::get('/evaluate/{application}', [RoundApplicationController::class, 'evaluate'])->name('round.application.evaluate');
             Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
             Route::post('/evaluate/chatgpt/{application}/list', [RoundApplicationController::class, 'checkAgainstChatGPTList'])->name('round.application.chatgpt.list');

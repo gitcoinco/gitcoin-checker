@@ -1,7 +1,7 @@
 <template>
     <div>
         <div
-            v-for="(notification, index) in $page.props.flash.notifications"
+            v-for="(notification, index) in uniqueNotifications"
             :key="`notification-${index}`"
         >
             <div
@@ -32,7 +32,17 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 
-export default defineComponent({});
+export default defineComponent({
+    computed: {
+        uniqueNotifications() {
+            return Array.from(
+                new Set(
+                    this.$page.props.flash.notifications.map(JSON.stringify)
+                )
+            ).map(JSON.parse);
+        },
+    },
+});
 </script>

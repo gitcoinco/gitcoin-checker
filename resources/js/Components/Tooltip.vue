@@ -36,7 +36,7 @@ export default {
             this.clearHideTimeout(); // Clear any existing timeouts
             this.hideTimeout = setTimeout(() => {
                 this.isVisible = false;
-            }, 10000000);
+            }, 1000);
         },
         clearHideTimeout() {
             if (this.hideTimeout) {

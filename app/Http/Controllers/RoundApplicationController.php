@@ -3,15 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
-
+use App\Services\NotificationService;
 
 class RoundApplicationController extends Controller
 {
+    private $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    public function evaluateAllShow(Round $round)
+
+    {
+        $maxProjects = 50;
+        $this->notificationService->info('While this app is in testing, we are only evaluating ' . $maxProjects . ' projects at a time.');
+
+        $latestPrompt = $round->prompt()->orderBy('id', 'desc')->first();
+        $projectsIdsWithEvaluatedPrompts = RoundApplicationPromptResult::where('prompt_id', $latestPrompt->id)
+            ->distinct('project_id')
+            ->pluck('project_id');
+
+        $projects = $round->projects()->whereNotIn('projects.id', $projectsIdsWithEvaluatedPrompts)->with(['applications' => function ($query) use ($round) {
+            $query->where('round_id', $round->id);
+        }, 'applications.results' => function ($query) {
+            $query->orderBy('id', 'desc');
+        }])->paginate();
+
+
+
+        return Inertia::render('Round/EvaluateAll', [
+            'round' => $round,
+            'projects' => $projects,
+            'latestPrompt' => $latestPrompt,
+        ]);
+    }
+
     public function evaluate(RoundApplication $application)
     {
         $this->authorize('update', AccessControl::class);
@@ -32,6 +66,16 @@ class RoundApplicationController extends Controller
 
     private function chatGPT(RoundApplication $application)
     {
+        $this->authorize('update', AccessControl::class);
+
+        // If the application has already been evaluated against the latest prompt, don't do it again
+        $latestPrompt = $application->round->prompt()->orderBy('id', 'desc')->first();
+        $latestResult = $application->results()->orderBy('id', 'desc')->first();
+        if ($latestResult && $latestResult->prompt_id == $latestPrompt->id) {
+            return $latestResult;
+        }
+
+
         $result = new RoundApplicationPromptResult();
         $result->application_id = $application->id;
         $result->round_id = $application->round_id;
