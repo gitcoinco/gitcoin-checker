@@ -37,6 +37,7 @@ import { defineComponent, computed } from "vue";
 export default defineComponent({
     computed: {
         uniqueNotifications() {
+            if (!this.$page.props.flash.notifications) return [];
             return Array.from(
                 new Set(
                     this.$page.props.flash.notifications.map(JSON.stringify)
