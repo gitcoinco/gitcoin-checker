@@ -65,4 +65,25 @@ jobs:
       - name: Deploy to server
         run: |
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate && php artisan ingest:data && rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate && rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+
+  data-import:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
+        with:
+          fetch-depth: 1
+
+      - name: Install SSH key
+        env:
+          PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
+
+      - name: Check for new data
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co && php artisan ingest:data"
