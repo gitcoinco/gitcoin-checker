@@ -139,10 +139,34 @@ async function evaluateApplication(event, application) {
                                 </a>
                             </td>
                             <td>
-                                {{ project.projectTwitter }}
+                                <a
+                                    :href="
+                                        'https://twitter.com/' +
+                                        project.projectTwitter
+                                    "
+                                    target="_blank"
+                                >
+                                    <i
+                                        class="fa fa-twitter"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ project.projectTwitter }}
+                                </a>
                             </td>
                             <td>
-                                {{ project.userGithub }}
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.userGithub
+                                    "
+                                    target="_blank"
+                                >
+                                    <i
+                                        class="fa fa-github"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ project.userGithub }}
+                                </a>
                             </td>
                             <td class="nowrap">
                                 <span
