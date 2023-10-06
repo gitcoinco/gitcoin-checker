@@ -129,10 +129,7 @@ async function evaluateApplication(event, application) {
                                 </Link>
                             </td>
                             <td>
-                                <a
-                                    href="{{ project.website }}"
-                                    _target="_blank"
-                                >
+                                <a :href="project.website" _target="_blank">
                                     {{
                                         project.website.replace("https://", "")
                                     }}
