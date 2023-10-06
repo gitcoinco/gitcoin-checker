@@ -12,7 +12,9 @@ import Tooltip from "@/Components/Tooltip.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const projects = ref(usePage().props.projects.valueOf());
-const latestPrompt = ref(usePage().props.latestPrompt.valueOf());
+const latestPrompt = ref(
+    usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
+);
 
 const openModalId = ref(null);
 function toggleModal(projectId) {
@@ -203,6 +205,7 @@ function scoreTotal(results) {
                                                                 .applications[0]
                                                                 .results
                                                                 .length > 0 &&
+                                                            latestPrompt &&
                                                             project
                                                                 .applications[0]
                                                                 .results
