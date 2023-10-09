@@ -86,7 +86,19 @@ function showDateInShortFormat(date) {
                 <table v-if="rounds && rounds.data.length > 0">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th>
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="Flagged rounds are rounds that have been flagged by the community as potentially fraudulent. Flagged rounds are not included in the calculation of the total amount of funding available."
+                                    ></i>
+                                    <template #content>
+                                        Pinned rounds will always stay at the
+                                        top.
+                                    </template>
+                                </Tooltip>
+                            </th>
                             <th>
                                 <TextInput
                                     v-model="searchTerm"
@@ -111,7 +123,6 @@ function showDateInShortFormat(date) {
                             <th>Amount</th>
                             <th>Chain</th>
                             <th># Projects</th>
-                            <th></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -160,13 +171,12 @@ function showDateInShortFormat(date) {
                             </td>
                             <td>${{ round.amount_usd }}</td>
                             <td>{{ round.chain.chain_id }}</td>
-                            <td>{{ round.project_count }}</td>
                             <td>
                                 <Link
                                     :href="route('round.show', round.id)"
                                     class="text-blue-400 hover:underline"
                                 >
-                                    Projects
+                                    {{ round.project_count }}
                                 </Link>
                             </td>
                             <td>
