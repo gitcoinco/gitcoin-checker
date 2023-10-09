@@ -175,7 +175,7 @@ async function evaluateApplication(event, application) {
                                                 "https://",
                                                 ""
                                             ),
-                                            12
+                                            20
                                         )
                                     }}
                                 </a>

@@ -1,3 +1,4 @@
+7
 <script setup>
 import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
@@ -5,6 +6,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import { shortenURL } from "@/utils.js";
 
 const projects = ref(usePage().props.projects.valueOf());
 
@@ -67,10 +69,9 @@ if (urlParams.has("search")) {
                                     @keyup="onKeyup"
                                 />
                             </th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
+                            <th>Website</th>
+                            <th>Twitter</th>
+                            <th>Github</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,17 +79,100 @@ if (urlParams.has("search")) {
                             v-for="(project, index) in projects.data"
                             :key="index"
                         >
-                            <td>{{ project.title }}</td>
-                            <td>{{ project.website }}</td>
-                            <td>{{ project.projectTwitter }}</td>
-                            <td>{{ project.userGithub }}</td>
                             <td>
                                 <Link
                                     :href="route('project.show', project.id)"
                                     class="text-blue-400 hover:underline"
                                 >
-                                    View
+                                    {{ project.title }}
                                 </Link>
+                            </td>
+                            <td>
+                                <a
+                                    :href="project.website"
+                                    _target="_blank"
+                                    class="text-blue-400 hover:underline"
+                                >
+                                    {{
+                                        shortenURL(
+                                            project.website.replace(
+                                                "https://",
+                                                ""
+                                            ),
+                                            20
+                                        )
+                                    }}
+                                </a>
+                            </td>
+                            <td class="nowrap">
+                                <span v-if="project.projectTwitter">
+                                    <a
+                                        :href="
+                                            'https://twitter.com/' +
+                                            project.projectTwitter
+                                        "
+                                        target="_blank"
+                                    >
+                                        <i
+                                            class="fa fa-twitter text-blue-400"
+                                            aria-hidden="true"
+                                        ></i>
+                                        {{ project.projectTwitter }}
+                                    </a>
+                                </span>
+                            </td>
+                            <td class="nowrap">
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.projectGithub
+                                    "
+                                    target="_blank"
+                                    v-if="project.projectGithub"
+                                >
+                                    <i
+                                        class="fa fa-github"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ project.projectGithub }}
+
+                                    <Tooltip>
+                                        <i
+                                            class="fa fa-question-circle-o"
+                                            aria-hidden="true"
+                                            title="This is the last application date for the round"
+                                        ></i>
+                                        <template #content>
+                                            Project Github repository.
+                                        </template>
+                                    </Tooltip>
+                                    <br />
+                                </a>
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.userGithub
+                                    "
+                                    target="_blank"
+                                    v-if="project.userGithub"
+                                >
+                                    <i
+                                        class="fa fa-github"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ project.userGithub }}
+
+                                    <Tooltip>
+                                        <i
+                                            class="fa fa-question-circle-o"
+                                            aria-hidden="true"
+                                            title="This is the last application date for the round"
+                                        ></i>
+                                        <template #content>
+                                            User Github repository.
+                                        </template>
+                                    </Tooltip>
+                                </a>
                             </td>
                         </tr>
                     </tbody>
