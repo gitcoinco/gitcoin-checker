@@ -15,6 +15,7 @@ class Project extends Model
         'description',
         'website',
         'userGithub',
+        'projectGithub',
         'projectTwitter',
         'metadata',
         'flagged_at',

@@ -6,7 +6,12 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import { copyToClipboard, shortenAddress, scoreTotal } from "@/utils.js";
+import {
+    copyToClipboard,
+    shortenAddress,
+    scoreTotal,
+    shortenURL,
+} from "@/utils.js";
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
 import Tooltip from "@/Components/Tooltip.vue";
@@ -91,7 +96,7 @@ async function evaluateApplication(event, application) {
                 </div>
                 <Link
                     :href="route('round.evaluate.all.show', round.id)"
-                    class="text-blue-500 hover:underline"
+                    class="text-blue-400 hover:underline"
                 >
                     Evaluate Entire Round
                 </Link>
@@ -100,18 +105,29 @@ async function evaluateApplication(event, application) {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <h2 class="text-xl">Projects</h2>
+                <h2 class="text-xl">Round applications</h2>
 
                 <table v-if="projects && projects.data.length > 0">
                     <thead>
                         <tr>
+                            <th>
+                                Date
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="This is the last application date for the round"
+                                    ></i>
+                                    <template #content>
+                                        Last application date for the project.
+                                    </template>
+                                </Tooltip>
+                            </th>
                             <th>Title</th>
                             <th>Website</th>
-                            <th>Twitter</th>
-                            <th>Github</th>
+                            <th class="nowrap">Twitter</th>
+                            <th class="nowrap">Github</th>
                             <th class="nowrap">Score</th>
-                            <th></th>
-                            <th></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -121,7 +137,26 @@ async function evaluateApplication(event, application) {
                             :key="index"
                         >
                             <td>
-                                <Link :href="route('project.show', project.id)">
+                                {{
+                                    new Date(
+                                        project.applications[0].created_at
+                                    ).toLocaleDateString()
+                                }}<br />
+                                <!-- hours -->
+                                {{
+                                    new Date(
+                                        project.applications[0].created_at
+                                    ).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })
+                                }}
+                            </td>
+                            <td>
+                                <Link
+                                    :href="route('project.show', project.id)"
+                                    class="text-blue-400 hover:underline"
+                                >
                                     {{ project.title }}
                                     >
 
@@ -129,13 +164,23 @@ async function evaluateApplication(event, application) {
                                 </Link>
                             </td>
                             <td>
-                                <a :href="project.website" _target="_blank">
+                                <a
+                                    :href="project.website"
+                                    _target="_blank"
+                                    class="text-blue-400 hover:underline"
+                                >
                                     {{
-                                        project.website.replace("https://", "")
+                                        shortenURL(
+                                            project.website.replace(
+                                                "https://",
+                                                ""
+                                            ),
+                                            12
+                                        )
                                     }}
                                 </a>
                             </td>
-                            <td>
+                            <td class="nowrap">
                                 <a
                                     :href="
                                         'https://twitter.com/' +
@@ -144,25 +189,63 @@ async function evaluateApplication(event, application) {
                                     target="_blank"
                                 >
                                     <i
-                                        class="fa fa-twitter"
+                                        class="fa fa-twitter text-blue-400"
                                         aria-hidden="true"
                                     ></i>
                                     {{ project.projectTwitter }}
                                 </a>
                             </td>
-                            <td>
+                            <td class="nowrap">
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.projectGithub
+                                    "
+                                    target="_blank"
+                                    v-if="project.projectGithub"
+                                >
+                                    <i
+                                        class="fa fa-github"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ project.projectGithub }}
+
+                                    <Tooltip>
+                                        <i
+                                            class="fa fa-question-circle-o"
+                                            aria-hidden="true"
+                                            title="This is the last application date for the round"
+                                        ></i>
+                                        <template #content>
+                                            Project Github repository.
+                                        </template>
+                                    </Tooltip>
+                                    <br />
+                                </a>
                                 <a
                                     :href="
                                         'https://github.com/' +
                                         project.userGithub
                                     "
                                     target="_blank"
+                                    v-if="project.userGithub"
                                 >
                                     <i
                                         class="fa fa-github"
                                         aria-hidden="true"
                                     ></i>
                                     {{ project.userGithub }}
+
+                                    <Tooltip>
+                                        <i
+                                            class="fa fa-question-circle-o"
+                                            aria-hidden="true"
+                                            title="This is the last application date for the round"
+                                        ></i>
+                                        <template #content>
+                                            User Github repository.
+                                        </template>
+                                    </Tooltip>
                                 </a>
                             </td>
                             <td class="nowrap">
@@ -181,7 +264,7 @@ async function evaluateApplication(event, application) {
                                         <span>
                                             <a
                                                 href="#"
-                                                class="text-blue-500 hover:underline"
+                                                class="text-blue-400 hover:underline"
                                                 @click="toggleModal(project.id)"
                                             >
                                                 <span>
@@ -283,15 +366,6 @@ async function evaluateApplication(event, application) {
                                 </span>
                             </td>
                             <td>
-                                <Link
-                                    :href="route('project.show', project.id)"
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    View
-                                </Link>
-                            </td>
-                            <td></td>
-                            <td>
                                 <template v-if="latestPrompt">
                                     <a
                                         @click="
@@ -301,7 +375,7 @@ async function evaluateApplication(event, application) {
                                             )
                                         "
                                         href="#"
-                                        class="text-blue-500 hover:underline"
+                                        class="text-blue-400 hover:underline"
                                         :disabled="
                                             loadingStates[
                                                 project.applications[0].id
@@ -322,7 +396,7 @@ async function evaluateApplication(event, application) {
                                             set for this round.<br /><br />
                                             <SecondaryButton
                                                 @click="roundPrompt"
-                                                class="text-blue-500 hover:underline"
+                                                class="text-blue-400 hover:underline"
                                             >
                                                 Set Evaluation Criteria
                                             </SecondaryButton>

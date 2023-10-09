@@ -146,7 +146,7 @@ class RoundApplicationController extends Controller
 
         $data = [
             'system_prompt' => $prompt->system_prompt,
-            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . 'Project twitter: ' . $project->projectTwitter . PHP_EOL . 'Project github: ' . $project->userGithub . PHP_EOL . PHP_EOL . 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
+            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . 'Project Twitter: ' . $project->projectTwitter . PHP_EOL . 'Project Github: ' . $project->projectGithub . PHP_EOL . 'User Github: ' . $project->userGithub . PHP_EOL . PHP_EOL . 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
                 "score": 15,
                 "reason": "A specific reason for the score",
                 "criteria": "A specific bit of evaluation criteria"

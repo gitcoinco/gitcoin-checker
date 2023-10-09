@@ -7,6 +7,8 @@ import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { formatDate } from "@/utils.js";
 import Tooltip from "@/Components/Tooltip.vue";
+import MarkdownIt from "markdown-it";
+const markdown = new MarkdownIt();
 
 const project = ref(usePage().props.project.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
@@ -22,30 +24,75 @@ const applications = ref(usePage().props.applications.valueOf());
 
         <div>
             <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
-                <h2 class="text-xl">Project Details</h2>
                 <div>
-                    <div>
-                        {{ project.title }}
-                    </div>
                     <div v-if="project.website">
-                        Website: {{ project.website }}
+                        <i class="fa fa-globe mr-2" aria-hidden="true"></i>
+                        <a
+                            :href="project.website"
+                            target="_blank"
+                            class="text-blue-400"
+                        >
+                            {{ project.website }}
+                        </a>
                     </div>
                     <div v-if="project.metadata.projectTwitter">
-                        Twitter: {{ project.metadata.projectTwitter }}
+                        <i
+                            class="fa fa-twitter text-blue-400 mr-2"
+                            aria-hidden="true"
+                        ></i>
+                        <a
+                            :href="
+                                'https://twitter.com/' +
+                                project.metadata.projectTwitter
+                            "
+                            target="_blank"
+                            class="text-blue-400"
+                        >
+                            {{ project.metadata.projectTwitter }}
+                        </a>
+                    </div>
+                    <div v-if="project.metadata.projectGithub">
+                        <i class="fa fa-github mr-2" aria-hidden="true"></i>
+                        <a
+                            :href="
+                                'https://github.com/' +
+                                project.metadata.projectGithub
+                            "
+                            target="_blank"
+                            class="text-blue-400"
+                        >
+                            {{ project.metadata.projectGithub }} (Project)
+                        </a>
                     </div>
                     <div v-if="project.metadata.userGithub">
-                        Github: {{ project.metadata.userGithub }}
+                        <i class="fa fa-github mr-2" aria-hidden="true"></i>
+                        <a
+                            :href="
+                                'https://github.com/' +
+                                project.metadata.userGithub
+                            "
+                            target="_blank"
+                            class="text-blue-400"
+                        >
+                            {{ project.metadata.userGithub }} (User)
+                        </a>
                     </div>
-                    <div v-if="project.metadata.description" class="text-xs">
-                        {{ project.metadata.description }}
-                    </div>
+                    <div
+                        v-if="project.metadata.description"
+                        class="text-xs mt-5"
+                        v-html="markdown.render(project.metadata.description)"
+                    ></div>
                 </div>
             </div>
         </div>
 
         <div>
-            <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
-                <table v-if="applications && applications.data.length > 0">
+            <div
+                class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8"
+                v-if="applications && applications.data.length > 0"
+            >
+                <h2 class="text-xl">Applications</h2>
+                <table>
                     <thead>
                         <tr>
                             <th>Start</th>
@@ -65,9 +112,17 @@ const applications = ref(usePage().props.applications.valueOf());
                         >
                             <td>
                                 {{
-                                    formatDate(
-                                        application.round.round_start_time
-                                    )
+                                    new Date(
+                                        application.created_at
+                                    ).toLocaleDateString()
+                                }}<br />
+                                {{
+                                    new Date(
+                                        application.created_at
+                                    ).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })
                                 }}
                             </td>
                             <td>
@@ -78,7 +133,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                             application.round.id
                                         )
                                     "
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-400 hover:underline"
                                 >
                                     {{ application.round.name }}
                                 </Link>
@@ -123,7 +178,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                             application.id
                                         )
                                     "
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-400 hover:underline"
                                 >
                                     Generated Prompt
                                 </Link>

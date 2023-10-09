@@ -97,3 +97,10 @@ export function scoreTotal(results) {
         return null;
     }
 }
+
+export function shortenURL(url, limit, separator = "...") {
+    if (!url || url.length < limit) {
+        return url;
+    }
+    return url.slice(0, limit) + separator + url.slice(-limit);
+}

@@ -85,7 +85,7 @@ if (urlParams.has("search")) {
                             <td>
                                 <Link
                                     :href="route('project.show', project.id)"
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-400 hover:underline"
                                 >
                                     View
                                 </Link>

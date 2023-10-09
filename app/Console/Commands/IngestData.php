@@ -172,7 +172,6 @@ class IngestData extends Command
 
                     $projectData = $data['metadata']['application']['project'];
 
-
                     // restrict the length of description to 1000 characters
                     $description = null;
                     if (isset($projectData['description']) && strlen($projectData['description']) > 30000) {
@@ -186,6 +185,7 @@ class IngestData extends Command
                             'description' => $description,
                             'website' => isset($projectData['website']) ? $projectData['website'] : null,
                             'userGithub' => isset($projectData['userGithub']) ? $projectData['userGithub'] : null,
+                            'projectGithub' => isset($projectData['projectGithub']) ? $projectData['projectGithub'] : null,
                             'projectTwitter' => isset($projectData['projectTwitter']) ? $projectData['projectTwitter'] : null,
                             'metadata' => $projectData,
                         ]

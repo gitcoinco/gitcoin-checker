@@ -59,7 +59,7 @@ defineProps({
                 <div class="flex flex-col items-center justify-center">
                     <a
                         href="https://github.com/gitcoinco/gitcoin-checker"
-                        class="text-blue-500 hover:underline text-lg"
+                        class="text-blue-400 hover:underline text-lg"
                         >Checker</a
                     >
                 </div>

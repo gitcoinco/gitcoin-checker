@@ -164,7 +164,7 @@ function showDateInShortFormat(date) {
                             <td>
                                 <Link
                                     :href="route('round.show', round.id)"
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-400 hover:underline"
                                 >
                                     Projects
                                 </Link>
@@ -172,7 +172,7 @@ function showDateInShortFormat(date) {
                             <td>
                                 <Link
                                     :href="route('round.prompt.show', round.id)"
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-400 hover:underline"
                                 >
                                     Criteria
                                 </Link>

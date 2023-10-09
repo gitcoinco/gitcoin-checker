@@ -41,11 +41,17 @@ class RoundController extends Controller
 
     public function show(Round $round)
     {
-        $projects = $round->projects()->with(['applications' => function ($query) use ($round) {
-            $query->where('round_id', $round->id);
-        }, 'applications.results' => function ($query) {
-            $query->orderBy('id', 'desc');
-        }])->paginate();
+        $projects = $round->projects()
+            ->with([
+                'applications' => function ($query) use ($round) {
+                    $query->where('round_id', $round->id);
+                },
+                'applications.results' => function ($query) {
+                    $query->orderBy('id', 'desc');
+                }
+            ])
+            ->orderByRaw('(SELECT MAX(round_applications.id) FROM round_applications WHERE round_applications.project_addr = projects.id_addr) DESC')
+            ->paginate();
 
         $latestPrompt = $round->prompt()->orderBy('id', 'desc')->first();
 

@@ -29,7 +29,7 @@ import { Link } from "@inertiajs/vue3";
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
                         <Link
                             :href="route('access-control.index')"
-                            class="text-blue-500 hover:underline"
+                            class="text-blue-400 hover:underline"
                         >
                             Admins</Link
                         >
@@ -43,7 +43,7 @@ import { Link } from "@inertiajs/vue3";
                 <p class="mt-4 text-sm">
                     <Link
                         :href="route('access-control.index')"
-                        class="text-blue-500 hover:underline"
+                        class="text-blue-400 hover:underline"
                     >
                         <span class="flex items-center">
                             Setup access
@@ -72,7 +72,7 @@ import { Link } from "@inertiajs/vue3";
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
                         <Link
                             :href="route('round.index')"
-                            class="text-blue-500 hover:underline"
+                            class="text-blue-400 hover:underline"
                         >
                             Rounds</Link
                         >
@@ -86,7 +86,7 @@ import { Link } from "@inertiajs/vue3";
                 <p class="mt-4 text-sm">
                     <Link
                         :href="route('round.index')"
-                        class="text-blue-500 hover:underline"
+                        class="text-blue-400 hover:underline"
                     >
                         <span class="flex items-center">
                             Rounds
@@ -116,7 +116,7 @@ import { Link } from "@inertiajs/vue3";
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">
                         <Link
                             :href="route('project.index')"
-                            class="text-blue-500 hover:underline"
+                            class="text-blue-400 hover:underline"
                         >
                             Projects
                         </Link>

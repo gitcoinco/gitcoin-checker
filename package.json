@@ -23,6 +23,7 @@
         "@bugsnag/js": "^7.21.0",
         "@bugsnag/plugin-vue": "^7.19.0",
         "font-awesome": "^4.7.0",
+        "markdown-it": "^13.0.2",
         "web3": "^4.1.2"
     }
 }
