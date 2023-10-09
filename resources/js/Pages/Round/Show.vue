@@ -158,9 +158,6 @@ async function evaluateApplication(event, application) {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ project.title }}
-                                    >
-
-                                    {{ project.title }}
                                 </Link>
                             </td>
                             <td>

@@ -5,7 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import { formatDate } from "@/utils.js";
+import { formatDate, shortenAddress, copyToClipboard } from "@/utils.js";
 import Tooltip from "@/Components/Tooltip.vue";
 import MarkdownIt from "markdown-it";
 const markdown = new MarkdownIt();
@@ -19,6 +19,16 @@ const applications = ref(usePage().props.applications.valueOf());
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ project.title }}
+                <span class="text-sm">
+                    {{ shortenAddress(project.id_addr) }}
+
+                    <span
+                        @click="copyToClipboard(project.id_addr)"
+                        class="cursor-pointer"
+                    >
+                        <i class="fa fa-clone" aria-hidden="true"></i>
+                    </span>
+                </span>
             </h2>
         </template>
 
@@ -95,7 +105,22 @@ const applications = ref(usePage().props.applications.valueOf());
                 <table>
                     <thead>
                         <tr>
-                            <th>Start</th>
+                            <th>Status</th>
+                            <th>
+                                Date
+
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="This is the last application date for the round"
+                                    ></i>
+                                    <template #content>
+                                        Date the application was received.
+                                    </template>
+                                </Tooltip>
+                            </th>
+
                             <th>
                                 Round<span v-if="applications.data.length > 1"
                                     >s</span
@@ -110,6 +135,9 @@ const applications = ref(usePage().props.applications.valueOf());
                             v-for="(application, index) in applications.data"
                             :key="index"
                         >
+                            <td>
+                                {{ application.status.toLowerCase() }}
+                            </td>
                             <td>
                                 {{
                                     new Date(
