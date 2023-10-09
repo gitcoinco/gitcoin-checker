@@ -30,14 +30,14 @@ const applications = ref(usePage().props.applications.valueOf());
                         <a
                             :href="project.website"
                             target="_blank"
-                            class="text-blue-400"
+                            class="text-blue-500"
                         >
                             {{ project.website }}
                         </a>
                     </div>
                     <div v-if="project.metadata.projectTwitter">
                         <i
-                            class="fa fa-twitter text-blue-400 mr-2"
+                            class="fa fa-twitter text-blue-500 mr-2"
                             aria-hidden="true"
                         ></i>
                         <a
@@ -46,7 +46,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                 project.metadata.projectTwitter
                             "
                             target="_blank"
-                            class="text-blue-400"
+                            class="text-blue-500"
                         >
                             {{ project.metadata.projectTwitter }}
                         </a>
@@ -59,7 +59,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                 project.metadata.projectGithub
                             "
                             target="_blank"
-                            class="text-blue-400"
+                            class="text-blue-500"
                         >
                             {{ project.metadata.projectGithub }} (Project)
                         </a>
@@ -72,7 +72,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                 project.metadata.userGithub
                             "
                             target="_blank"
-                            class="text-blue-400"
+                            class="text-blue-500"
                         >
                             {{ project.metadata.userGithub }} (User)
                         </a>
@@ -133,7 +133,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                             application.round.id
                                         )
                                     "
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{ application.round.name }}
                                 </Link>
@@ -178,7 +178,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                             application.id
                                         )
                                     "
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     Generated Prompt
                                 </Link>

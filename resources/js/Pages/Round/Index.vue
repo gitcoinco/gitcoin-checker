@@ -122,7 +122,7 @@ function showDateInShortFormat(date) {
                             </th>
                             <th>Amount</th>
                             <th>Chain</th>
-                            <th># Projects</th>
+                            <th class="nowrap"># Projects</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -161,7 +161,14 @@ function showDateInShortFormat(date) {
                                 </svg>
                             </td>
 
-                            <td>{{ round.name }}</td>
+                            <td>
+                                <Link
+                                    :href="route('round.show', round.id)"
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    {{ round.name }}
+                                </Link>
+                            </td>
                             <td>
                                 {{
                                     showDateInShortFormat(
@@ -171,10 +178,10 @@ function showDateInShortFormat(date) {
                             </td>
                             <td>${{ round.amount_usd }}</td>
                             <td>{{ round.chain.chain_id }}</td>
-                            <td>
+                            <td class="nowrap">
                                 <Link
                                     :href="route('round.show', round.id)"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{ round.project_count }}
                                 </Link>
@@ -182,7 +189,7 @@ function showDateInShortFormat(date) {
                             <td>
                                 <Link
                                     :href="route('round.prompt.show', round.id)"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     Criteria
                                 </Link>

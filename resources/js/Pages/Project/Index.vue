@@ -82,7 +82,7 @@ if (urlParams.has("search")) {
                             <td>
                                 <Link
                                     :href="route('project.show', project.id)"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{ project.title }}
                                 </Link>
@@ -91,7 +91,7 @@ if (urlParams.has("search")) {
                                 <a
                                     :href="project.website"
                                     _target="_blank"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{
                                         shortenURL(
@@ -114,7 +114,7 @@ if (urlParams.has("search")) {
                                         target="_blank"
                                     >
                                         <i
-                                            class="fa fa-twitter text-blue-400"
+                                            class="fa fa-twitter text-blue-500"
                                             aria-hidden="true"
                                         ></i>
                                         {{ project.projectTwitter }}

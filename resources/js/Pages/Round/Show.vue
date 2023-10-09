@@ -96,7 +96,7 @@ async function evaluateApplication(event, application) {
                 </div>
                 <Link
                     :href="route('round.evaluate.all.show', round.id)"
-                    class="text-blue-400 hover:underline"
+                    class="text-blue-500 hover:underline"
                 >
                     Evaluate Entire Round
                 </Link>
@@ -155,7 +155,7 @@ async function evaluateApplication(event, application) {
                             <td>
                                 <Link
                                     :href="route('project.show', project.id)"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{ project.title }}
                                     >
@@ -167,7 +167,7 @@ async function evaluateApplication(event, application) {
                                 <a
                                     :href="project.website"
                                     _target="_blank"
-                                    class="text-blue-400 hover:underline"
+                                    class="text-blue-500 hover:underline"
                                 >
                                     {{
                                         shortenURL(
@@ -189,7 +189,7 @@ async function evaluateApplication(event, application) {
                                     target="_blank"
                                 >
                                     <i
-                                        class="fa fa-twitter text-blue-400"
+                                        class="fa fa-twitter text-blue-500"
                                         aria-hidden="true"
                                     ></i>
                                     {{ project.projectTwitter }}
@@ -264,7 +264,7 @@ async function evaluateApplication(event, application) {
                                         <span>
                                             <a
                                                 href="#"
-                                                class="text-blue-400 hover:underline"
+                                                class="text-blue-500 hover:underline"
                                                 @click="toggleModal(project.id)"
                                             >
                                                 <span>
@@ -367,23 +367,51 @@ async function evaluateApplication(event, application) {
                             </td>
                             <td>
                                 <template v-if="latestPrompt">
-                                    <a
-                                        @click="
-                                            evaluateApplication(
-                                                $event,
+                                    <span
+                                        v-if="
+                                            (project.applications[0].results &&
+                                                project.applications[0].results
+                                                    .length === 0) ||
+                                            (project.applications[0].results
+                                                .length > 0 &&
                                                 project.applications[0]
-                                            )
-                                        "
-                                        href="#"
-                                        class="text-blue-400 hover:underline"
-                                        :disabled="
-                                            loadingStates[
-                                                project.applications[0].id
-                                            ]
+                                                    .results[0].prompt_id !==
+                                                    latestPrompt.id)
                                         "
                                     >
-                                        Evaluate
-                                    </a>
+                                        <a
+                                            @click="
+                                                evaluateApplication(
+                                                    $event,
+                                                    project.applications[0]
+                                                )
+                                            "
+                                            href="#"
+                                            class="text-blue-500 hover:underline"
+                                            :disabled="
+                                                loadingStates[
+                                                    project.applications[0].id
+                                                ]
+                                            "
+                                        >
+                                            Evaluate
+                                        </a>
+                                    </span>
+                                    <!--
+                                    {{ project.applications[0].results[0].id }}
+                                    - {{ latestPrompt.id }}
+                                    <span
+                                        v-if="
+                                            project.applications[0].results
+                                                .length === 0 ||
+                                            (project.applications[0].results
+                                                .length > 0 &&
+                                                project.applications[0]
+                                                    .results[0].id !==
+                                                    latestPrompt.id)
+                                        "
+                                    >
+                                    </span> -->
                                 </template>
                                 <template v-else>
                                     <Tooltip>
@@ -396,7 +424,7 @@ async function evaluateApplication(event, application) {
                                             set for this round.<br /><br />
                                             <SecondaryButton
                                                 @click="roundPrompt"
-                                                class="text-blue-400 hover:underline"
+                                                class="text-blue-500 hover:underline"
                                             >
                                                 Set Evaluation Criteria
                                             </SecondaryButton>
