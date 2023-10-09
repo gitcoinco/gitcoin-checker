@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
+use App\Models\RoundPrompt;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
@@ -18,6 +19,28 @@ class RoundApplicationController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
+    }
+
+    public function index()
+    {
+        $applications = RoundApplication::with([
+            'round',
+            'project',
+            'latestPrompt',
+            'results' => function ($query) {
+                $query->orderBy('id', 'desc');
+            }
+        ])->orderBy('id', 'desc')->paginate();
+
+        foreach ($applications as $application) {
+            $application->latestPrompt = RoundPrompt::where('round_id', $application->round_id)->orderBy('id', 'desc')->first();
+        }
+
+
+
+        return Inertia::render('Application/Index', [
+            'applications' => $applications
+        ]);
     }
 
     public function evaluateAllShow(Round $round)
@@ -70,6 +93,7 @@ class RoundApplicationController extends Controller
 
         // If the application has already been evaluated against the latest prompt, don't do it again
         $latestPrompt = $application->round->prompt()->orderBy('id', 'desc')->first();
+
         $latestResult = $application->results()->orderBy('id', 'desc')->first();
         if ($latestResult && $latestResult->prompt_id == $latestPrompt->id) {
             return $latestResult;
@@ -83,7 +107,7 @@ class RoundApplicationController extends Controller
         $project = $application->project;
         $result->project_id = $project->id;
 
-        $result->prompt_id = $application->round->prompt->id;
+        $result->prompt_id = $latestPrompt->id;
         $result->prompt_type = 'chatgpt';
 
         $promptData = RoundApplicationController::getPrompt($application);

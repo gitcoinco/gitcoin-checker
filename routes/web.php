@@ -66,6 +66,11 @@ Route::middleware([
     //     return Inertia::render('Dashboard');
     // })->name('dashboard');
 
+    Route::prefix('application')->group(function () {
+        Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
+    });
+
+
     Route::prefix('round')->group(function () {
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');

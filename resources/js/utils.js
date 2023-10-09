@@ -104,3 +104,18 @@ export function shortenURL(url, limit, separator = "...") {
     }
     return url.slice(0, limit) + separator;
 }
+
+export function applicationStatusIcon(status) {
+    status = status.toLowerCase();
+
+    switch (status) {
+        case "pending":
+            return '<i class="fa fa-clock-o text-yellow-500"></i>';
+        case "approved":
+            return '<i class="fa fa-check-circle-o text-green-500"></i>';
+        case "rejected":
+            return '<i class="fa fa-times-circle-o text-red-500"></i>';
+        default:
+            return '<i class="fa fa-exclamation-circle-o text-gray-500"></i>';
+    }
+}

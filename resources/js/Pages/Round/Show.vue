@@ -440,24 +440,6 @@ async function evaluateApplication(event, application) {
 </template>
 
 <style scoped>
-/* Add styles for disabled link */
-a[disabled] {
-    pointer-events: none;
-    opacity: 0.6;
-}
-
-.modal-content {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-}
-
-.modal-title {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
 .score-table {
     width: 100%;
     border-collapse: collapse;

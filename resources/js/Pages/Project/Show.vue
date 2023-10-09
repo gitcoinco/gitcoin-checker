@@ -5,7 +5,12 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import { formatDate, shortenAddress, copyToClipboard } from "@/utils.js";
+import {
+    formatDate,
+    shortenAddress,
+    copyToClipboard,
+    applicationStatusIcon,
+} from "@/utils.js";
 import Tooltip from "@/Components/Tooltip.vue";
 import MarkdownIt from "markdown-it";
 const markdown = new MarkdownIt();
@@ -136,7 +141,13 @@ const applications = ref(usePage().props.applications.valueOf());
                             :key="index"
                         >
                             <td>
-                                {{ application.status.toLowerCase() }}
+                                <span
+                                    v-html="
+                                        applicationStatusIcon(
+                                            application.status
+                                        )
+                                    "
+                                ></span>
                             </td>
                             <td>
                                 {{

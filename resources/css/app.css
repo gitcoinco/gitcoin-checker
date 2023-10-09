@@ -40,3 +40,28 @@ tr:hover {
 .nowrap {
     white-space: nowrap;
 }
+
+/* Modal */
+.modal-content {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.modal-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Add styles for disabled link */
+a[disabled] {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Hack as Tailwind isn't picking up this yello color for some reason */
+.text-yellow-500 {
+    color: #f59e0b; /* This is the default color value for text-yellow-500 in Tailwind's default palette. */
+}
+

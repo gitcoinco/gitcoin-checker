@@ -32,4 +32,14 @@ class RoundApplication extends Model
     {
         return $this->hasMany(RoundApplicationPromptResult::class, 'application_id', 'id');
     }
+
+    public function prompt()
+    {
+        return $this->belongsTo(RoundPrompt::class, 'prompt_id', 'id');
+    }
+
+    public function latestPrompt()
+    {
+        return $this->hasOne(RoundPrompt::class, 'round_id', 'round_id')->orderBy('id', 'desc');
+    }
 }
