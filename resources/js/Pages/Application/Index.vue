@@ -2,10 +2,12 @@
 import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
+import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
+
 import {
     copyToClipboard,
     shortenAddress,
@@ -18,7 +20,7 @@ import Modal from "@/Components/Modal.vue";
 const applications = ref(usePage().props.applications.valueOf());
 
 const roundPrompt = (round) => {
-    router.visit(route("round.prompt.show", { round: round.value.id }));
+    router.visit(route("round.prompt.show", { round: round.id }));
 };
 
 const openModalId = ref(null);
