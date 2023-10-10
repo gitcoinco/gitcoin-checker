@@ -7,6 +7,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
+import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
 
 import {
     copyToClipboard,
@@ -14,6 +15,7 @@ import {
     scoreTotal,
     shortenURL,
     applicationStatusIcon,
+    showDateInShortFormat,
 } from "@/utils.js";
 import Modal from "@/Components/Modal.vue";
 
@@ -30,14 +32,6 @@ function toggleModal(applicationId) {
     } else {
         openModalId.value = applicationId; // Open the modal for the clicked project
     }
-}
-
-function showDateInShortFormat(date) {
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
 }
 
 // New state for loading indicator for each applications
@@ -217,45 +211,12 @@ async function evaluateApplication(event, application) {
                                                 {{ application.project.title }}
                                             </h2>
 
-                                            <table class="score-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Score</th>
-                                                        <th>Criteria</th>
-                                                        <th>Reason</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr
-                                                        v-for="(
-                                                            result, index
-                                                        ) in JSON.parse(
-                                                            application
-                                                                .results[0]
-                                                                .results_data
-                                                        )"
-                                                        :key="
-                                                            'modal' +
-                                                            application.project
-                                                                .id +
-                                                            '-' +
-                                                            index
-                                                        "
-                                                    >
-                                                        <td class="score-value">
-                                                            {{ result.score }}
-                                                        </td>
-                                                        <td>
-                                                            {{
-                                                                result.criteria
-                                                            }}
-                                                        </td>
-                                                        <td>
-                                                            {{ result.reason }}
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                            <ResultsData
+                                                :result="
+                                                    application.project
+                                                        .results[0]
+                                                "
+                                            />
                                         </div>
                                     </Modal>
                                 </span>

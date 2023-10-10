@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
+import { showDateInShortFormat } from "@/utils.js";
 
 const rounds = ref(usePage().props.rounds.valueOf());
 
@@ -63,14 +64,6 @@ const flagRound = async (round) => {
         console.error("Error flagging round:", error);
     }
 };
-
-function showDateInShortFormat(date) {
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-}
 </script>
 
 <template>

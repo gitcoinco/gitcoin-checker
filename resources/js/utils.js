@@ -119,3 +119,22 @@ export function applicationStatusIcon(status) {
             return '<i class="fa fa-exclamation-circle-o text-gray-500"></i>';
     }
 }
+
+export function showDateInShortFormat(date, includeHours = false) {
+    let ret = new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+
+    if (includeHours) {
+        ret +=
+            " @" +
+            new Date(date).toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+            });
+    }
+
+    return ret;
+}

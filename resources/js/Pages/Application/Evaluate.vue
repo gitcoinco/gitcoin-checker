@@ -3,7 +3,13 @@ import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { usePage, useForm, Link } from "@inertiajs/vue3";
-import { copyToClipboard, shortenAddress } from "@/utils.js";
+import Modal from "@/Components/Modal.vue";
+import {
+    copyToClipboard,
+    shortenAddress,
+    showDateInShortFormat,
+} from "@/utils.js";
+import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const application = ref(usePage().props.application.valueOf());
@@ -13,6 +19,8 @@ const result = ref(usePage().props.result.valueOf());
 const form = useForm({});
 
 let response = "";
+
+const showPromptModal = ref(false);
 
 const checkAgainstChatGPT = async () => {
     result.value = null;
@@ -81,13 +89,39 @@ const checkAgainstChatGPT = async () => {
             </div>
 
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8" v-if="result">
+                <h2 class="text-xl mb-5">
+                    Last evaluated on
+                    {{ showDateInShortFormat(result.created_at, true) }}
+                </h2>
                 <div class="mb-5">
-                    Prompt<br />
-                    {{ result.prompt_data }}
+                    <Modal
+                        :show="showPromptModal"
+                        @close="showPromptModal = false"
+                    >
+                        <div class="modal-content">
+                            <h2 class="modal-title">
+                                <span
+                                    @click="showPromptModal = !showPromptModal"
+                                >
+                                    Close
+                                </span>
+                            </h2>
+                            {{ result.prompt_data }}
+                        </div>
+                    </Modal>
+
+                    <div
+                        @click="showPromptModal = !showPromptModal"
+                        class="pointer text-blue-500"
+                    >
+                        Original Prompt
+                    </div>
                 </div>
                 <div>
                     Result<br />
-                    {{ result.results_data }}
+                    <div>
+                        <ResultsData :result="result" />
+                    </div>
                 </div>
             </div>
         </div>
