@@ -6,6 +6,7 @@ use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoundPromptController;
 use App\Http\Controllers\RoundApplicationController;
+use App\Http\Controllers\ChainController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 use Illuminate\Foundation\Application;
@@ -68,6 +69,11 @@ Route::middleware([
 
     Route::prefix('application')->group(function () {
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
+    });
+
+    Route::prefix('chain')->group(function () {
+        Route::get('/', [ChainController::class, 'index'])->name('chain.index');
+        Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
     });
 
 
