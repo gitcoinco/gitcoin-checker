@@ -168,13 +168,19 @@ class RoundApplicationController extends Controller
 
         $project = $application->project;
 
+        $returnedFormat = 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
+            "score": 15,
+            "reason": "A specific reason for the score",
+            "criteria": "A specific bit of evaluation criteria"
+        }]';
+
+        $projectTwitter = 'Project Twitter: ' . ($project->projectTwitter ? 'https://twitter.com/' . $project->projectTwitter : 'N/A');
+        $projectGithub = 'Project Github: ' . ($project->projectGithub ? 'https://github.com/' . $project->projectGithub : 'N/A');
+        $userGithub = 'User Github: ' . ($project->userGithub ? 'https://github.com/' . $project->userGithub : 'N/A');
+
         $data = [
-            'system_prompt' => $prompt->system_prompt,
-            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . 'Project Twitter: ' . $project->projectTwitter . PHP_EOL . 'Project Github: ' . $project->projectGithub . PHP_EOL . 'User Github: ' . $project->userGithub . PHP_EOL . PHP_EOL . 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
-                "score": 15,
-                "reason": "A specific reason for the score",
-                "criteria": "A specific bit of evaluation criteria"
-            }]',
+            'system_prompt' => $prompt->system_prompt . PHP_EOL . PHP_EOL . $returnedFormat,
+            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . $projectTwitter . PHP_EOL . $projectGithub . PHP_EOL . $userGithub . PHP_EOL,
         ];
 
         return $data;

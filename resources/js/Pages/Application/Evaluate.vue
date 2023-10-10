@@ -55,10 +55,12 @@ const checkAgainstChatGPT = async () => {
                     <h2 class="text-lg">{{ application.project.title }}</h2>
                 </div>
                 <div class="mb-5" style="white-space: pre-line">
-                    system_prompt: {{ prompt.system_prompt }}
+                    <h2 class="text-lg">System Prompt</h2>
+                    <i>{{ prompt.system_prompt }}</i>
                 </div>
                 <div class="mb-5" style="white-space: pre-line">
-                    prompt: {{ prompt.prompt }}
+                    <h2 class="text-lg">Prompt</h2>
+                    <i>{{ prompt.prompt }}</i>
                 </div>
             </div>
 
