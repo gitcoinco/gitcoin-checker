@@ -110,11 +110,11 @@ export function applicationStatusIcon(status) {
 
     switch (status) {
         case "pending":
-            return '<i class="fa fa-clock-o text-yellow-500"></i>';
+            return '<i class="fa fa-clock-o text-yellow-500" title="Pending"></i>';
         case "approved":
-            return '<i class="fa fa-check-circle-o text-green-500"></i>';
+            return '<i class="fa fa-check-circle-o text-green-500" title="Approved"></i>';
         case "rejected":
-            return '<i class="fa fa-times-circle-o text-red-500"></i>';
+            return '<i class="fa fa-times-circle-o text-red-500" title="Rejected"></i>';
         default:
             return '<i class="fa fa-exclamation-circle-o text-gray-500"></i>';
     }
