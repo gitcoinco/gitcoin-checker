@@ -31,7 +31,7 @@ import { Link } from "@inertiajs/vue3";
                             :href="route('access-control.index')"
                             class="text-blue-500 hover:underline"
                         >
-                            Admins</Link
+                            Administration</Link
                         >
                     </h2>
                 </div>
@@ -40,27 +40,42 @@ import { Link } from "@inertiajs/vue3";
                     Who is allowed to access this tool?
                 </p>
 
-                <p class="mt-4 text-sm">
+                <div class="mt-4 text-sm flex space-x-4">
                     <Link
                         :href="route('access-control.index')"
-                        class="text-blue-500 hover:underline"
+                        class="text-blue-500 hover:underline flex items-center"
                     >
-                        <span class="flex items-center">
-                            Setup access
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                class="ml-1 w-5 h-5 fill-indigo-500"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
-                        </span>
+                        Setup access
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            class="ml-1 w-5 h-5 fill-indigo-500"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
                     </Link>
-                </p>
+                    <Link
+                        :href="route('chain.index')"
+                        class="text-blue-500 hover:underline flex items-center"
+                    >
+                        Setup chain names
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            class="ml-1 w-5 h-5 fill-indigo-500"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </Link>
+                </div>
             </div>
 
             <div>

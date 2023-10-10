@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessControl;
 use App\Models\Chain;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,6 +27,9 @@ class ChainController extends Controller
 
     public function updateAll(Request $request)
     {
+        // who can update
+        $this->authorize('update', AccessControl::class);
+
         $chainData = $request->chains;
 
         foreach ($chainData as $chain) {
