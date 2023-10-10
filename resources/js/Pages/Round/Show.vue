@@ -95,17 +95,25 @@ async function evaluateApplication(event, application) {
                     </h2>
                 </div>
                 <Link
-                    :href="route('round.evaluate.all.show', round.id)"
+                    :href="route('round.prompt.show', round.id)"
                     class="text-blue-500 hover:underline"
                 >
-                    Evaluate Entire Round
+                    Criteria
                 </Link>
             </div>
         </template>
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <h2 class="text-xl">Round applications</h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl">Round applications</h2>
+                    <Link
+                        :href="route('round.evaluate.all.show', round.id)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Evaluate Entire Round
+                    </Link>
+                </div>
 
                 <table v-if="projects && projects.data.length > 0">
                     <thead>
