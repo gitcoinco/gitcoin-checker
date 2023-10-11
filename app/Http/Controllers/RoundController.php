@@ -21,17 +21,17 @@ class RoundController extends Controller
 
     public function index($search = null)
     {
-        $rounds = Round::orderBy('flagged_at', 'desc')->orderBy('last_application_at', 'desc')->with('chain')->paginate();
-
-        foreach ($rounds as $round) {
-            $round->project_count = $round->projects()->count();
-        }
-
+        $rounds = Round::orderBy('flagged_at', 'desc')
+            ->orderBy('last_application_at', 'desc')
+            ->with('chain')
+            ->withCount('projects')
+            ->paginate();
 
         return Inertia::render('Round/Index', [
             'rounds' => $rounds
         ]);
     }
+
 
     public function search($search = null)
     {

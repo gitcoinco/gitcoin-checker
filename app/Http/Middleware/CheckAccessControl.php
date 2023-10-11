@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Cache;
 
 class CheckAccessControl
 {
@@ -26,7 +27,9 @@ class CheckAccessControl
     {
         $user = $request->user(); // Get the authenticated user
 
-        $hasAccessControl = $user->accessControl()->exists();
+        $hasAccessControl = Cache::remember('accessControl.' . $user->id, 120, function () use ($user) {
+            return $user->accessControl()->exists();
+        });
 
         if (!$hasAccessControl) {
             // redirect to no access page

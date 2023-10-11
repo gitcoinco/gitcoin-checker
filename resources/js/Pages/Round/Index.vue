@@ -193,7 +193,7 @@ const flagRound = async (round) => {
                                     :href="route('round.show', round.id)"
                                     class="text-blue-500 hover:underline"
                                 >
-                                    {{ round.project_count }}
+                                    {{ round.projects_count }}
                                 </Link>
                             </td>
                             <td>

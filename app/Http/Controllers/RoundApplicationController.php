@@ -26,22 +26,23 @@ class RoundApplicationController extends Controller
         $applications = RoundApplication::with([
             'round',
             'project',
-            'latestPrompt',
+            'latestPrompt' => function ($query) {
+                $query->orderBy('id', 'desc')->limit(1);
+            },
             'results' => function ($query) {
                 $query->orderBy('id', 'desc');
             }
-        ])->orderBy('id', 'desc')->paginate();
+        ])
+            ->orderBy('id', 'desc')
+            ->paginate();
 
-        foreach ($applications as $application) {
-            $application->latestPrompt = RoundPrompt::where('round_id', $application->round_id)->orderBy('id', 'desc')->first();
-        }
-
-
+        // No need for the foreach loop, since we are already eager loading the latest prompt.
 
         return Inertia::render('Application/Index', [
             'applications' => $applications
         ]);
     }
+
 
     public function evaluateAllShow(Round $round)
 

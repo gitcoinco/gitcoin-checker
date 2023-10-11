@@ -21,7 +21,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         $this->hideSensitiveRequestDetails();
 
         Telescope::filter(function (IncomingEntry $entry) {
-            if (env('TELESCOPE_ENABLED') === true) {
+            if ($this->app->environment(env('APP_ENV'))) {
                 return true;
             }
 
@@ -38,7 +38,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     protected function hideSensitiveRequestDetails(): void
     {
-        if (env('TELESCOPE_ENABLED') === true) {
+        if ($this->app->environment(env('APP_ENV'))) {
             return;
         }
 
