@@ -62,10 +62,17 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
+      - name: Sync Github repository
         run: |
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate && rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+
+      - name: Build assets
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate
+
+      - name: Deploy
+        run: |
+          rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
 
   data-import:
     needs: deploy
