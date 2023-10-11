@@ -70,6 +70,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install --no-dev && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate"
 
+      - name: Test build
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "php artisan app:test"
+
       - name: Deploy
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
