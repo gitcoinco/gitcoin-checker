@@ -68,7 +68,7 @@ jobs:
 
       - name: Build assets
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install && php artisan migrate && php artisan optimize && npm install && npm run build"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install && php artisan optimize && npm install && npm run build"
 
       - name: Database migrations
         run: |
