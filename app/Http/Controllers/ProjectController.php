@@ -37,10 +37,9 @@ class ProjectController extends Controller
     {
         $projects = Project::orderBy('id', 'desc')->paginate();
 
-        return Inertia::render('Public/Project/Index', [
+        return view('public.project.index', [
             'projects' => $projects,
             'canLogin' => true,
-
         ]);
     }
 
@@ -48,7 +47,7 @@ class ProjectController extends Controller
     {
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
 
-        return Inertia::render('Public/Project/Show', [
+        return view('public.project.show', [
             'project' => $project,
             'applications' => $applications,
             'canLogin' => true,
