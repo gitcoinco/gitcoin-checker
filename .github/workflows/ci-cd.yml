@@ -97,6 +97,12 @@ jobs:
           npm install;
           echo "npm run build";
           npm run build;
+          "
+
+      - name: Database migration
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "
+          set -x;
           echo "php artisan migrate --force";
           php artisan migrate --force;
           "
