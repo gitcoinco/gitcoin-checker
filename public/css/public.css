@@ -78,3 +78,48 @@ footer {
 .mt-12 {
     margin-top: 48px; /* 12 x 4 */
 }
+
+
+/* General styles for the pagination navigation */
+nav[role="navigation"] {
+    padding: 16px 0;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Larger arrows for more emphasis */
+nav[role="navigation"] svg.w-5.h-5 {
+    width: 24px; /* Increase from w-5 to roughly w-6 */
+    height: 24px; /* Increase from h-5 to roughly h-6 */
+}
+
+/* Adding some hover effects for the pagination buttons */
+nav[role="navigation"] a:hover {
+    background-color: #f5f5f5;
+}
+
+/* Disabled pagination buttons */
+nav[role="navigation"] span.cursor-default {
+    opacity: 0.5; /* Making it slightly faded to indicate disabled */
+}
+
+/* Additional styles for the pagination numbers and ellipsis */
+nav[role="navigation"] span.font-medium {
+    font-weight: bold;
+}
+
+nav[role="navigation"] span.cursor-default {
+    background-color: #f5f5f5;
+}
+
+/* Making the pagination buttons more rounded for aesthetics */
+nav[role="navigation"] .rounded-md {
+    border-radius: 20px;
+}
+
+/* Style for the showing results text */
+nav[role="navigation"] p.text-sm.text-gray-700 {
+    margin: 0;
+    padding: 8px 0;
+}
+
