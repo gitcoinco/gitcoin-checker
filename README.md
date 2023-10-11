@@ -56,4 +56,4 @@ https://fontawesome.com/v4/icons/
 
 ### Bugsnag
 
-Set BUGSNAG_API_KEY if you would like to receive errors from both the frontend and backend..
+Set BUGSNAG_API_KEY if you would like to receive errors from both the frontend and backend.
