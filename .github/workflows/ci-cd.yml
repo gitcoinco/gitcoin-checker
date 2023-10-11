@@ -72,7 +72,7 @@ jobs:
 
       - name: Test build
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "php artisan app:test"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/deploying.checker.gitcoin.c && php artisan app:test"
 
       - name: Deploy
         run: |
