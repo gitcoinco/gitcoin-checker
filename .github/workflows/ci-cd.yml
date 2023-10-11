@@ -1,5 +1,6 @@
 on: push
 name: CI
+
 jobs:
   testing:
     runs-on: ubuntu-latest
@@ -23,6 +24,7 @@ jobs:
 
       - name: Install composer dependencies
         run: |
+          echo "composer install --no-scripts"
           composer install --no-scripts
 
       - name: Set up Node.js
@@ -32,24 +34,32 @@ jobs:
 
       - name: Install npm dependencies and build assets
         run: |
+          echo "npm ci"
           npm ci
+          echo "npm run build"
           npm run build
 
       - name: Prepare Laravel Application
         run: |
+          echo "cp .env.ci .env"
           cp .env.ci .env
+          echo "php artisan key:generate"
           php artisan key:generate
+          echo "chmod +x docker/mysql/wait-for.sh"
           chmod +x docker/mysql/wait-for.sh
+          echo "./docker/mysql/wait-for.sh mysql php artisan migrate"
           ./docker/mysql/wait-for.sh mysql php artisan migrate
 
       - name: Run Testsuite
-        run: ./vendor/bin/phpunit
+        run: |
+          echo "./vendor/bin/phpunit"
+          ./vendor/bin/phpunit
 
   deploy:
-    needs: testing # This ensures deployment only happens if testing job passes
+    needs: testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
@@ -57,44 +67,46 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
+          echo "mkdir -p ~/.ssh"
           mkdir -p ~/.ssh
+          echo "echo \"PRIVATE_KEY\" > ~/.ssh/id_rsa"
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "chmod 600 ~/.ssh/id_rsa"
           chmod 600 ~/.ssh/id_rsa
+          echo "ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts"
           ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
 
       - name: Sync Github repository
         run: |
+          echo "rsync -av -e \"ssh -i ~/.ssh/id_rsa\" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co"
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
 
       - name: Build assets
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install && php artisan migrate && php artisan optimize && npm install && npm run build && php artisan migrate --force"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "
+          set -x;
+          echo "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co";
+          cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co;
+          echo "cd /var/www/checker/deploying.checker.gitcoin.co && composer install";
+          cd /var/www/checker/deploying.checker.gitcoin.co && composer install;
+          echo "php artisan migrate";
+          php artisan migrate;
+          echo "php artisan optimize";
+          php artisan optimize;
+          echo "npm install";
+          npm install;
+          echo "npm run build";
+          npm run build;
+          echo "php artisan migrate --force";
+          php artisan migrate --force;
+          "
 
       - name: Test build
         run: |
+          echo "ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co \"cd /var/www/checker/deploying.checker.gitcoin.co && php artisan app:test\""
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/deploying.checker.gitcoin.co && php artisan app:test"
 
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
-
-  data-import:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
-        with:
-          fetch-depth: 1
-
-      - name: Install SSH key
-        env:
-          PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
-
-      - name: Check for new data
-        run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co && php artisan ingest:data"
+          echo "ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co \"rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/\""
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploy
