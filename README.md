@@ -19,6 +19,10 @@ composer install                    # Setup composer packages
 make up                             # Boot docker-compose up
 ```
 
+## To use with ChatGPT
+
+Specify your ChatGPT API Key in .env CHATGPT_API_KEY
+
 ## To build for development, use a separate terminal
 
 ```
@@ -29,9 +33,7 @@ npm i                               # Install npm packages
 npm run dev                         # Build for local dev
 ```
 
-## To use with ChatGPT
-
-Specify your ChatGPT API Key in .env CHATGPT_API_KEY
+http://localhost
 
 ## To build for production, use a separate terminal
 
@@ -39,8 +41,6 @@ Specify your ChatGPT API Key in .env CHATGPT_API_KEY
 make in                             # SSH into the php container
 npm run build                       # Build for production
 ```
-
-http://localhost
 
 ## Tests
 
