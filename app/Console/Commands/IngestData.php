@@ -174,8 +174,8 @@ class IngestData extends Command
 
                     // restrict the length of description to 1000 characters
                     $description = null;
-                    if (isset($projectData['description']) && strlen($projectData['description']) > 30000) {
-                        $projectData['description'] = substr($projectData['description'], 0, 30000);
+                    if (isset($projectData['description'])) {
+                        $description = $projectData['description'];
                     }
 
                     $project = Project::updateOrCreate(

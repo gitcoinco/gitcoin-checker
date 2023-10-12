@@ -123,3 +123,7 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
     padding: 8px 0;
 }
 
+
+.text-xs {
+    font-size: 0.7rem;
+}

@@ -36,11 +36,11 @@
                 <tbody>
                     @foreach ($projects as $project)
                     <tr>
-                        <td><a href="{{ route('public.project.show', $project->id) }}" class="text-blue-500 hover:underline">{{ $project->title }}</a></td>
-                        <td>{{ $project->website }}</td>
-                        <td>{{ $project->projectTwitter }}</td>
-                        <td>{{ $project->userGithub }}</td>
-                        <td>{{ $project->projectGithub }}</td>
+                        <td><a href="{{ route('public.project.show', $project) }}" class="text-blue-500 hover:underline">{{ $project->title }}</a></td>
+                        <td><a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></td>
+                        <td><a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></td>
+                        <td><a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a></td>
+                        <td><a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a></td>
                     </tr>
                     @endforeach
                 </tbody>
