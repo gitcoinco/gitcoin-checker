@@ -13,14 +13,22 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::table('projects', function (Blueprint $table) {
-            $table->string('slug')->unique()->nullable()->after('id_addr');
-        });
-
+        if (!Schema::hasColumn('projects', 'slug')) {
+            Schema::table('projects', function (Blueprint $table) {
+                $table->string('slug')->unique()->nullable()->after('id_addr');
+            });
+        }
         $projects = Project::whereNull('slug')->get();
 
         foreach ($projects as $project) {
-            $project->slug = $project->createUniqueSlug();
+            $slugBase = $project->createUniqueSlug();
+            $slug = $slugBase;
+            $counter = 1;
+            while (Project::where('slug', $slug)->exists()) {
+                $slug = $slugBase . '-' . $counter;
+                $counter++;
+            }
+            $project->slug = $slug;
             $project->save();
         }
 
