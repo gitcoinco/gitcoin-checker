@@ -10,6 +10,7 @@ class AccessControl extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'eth_addr',
         'role',
     ];

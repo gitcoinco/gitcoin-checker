@@ -11,6 +11,7 @@ class Project extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'slug',
         'id_addr',
         'title',

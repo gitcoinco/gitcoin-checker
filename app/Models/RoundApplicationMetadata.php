@@ -10,6 +10,7 @@ class RoundApplicationMetadata extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'round_id',
         'last_updated_on',
         'version',

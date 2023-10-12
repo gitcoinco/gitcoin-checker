@@ -10,6 +10,7 @@ class Chain extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'chain_id',
         'name',
         'number',

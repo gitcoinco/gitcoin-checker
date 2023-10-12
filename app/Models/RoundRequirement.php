@@ -10,6 +10,7 @@ class RoundRequirement extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'application_metadata_id',
         'requirement',
     ];

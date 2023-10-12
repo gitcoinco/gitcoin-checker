@@ -10,6 +10,7 @@ class Round extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'chain_id',
         'round_addr',
         'flagged_at',

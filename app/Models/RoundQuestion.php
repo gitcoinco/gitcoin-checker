@@ -10,6 +10,7 @@ class RoundQuestion extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'application_metadata_id',
         'question_id',
         'title',

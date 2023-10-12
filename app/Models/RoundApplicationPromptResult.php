@@ -10,6 +10,7 @@ class RoundApplicationPromptResult extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'application_id',
         'round_id',
         'project_id',

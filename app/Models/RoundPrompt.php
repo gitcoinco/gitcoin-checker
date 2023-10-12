@@ -11,6 +11,7 @@ class RoundPrompt extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'uuid',
         'round_id',
         'system_prompt',
         'prompt',

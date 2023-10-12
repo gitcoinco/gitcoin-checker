@@ -10,6 +10,7 @@ class RoundApplication extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'round_id',
         'project_addr',
         'status',

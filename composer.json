@@ -12,6 +12,7 @@
         "bugsnag/bugsnag-laravel": "^2.26",
         "guzzlehttp/guzzle": "^7.2",
         "haozi-team/chatgpt-php": "^2.1",
+        "hashids/hashids": "^5.0",
         "inertiajs/inertia-laravel": "^0.6.8",
         "kornrunner/keccak": "^1.1",
         "laravel/framework": "^10.10",
