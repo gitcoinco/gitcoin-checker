@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use League\CommonMark\CommonMarkConverter;
 
@@ -46,7 +47,45 @@ class ProjectController extends Controller
 
     public function sitemapPublic()
     {
-        $projects = Project::orderBy('id', 'desc')->get();
+        $projects = Cache::remember('ProjectController::sitemapPublic', 60, function () {
+            $projects =  Project::orderBy('id', 'desc')->get();
+
+            $listOfProjectOwnersWithTestInTheTitle = [];
+            foreach ($projects as $project) {
+                if (str_contains(strtolower($project->title), 'test')) {
+
+                    $owners = $project->owners()->get();
+                    if (!$owners) {
+                        continue;
+                    }
+
+                    foreach ($owners as $owner) {
+                        if (!isset($listOfProjectOwnersWithTestInTheTitle[$owner->eth_addr])) {
+                            $listOfProjectOwnersWithTestInTheTitle[$owner->eth_addr]['count'] = 0;
+                            $listOfProjectOwnersWithTestInTheTitle[$owner->eth_addr]['project.id'] = $project->id;
+                        }
+                        $listOfProjectOwnersWithTestInTheTitle[$owner->eth_addr]['count'] += 1;
+                    }
+                }
+            }
+
+            // Remove any projects from listOfProjectOwnersWithTestInTheTitle that has < 2 projects
+            foreach ($listOfProjectOwnersWithTestInTheTitle as $key => $value) {
+                if ($value['count'] < 2) {
+                    unset($listOfProjectOwnersWithTestInTheTitle[$key]);
+                }
+            }
+
+            $listOfProjectsIdsToExclude = [];
+            foreach ($listOfProjectOwnersWithTestInTheTitle as $key => $value) {
+                $listOfProjectsIdsToExclude[] = $value['project.id'];
+            }
+
+            $projects = Project::whereNotIn('id', $listOfProjectsIdsToExclude)->orderBy('id', 'desc')->count();
+
+            return Project::whereNotIn('id', $listOfProjectsIdsToExclude)->orderBy('id', 'desc')->get();
+        });
+
 
         return view('public.project.sitemap', [
             'projects' => $projects,

@@ -83,6 +83,12 @@ class IngestData extends Command
                     $this->info("Processing project data for chain ID: {$chainId}...");
                     $this->updateProjects($round);
                 }
+
+                // Loop through all the chains and update project owners
+                $chains = Chain::all();
+                foreach ($chains as $chain) {
+                    $this->updateProjectOwnersForChain($chain);
+                }
             }
         } else {
             $this->info("No directories available");
@@ -90,6 +96,36 @@ class IngestData extends Command
 
         $this->info('Data ingestion completed successfully.');
         return 0;
+    }
+
+    private function updateProjectOwnersForChain($chain)
+    {
+        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+
+        $this->info("Processing project owners for chain ID: {$chain->chain_id}...");
+
+        $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
+            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/projects.json");
+            return json_decode($response->body(), true);
+        });
+
+        if ($projectData && count($projectData) > 0) {
+            foreach ($projectData as $key => $data) {
+                $projectAddress = $this->getAddress($data['id']);
+                $owners = $data['owners'];
+                $project = Project::where('id_addr', $projectAddress)->first();
+
+                if ($project && count($owners)) {
+                    // Loop through and add all the owners
+                    foreach ($owners as $ownerAddress) {
+                        $ownerAddress = $this->getAddress($ownerAddress);
+                        $project->owners()->updateOrCreate(
+                            ['eth_addr' => $ownerAddress, 'project_id' => $project->id],
+                        );
+                    }
+                }
+            }
+        }
     }
 
     // Some dates appear to be in seconds while others are in milliseconds.  Deal with it.

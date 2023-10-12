@@ -56,6 +56,11 @@ class Project extends Model
         return $this->hasMany(Chain::class, 'project_addr', 'id_addr');
     }
 
+    public function owners()
+    {
+        return $this->hasMany(ProjectOwner::class, 'project_id', 'id');
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';
@@ -69,9 +74,13 @@ class Project extends Model
         $slug = Str::slug($this->title);
         $count = static::where('slug', 'LIKE', "{$slug}%")->count();
 
-        if ($count) {
-            // Append the count to the slug if a similar one exists
-            $slug .= '-' . $count;
+        if ($count > 0) {
+            for ($i = 1; $i <= 100; $i++) {
+                $slug = Str::slug($this->title) . '-' . $i;
+                if (!static::where('slug', $slug)->count()) {
+                    break;
+                }
+            }
         }
 
         return $slug;
