@@ -26,7 +26,7 @@ if (prompt.value) {
 const savePrompts = async () => {
     form.post(
         route("round.prompt.upsert", {
-            round: round.value.id,
+            round: round.value.uuid,
         }),
         {
             onSuccess: (response) => {
@@ -101,7 +101,7 @@ const addAccessControl = () => {
 
                 <div class="mt-4 text-right">
                     <Link
-                        :href="route('round.show', { round: round.id })"
+                        :href="route('round.show', { round: round })"
                         class="mr-3"
                         >Round Projects</Link
                     >

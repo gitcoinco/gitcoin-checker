@@ -39,4 +39,9 @@ class RoundApplicationPromptResult extends Model
     {
         return $this->belongsTo(RoundPrompt::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

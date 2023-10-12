@@ -43,4 +43,9 @@ class RoundApplication extends Model
     {
         return $this->hasOne(RoundPrompt::class, 'round_id', 'round_id')->orderBy('id', 'desc');
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

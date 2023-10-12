@@ -25,4 +25,9 @@ class RoundApplicationMetadata extends Model
     {
         return $this->hasMany(RoundQuestion::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

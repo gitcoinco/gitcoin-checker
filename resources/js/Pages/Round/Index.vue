@@ -57,7 +57,7 @@ if (urlParams.has("search")) {
 
 const flagRound = async (round) => {
     try {
-        const response = await axios.post(`/round/flag/${round.id}`);
+        const response = await axios.post(`/round/flag/${round.uuid}`);
         // Assuming the response contains the updated round data
         round.flagged_at = response.data.flagged_at;
     } catch (error) {
@@ -156,7 +156,7 @@ const flagRound = async (round) => {
 
                             <td>
                                 <Link
-                                    :href="route('round.show', round.id)"
+                                    :href="route('round.show', round)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.name }}
@@ -190,7 +190,7 @@ const flagRound = async (round) => {
                             </td>
                             <td class="nowrap">
                                 <Link
-                                    :href="route('round.show', round.id)"
+                                    :href="route('round.show', round)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.projects_count }}
@@ -198,7 +198,7 @@ const flagRound = async (round) => {
                             </td>
                             <td>
                                 <Link
-                                    :href="route('round.prompt.show', round.id)"
+                                    :href="route('round.prompt.show', round)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     Criteria

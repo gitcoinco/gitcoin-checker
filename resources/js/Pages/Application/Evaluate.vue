@@ -27,7 +27,7 @@ const checkAgainstChatGPT = async () => {
 
     form.post(
         route("round.application.chatgpt", {
-            application: application.value.id,
+            application: application.value.uuid,
         }),
         {
             onSuccess: (response) => {
@@ -73,13 +73,11 @@ const checkAgainstChatGPT = async () => {
             </div>
 
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8 text-right">
-                <Link
-                    :href="route('round.show', { round: round.id })"
-                    class="mr-5"
+                <Link :href="route('round.show', { round: round })" class="mr-5"
                     >Round</Link
                 >
                 <Link
-                    :href="route('round.prompt.show', { round: round.id })"
+                    :href="route('round.prompt.show', { round: round })"
                     class="mr-5"
                     >Round Criteria</Link
                 >

@@ -19,4 +19,9 @@ class AccessControl extends Model
     {
         return $this->belongsTo(User::class, 'eth_addr', 'eth_addr');
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

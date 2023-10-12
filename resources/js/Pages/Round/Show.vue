@@ -39,7 +39,7 @@ const isLoading = ref(false);
 const loadingStates = ref({});
 
 const roundPrompt = () => {
-    router.visit(route("round.prompt.show", { round: round.value.id }));
+    router.visit(route("round.prompt.show", { round: round.value.uuid }));
 };
 
 async function evaluateApplication(event, application) {
@@ -51,7 +51,7 @@ async function evaluateApplication(event, application) {
     axios
         .post(
             route("round.application.chatgpt.list", {
-                application: application.id,
+                application: application,
             })
         )
         .then((response) => {
@@ -95,7 +95,7 @@ async function evaluateApplication(event, application) {
                     </h2>
                 </div>
                 <Link
-                    :href="route('round.prompt.show', round.id)"
+                    :href="route('round.prompt.show', round)"
                     class="text-blue-500 hover:underline"
                 >
                     Criteria
@@ -108,7 +108,7 @@ async function evaluateApplication(event, application) {
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl">Round applications</h2>
                     <Link
-                        :href="route('round.evaluate.all.show', round.id)"
+                        :href="route('round.evaluate.all.show', round)"
                         class="text-blue-500 hover:underline"
                     >
                         Evaluate Entire Round

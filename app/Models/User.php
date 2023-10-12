@@ -68,4 +68,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(AccessControl::class, 'eth_addr', 'eth_addr');
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

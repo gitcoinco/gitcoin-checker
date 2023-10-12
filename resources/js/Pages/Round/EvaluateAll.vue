@@ -55,11 +55,10 @@ const evaluateAll = async () => {
 };
 
 async function evaluateApplication(application) {
-    console.log("Evaluating application: ", application.id);
     try {
         let response = await axios.post(
             route("round.application.chatgpt.list", {
-                application: application.id,
+                application: application,
             })
         );
         return response.data;

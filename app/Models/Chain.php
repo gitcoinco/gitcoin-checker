@@ -20,4 +20,9 @@ class Chain extends Model
     {
         return $this->hasMany(Round::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

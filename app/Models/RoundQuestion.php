@@ -55,4 +55,9 @@ class RoundQuestion extends Model
     {
         return $this->belongsTo(RoundApplicationMetadata::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

@@ -22,7 +22,7 @@ import Modal from "@/Components/Modal.vue";
 const applications = ref(usePage().props.applications.valueOf());
 
 const roundPrompt = (round) => {
-    router.visit(route("round.prompt.show", { round: round.id }));
+    router.visit(route("round.prompt.show", { round: round }));
 };
 
 const openModalId = ref(null);
@@ -135,10 +135,7 @@ async function evaluateApplication(event, application) {
                             <td>
                                 <Link
                                     :href="
-                                        route(
-                                            'round.show',
-                                            application.round.id
-                                        )
+                                        route('round.show', application.round)
                                     "
                                     class="text-blue-500 hover:underline"
                                 >

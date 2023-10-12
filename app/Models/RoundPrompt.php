@@ -26,4 +26,9 @@ class RoundPrompt extends Model
     {
         return $this->hasMany(RoundApplication::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

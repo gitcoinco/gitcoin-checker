@@ -167,10 +167,7 @@ const applications = ref(usePage().props.applications.valueOf());
                             <td>
                                 <Link
                                     :href="
-                                        route(
-                                            'round.show',
-                                            application.round.id
-                                        )
+                                        route('round.show', application.round)
                                     "
                                     class="text-blue-500 hover:underline"
                                 >
@@ -214,7 +211,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     :href="
                                         route(
                                             'round.application.evaluate',
-                                            application.id
+                                            application.uuid
                                         )
                                     "
                                     class="text-blue-500 hover:underline"

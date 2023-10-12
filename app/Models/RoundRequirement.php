@@ -64,4 +64,9 @@ class RoundRequirement extends Model
     {
         return $this->belongsTo(RoundQuestionAnswerValue::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }
