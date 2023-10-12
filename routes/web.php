@@ -40,6 +40,9 @@ Route::prefix('public')->group(
         });
         Route::get('/projects', [ProjectController::class, 'indexPublic'])->name('public.projects.index');
         Route::get('/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
+
+
+        Route::get('/projects/sitemap.xml', [ProjectController::class, 'sitemapPublic'])->name('public.projects.sitemap');
     }
 );
 
@@ -56,16 +59,6 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Route::get('/dashboard', function () {
-
-    //     return Inertia::render('Dashboard', [
-    //         'indexData' => env('INDEXER_URL'),
-    //     ]);
-    // })->name('dashboard');
-
-    // Route::get('/dashboard', function () {
-    //     return Inertia::render('Dashboard');
-    // })->name('dashboard');
 
     Route::prefix('application')->group(function () {
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
