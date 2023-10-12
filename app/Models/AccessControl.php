@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AccessControl extends Model
 {
-    use HasFactory;
+    use HasFactory, ShortUniqueUuidTrait;
 
     protected $fillable = [
         'uuid',

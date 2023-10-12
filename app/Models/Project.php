@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\Traits\ShortUniqueUuidTrait;
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, ShortUniqueUuidTrait;
 
     protected $fillable = [
         'uuid',

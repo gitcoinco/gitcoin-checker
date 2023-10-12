@@ -24,17 +24,20 @@ const addAccessControl = () => {
     form.role = "admin";
 };
 
-const deleteAccessControl = async (id) => {
+const deleteAccessControl = async (accessControl) => {
     if (!confirm("Are you sure you want to delete this access control?")) {
         return;
     }
 
-    await useForm({ id }).delete(route("access-control.delete", id), {
-        onSuccess: (response) => {
-            accessControls.value = response.props.accessControls;
-        },
-        onError: (error) => {},
-    });
+    await useForm({ uuid: accessControl.uuid }).delete(
+        route("access-control.delete", { accessControl: accessControl.uuid }),
+        {
+            onSuccess: (response) => {
+                accessControls.value = response.props.accessControls;
+            },
+            onError: (error) => {},
+        }
+    );
 };
 </script>
 
@@ -86,9 +89,7 @@ const deleteAccessControl = async (id) => {
                             <td>{{ accessControl.role }}</td>
                             <td>
                                 <button
-                                    @click="
-                                        deleteAccessControl(accessControl.id)
-                                    "
+                                    @click="deleteAccessControl(accessControl)"
                                 >
                                     Delete
                                 </button>
