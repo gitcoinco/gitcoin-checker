@@ -5,22 +5,21 @@
 @endsection
 
 @section('content')
-<div class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
+<div class="container-fluid bg-light">
 
-
-    <div class="max-w-7xl mx-auto p-6 lg:p-8">
-        <div class="flex justify-left">
+    <div class="container py-3">
+        <div class="d-flex justify-content-start">
             <!-- Replace with your Blade components or images -->
             <!-- GitcoinLogo -->
             <!-- ApplicationLogo -->
         </div>
 
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <div class="container py-3">
             @if ($projects && count($projects) > 0)
 
             <h1>Gitcoin Projects</h1>
 
-            <table>
+            <table class="table">
                 <thead>
                     <tr>
                         <th>
@@ -36,7 +35,7 @@
                 <tbody>
                     @foreach ($projects as $project)
                     <tr>
-                        <td><a href="{{ route('public.project.show', $project) }}" class="text-blue-500 hover:underline">{{ $project->title }}</a></td>
+                        <td><a href="{{ route('public.project.show', $project) }}" class="text-primary">{{ $project->title }}</a></td>
                         <td><a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></td>
                         <td><a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></td>
                         <td><a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a></td>

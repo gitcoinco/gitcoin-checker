@@ -78,4 +78,13 @@ class RoundController extends Controller
 
         return response()->json($round);
     }
+
+    public function showPublic(Round $round)
+    {
+        $round->load(['chain']);
+
+        return view('public.round.show', [
+            'round' => $round,
+        ]);
+    }
 }

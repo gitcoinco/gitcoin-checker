@@ -21,6 +21,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^4.16",
         "laravel/tinker": "^2.8",
+        "league/commonmark": "^2.4",
         "simplito/elliptic-php": "^1.0",
         "symfony/dom-crawler": "^6.3",
         "tightenco/ziggy": "^1.7"

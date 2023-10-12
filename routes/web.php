@@ -39,8 +39,9 @@ Route::prefix('public')->group(
             return redirect()->route('public.projects.index');
         });
         Route::get('/projects', [ProjectController::class, 'indexPublic'])->name('public.projects.index');
-        Route::get('/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
+        Route::get('/project/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
 
+        Route::get('/round/show/{round}', [RoundController::class, 'showPublic'])->name('public.round.show');
 
         Route::get('/projects/sitemap.xml', [ProjectController::class, 'sitemapPublic'])->name('public.projects.sitemap');
     }

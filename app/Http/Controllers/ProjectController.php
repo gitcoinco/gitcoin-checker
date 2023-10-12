@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use League\CommonMark\CommonMarkConverter;
 
 class ProjectController extends Controller
 {
@@ -56,10 +57,17 @@ class ProjectController extends Controller
     {
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
 
+        $converter = new CommonMarkConverter();
+        $descriptionHTML = null;
+
+        if ($project->description) {
+            $descriptionHTML = $converter->convertToHTML($project->description)->getContent();
+        }
+
         return view('public.project.show', [
             'project' => $project,
             'applications' => $applications,
-            'canLogin' => true,
+            'descriptionHTML' => $descriptionHTML,
         ]);
     }
 }
