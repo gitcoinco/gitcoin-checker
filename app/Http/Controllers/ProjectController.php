@@ -43,6 +43,15 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function sitemapPublic()
+    {
+        $projects = Project::orderBy('id', 'desc')->get();
+
+        return view('public.project.sitemap', [
+            'projects' => $projects,
+        ]);
+    }
+
     public function showPublic(Project $project)
     {
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();

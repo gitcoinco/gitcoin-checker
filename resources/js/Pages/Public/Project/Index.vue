@@ -127,7 +127,7 @@ if (urlParams.has("search")) {
                                         :href="
                                             route(
                                                 'public.project.show',
-                                                project.id
+                                                project
                                             )
                                         "
                                         class="text-blue-500 hover:underline"

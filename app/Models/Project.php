@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Project extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'slug',
         'id_addr',
         'title',
         'description',
@@ -19,6 +21,7 @@ class Project extends Model
         'projectTwitter',
         'metadata',
         'flagged_at',
+
     ];
 
     protected $casts = [
@@ -26,9 +29,49 @@ class Project extends Model
         'owners' => 'array',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Before creating a project, set its slug
+        static::creating(function (Project $project) {
+            $project->slug = $project->createUniqueSlug();
+        });
+    }
 
     public function applications()
     {
         return $this->hasMany(RoundApplication::class, 'project_addr', 'id_addr');
+    }
+
+    public function rounds()
+    {
+        return $this->hasMany(Round::class, 'project_addr', 'id_addr');
+    }
+
+    public function chains()
+    {
+        return $this->hasMany(Chain::class, 'project_addr', 'id_addr');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
+     * Create a unique slug for the project.
+     */
+    public function createUniqueSlug()
+    {
+        $slug = Str::slug($this->title);
+        $count = static::where('slug', 'LIKE', "{$slug}%")->count();
+
+        if ($count) {
+            // Append the count to the slug if a similar one exists
+            $slug .= '-' . $count;
+        }
+
+        return $slug;
     }
 }

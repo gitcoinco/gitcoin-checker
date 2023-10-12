@@ -162,7 +162,7 @@ async function evaluateApplication(event, application) {
                             </td>
                             <td>
                                 <Link
-                                    :href="route('project.show', project.id)"
+                                    :href="route('project.show', project)"
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ project.title }}

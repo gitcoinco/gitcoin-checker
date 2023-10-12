@@ -120,10 +120,11 @@ async function evaluateApplication(event, application) {
                             </td>
                             <td>
                                 <Link
+                                    v-if="application.project"
                                     :href="
                                         route(
                                             'project.show',
-                                            application.project.id
+                                            application.project
                                         )
                                     "
                                     class="text-blue-500 hover:underline"
