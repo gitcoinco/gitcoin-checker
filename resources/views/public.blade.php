@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="{{ asset('css/public.css') }}">
     <link rel="stylesheet" href="{{ asset('css/font-awesome-4.7.0/css/font-awesome.min.css') }}">
 
+    <meta name="description" content="@yield('meta_description', 'A showcase of projects on Gitcoin.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'Gitcoin, Open Source, Projects, Grants, Crowdfunding')">
+
+
     @stack('head')
 </head>
 
@@ -25,13 +29,6 @@
         @yield('content')
     </main>
 
-    <!-- <footer class="bg-white mt-12 p-4 border-t">
-        <div class="container mx-auto">
-            <p class="text-center text-gray-500 text-sm">© 2023 My App. All rights reserved.</p>
-        </div>
-    </footer> -->
-
-    <!-- <script src="{{ asset('js/app.js') }}"></script> -->
     @stack('scripts')
 </body>
 
