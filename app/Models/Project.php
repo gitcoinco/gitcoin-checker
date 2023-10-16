@@ -61,6 +61,11 @@ class Project extends Model
         return $this->hasMany(ProjectOwner::class, 'project_id', 'id');
     }
 
+    public function donations()
+    {
+        return $this->hasMany(ProjectDonation::class, 'project_id', 'id');
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

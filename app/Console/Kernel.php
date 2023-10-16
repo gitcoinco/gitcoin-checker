@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('ingest:data')->hourly();
         $schedule->command('telescope:prune')->daily();
+
+        $schedule->command('ingest:data', ['--longRunning'])->daily();
     }
 
     /**

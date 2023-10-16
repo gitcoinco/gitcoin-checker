@@ -20,6 +20,12 @@
             <div class="card-body">
                 <h1 class="card-title">{{ $project->title }}</h1>
 
+                @if($totalDonationsReceived > 0)
+                <h2>
+                    ${{ $totalDonationsReceived }} in donations received
+                </h2>
+                @endif
+
                 <div class="mb-3">
 
                     @if(isset($project->website))

@@ -23,7 +23,7 @@ class IngestData extends Command
      *
      * @var string
      */
-    protected $signature = 'ingest:data';
+    protected $signature = 'ingest:data {--longRunning}';
 
     /**
      * The console command description.
@@ -54,13 +54,31 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
+        $startTime = microtime(true);
 
+        $longRunning = $this->option('longRunning') ?? false;
+
+        if ($longRunning) {
+            $this->info('Long running tasks');
+            $this->longRunningTasks();
+        } else {
+            $this->info('Short running tasks');
+            $this->shortRunningTasks($directoryParser);
+        }
+
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime);
+        $this->info("Execution time of script = " . $executionTime . " sec");
+
+        $this->info('Data ingestion completed successfully.');
+        return 0;
+    }
+
+    private function shortRunningTasks(DirectoryParser $directoryParser)
+    {
         $this->info('Fetching directory list...');
 
-        $indexerUrl = $this->indexerUrl;
-
-
-        $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($indexerUrl, $directoryParser) {
+        $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($directoryParser) {
             $response = Http::get($this->indexerUrl);
             $json = $directoryParser->parse($response->body());
 
@@ -87,27 +105,58 @@ class IngestData extends Command
 
                     $this->info("Processing project data for chain ID: {$chainId}...");
                     $this->updateProjects($round);
-
-                    $this->info("Processing votes data for chain ID: {$chainId}...");
-                    $this->updateVotes($round);
-                }
-
-                // Loop through all the chains and update project owners
-                $chains = Chain::all();
-                foreach ($chains as $chain) {
-                    $this->updateProjectOwnersForChain($chain);
                 }
             }
         } else {
             $this->info("No directories available");
         }
-
-        $this->info('Data ingestion completed successfully.');
-        return 0;
     }
 
-    private function updateVotes(Round $round)
+    // Split the long running tasks into a separate function so we can run them in the background
+    private function longRunningTasks()
     {
+        // Loop through all the chains and update project owners
+        $chains = Chain::all();
+        foreach ($chains as $chain) {
+            $this->updateProjectOwnersForChain($chain);
+
+            $rounds = Round::where('chain_id', $chain->id)->get();
+            foreach ($rounds as $round) {
+                $this->info("Processing donations data for chain ID: {$chain->chain_id}...");
+                $this->updateDonations($round);
+            }
+        }
+    }
+
+    private function updateDonations(Round $round)
+    {
+        $donationsData = Cache::remember($this->cacheName . "-votes_data{$round->id}", now()->addMinutes(10), function () use ($round) {
+            $url = "{$this->indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/votes.json";
+
+            $response = Http::get($url);
+            return json_decode($response->body(), true);
+        });
+
+        if (count($donationsData) > 0) {
+            foreach ($donationsData as $key => $donation) {
+                $projectId = $this->getAddress($donation['projectId']);
+                $project = Project::where('id_addr', $projectId)->first();
+
+                if ($project) {
+                    $project->donations()->updateOrCreate(
+                        ['transaction_addr' => $donation['id']],
+                        [
+                            'application_id' => $donation['applicationId'],
+                            'round_id' => $round->id,
+                            'amount_usd' => $donation['amountUSD'],
+                            'voter_addr' => $this->getAddress($donation['voter']),
+                            'grant_addr' => $this->getAddress($donation['grantAddress']),
+                            'block_number' => $donation['blockNumber'],
+                        ]
+                    );
+                }
+            }
+        }
     }
 
     private function updateProjectOwnersForChain(Chain $chain)
@@ -117,7 +166,7 @@ class IngestData extends Command
 
         $indexerUrl = $this->indexerUrl;
 
-        $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
+        $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
             $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/projects.json");
             return json_decode($response->body(), true);
         });
@@ -161,8 +210,8 @@ class IngestData extends Command
     {
 
         $indexerUrl = $this->indexerUrl;
-        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
-            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds.json");
+        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
+            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/rounds.json");
             return json_decode($response->body(), true);
         });
 
@@ -208,8 +257,8 @@ class IngestData extends Command
 
         $chain = $round->chain;
 
-        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($indexerUrl, $chain, $round) {
-            $url = "{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
+        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($chain, $round) {
+            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
             $response = Http::get($url);
             return json_decode($response->body(), true);
         });
@@ -246,12 +295,10 @@ class IngestData extends Command
 
     private function updateApplications($round)
     {
-        $indexerUrl = $this->indexerUrl;
-
         $chain = $round->chain;
 
-        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($indexerUrl, $round, $chain) {
-            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
+        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
+            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
             return json_decode($response->body(), true);
         });
 
@@ -274,10 +321,10 @@ class IngestData extends Command
                     }
                 }
 
-
                 RoundApplication::updateOrCreate(
                     ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])],
                     [
+                        'application_id' => $data['id'],
                         'round_id' => $round->id,
                         'project_addr' => $data['projectId'],
                         'status' => $data['status'],

@@ -103,10 +103,13 @@ class ProjectController extends Controller
             $descriptionHTML = $converter->convertToHTML($project->description)->getContent();
         }
 
+        $totalDonationsReceived = $project->donations()->sum('amount_usd');
+
         return view('public.project.show', [
             'project' => $project,
             'applications' => $applications,
             'descriptionHTML' => $descriptionHTML,
+            'totalDonationsReceived' => $totalDonationsReceived,
         ]);
     }
 }
