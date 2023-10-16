@@ -79,7 +79,7 @@ class IngestData extends Command
         $this->info('Fetching directory list...');
 
         $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($directoryParser) {
-            $response = Http::get($this->indexerUrl);
+            $response = Http::timeout(120)->get($this->indexerUrl);
             $json = $directoryParser->parse($response->body());
 
             return json_decode($json, true);
@@ -133,7 +133,7 @@ class IngestData extends Command
         $donationsData = Cache::remember($this->cacheName . "-votes_data{$round->id}", now()->addMinutes(10), function () use ($round) {
             $url = "{$this->indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/votes.json";
 
-            $response = Http::get($url);
+            $response = Http::timeout(120)->get($url);
             return json_decode($response->body(), true);
         });
 
@@ -167,7 +167,7 @@ class IngestData extends Command
         $indexerUrl = $this->indexerUrl;
 
         $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/projects.json");
+            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/projects.json");
             return json_decode($response->body(), true);
         });
 
@@ -211,7 +211,7 @@ class IngestData extends Command
 
         $indexerUrl = $this->indexerUrl;
         $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/rounds.json");
+            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/rounds.json");
             return json_decode($response->body(), true);
         });
 
@@ -259,7 +259,7 @@ class IngestData extends Command
 
         $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($chain, $round) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-            $response = Http::get($url);
+            $response = Http::timeout(120)->get($url);
             return json_decode($response->body(), true);
         });
 
@@ -298,7 +298,7 @@ class IngestData extends Command
         $chain = $round->chain;
 
         $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
-            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
+            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
             return json_decode($response->body(), true);
         });
 
