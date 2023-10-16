@@ -34,6 +34,8 @@ class IngestData extends Command
 
     protected $cacheName = 'ingest-cache';
 
+    protected $indexerUrl = '';
+
     /**
      * Create a new command instance.
      *
@@ -42,6 +44,7 @@ class IngestData extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
     }
 
     /**
@@ -51,12 +54,14 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
-        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
         $this->info('Fetching directory list...');
 
+        $indexerUrl = $this->indexerUrl;
+
+
         $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($indexerUrl, $directoryParser) {
-            $response = Http::get($indexerUrl);
+            $response = Http::get($this->indexerUrl);
             $json = $directoryParser->parse($response->body());
 
             return json_decode($json, true);
@@ -82,6 +87,9 @@ class IngestData extends Command
 
                     $this->info("Processing project data for chain ID: {$chainId}...");
                     $this->updateProjects($round);
+
+                    $this->info("Processing votes data for chain ID: {$chainId}...");
+                    $this->updateVotes($round);
                 }
 
                 // Loop through all the chains and update project owners
@@ -98,14 +106,19 @@ class IngestData extends Command
         return 0;
     }
 
-    private function updateProjectOwnersForChain($chain)
+    private function updateVotes(Round $round)
     {
-        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+    }
+
+    private function updateProjectOwnersForChain(Chain $chain)
+    {
 
         $this->info("Processing project owners for chain ID: {$chain->chain_id}...");
 
+        $indexerUrl = $this->indexerUrl;
+
         $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
-            $response = Http::get("{$indexerUrl}/{$chain->chain_id}/projects.json");
+            $response = Http::get("{$this->indexerUrl}/{$chain->chain_id}/projects.json");
             return json_decode($response->body(), true);
         });
 
@@ -146,8 +159,8 @@ class IngestData extends Command
 
     private function updateRounds($chain)
     {
-        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
 
+        $indexerUrl = $this->indexerUrl;
         $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($indexerUrl, $chain) {
             $response = Http::get("{$indexerUrl}/{$chain->chain_id}/rounds.json");
             return json_decode($response->body(), true);
@@ -191,7 +204,7 @@ class IngestData extends Command
 
     private function updateProjects($round)
     {
-        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+        $indexerUrl = $this->indexerUrl;
 
         $chain = $round->chain;
 
@@ -233,7 +246,7 @@ class IngestData extends Command
 
     private function updateApplications($round)
     {
-        $indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+        $indexerUrl = $this->indexerUrl;
 
         $chain = $round->chain;
 
