@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasOne(AccessControl::class, 'eth_addr', 'eth_addr');
     }
 
+    public function preferences()
+    {
+        return $this->hasMany(UserPreference::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'uuid';

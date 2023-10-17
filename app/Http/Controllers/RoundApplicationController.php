@@ -7,6 +7,7 @@ use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
 use App\Models\RoundPrompt;
+use App\Models\UserPreference;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
@@ -21,8 +22,27 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->has('status')) {
+            // Validate the request if necessary
+            $status = $request->input('status', 'all');
+
+            $userPreference = UserPreference::firstOrCreate([
+                'user_id' => $request->user()->id,
+                'key' => 'selectedApplicationStatus',
+            ]);
+            $userPreference->value = json_encode($status);
+            $userPreference->save();
+        } else {
+            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationStatus')->first();
+            if ($userPreference) {
+                $status = json_decode($userPreference->value);
+            } else {
+                $status = 'pending';
+            }
+        }
+
         $applications = RoundApplication::with([
             'round',
             'project',
@@ -33,13 +53,17 @@ class RoundApplicationController extends Controller
                 $query->orderBy('id', 'desc');
             }
         ])
+            ->when($status != 'all', function ($query) use ($status) {
+                $query->where('status', strtolower($status));
+            })
             ->orderBy('id', 'desc')
             ->paginate();
 
         // No need for the foreach loop, since we are already eager loading the latest prompt.
 
         return Inertia::render('Application/Index', [
-            'applications' => $applications
+            'applications' => $applications,
+            'selectedApplicationStatus' => $status,
         ]);
     }
 

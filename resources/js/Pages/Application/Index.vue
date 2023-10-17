@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
@@ -20,10 +20,24 @@ import {
 import Modal from "@/Components/Modal.vue";
 
 const applications = ref(usePage().props.applications.valueOf());
+const selectedApplicationStatus = ref(
+    usePage().props.selectedApplicationStatus.valueOf()
+);
 
 const roundPrompt = (round) => {
     router.visit(route("round.prompt.show", { round: round }));
 };
+
+const selectedStatus = ref(selectedApplicationStatus.value);
+
+watch(selectedStatus, (newStatus) => {
+    // reload the page with the new status added to the query string
+    router.visit(
+        route("round.application.index", {
+            status: newStatus,
+        })
+    );
+});
 
 const openModalId = ref(null);
 function toggleModal(applicationId) {
@@ -81,8 +95,28 @@ async function evaluateApplication(event, application) {
                 <table v-if="applications && applications.data.length > 0">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Status</th>
+                            <th class="whitespace-nowrap">
+                                <select
+                                    v-model="selectedStatus"
+                                    class="p-1 mr-1 pr-6"
+                                >
+                                    <option value="all">All</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+
+                                <Tooltip>
+                                    <i
+                                        class="fa fa-question-circle-o"
+                                        aria-hidden="true"
+                                        title="This is the last application date for the round"
+                                    ></i>
+                                    <template #content>
+                                        The status of the application.
+                                    </template>
+                                </Tooltip>
+                            </th>
                             <th>Project</th>
                             <th>Round</th>
                             <th></th>
@@ -95,6 +129,13 @@ async function evaluateApplication(event, application) {
                             :key="index"
                         >
                             <td>
+                                <span
+                                    v-html="
+                                        applicationStatusIcon(
+                                            application.status
+                                        )
+                                    "
+                                ></span>
                                 {{
                                     showDateInShortFormat(
                                         application.created_at
@@ -108,15 +149,6 @@ async function evaluateApplication(event, application) {
                                         minute: "2-digit",
                                     })
                                 }}
-                            </td>
-                            <td>
-                                <span
-                                    v-html="
-                                        applicationStatusIcon(
-                                            application.status
-                                        )
-                                    "
-                                ></span>
                             </td>
                             <td>
                                 <Link
