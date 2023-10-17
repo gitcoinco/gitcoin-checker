@@ -29,16 +29,21 @@ export default {
                 });
         },
         async toggleRound(round) {
-            // Added toggleRound method
-            axios
-                .get(
+            // No need for 'const self = this;' because 'this' inside arrow function will refer to your Vue instance
+
+            try {
+                const response = await axios.get(
                     route("user-preferences.round.toggle", {
                         round: round.uuid,
                     })
-                )
-                .then((response) => {
-                    this.selectedRounds = response.data.selectedRounds;
-                });
+                );
+
+                this.selectedRounds = response.data.selectedRounds;
+                //TODO::: This emit isn't happening consistently, which prevents the parent from refreshing the application results
+                this.$emit("selectedRoundsChanged");
+            } catch (error) {
+                console.error(error);
+            }
         },
     },
     created() {
@@ -50,20 +55,18 @@ export default {
             })
             .finally(() => {});
     },
-    watch: {
-        selectedRounds: function (newVal) {
-            this.$emit("selectedRoundsChanged", newVal);
-        },
-    },
 };
 </script>
 
 <template>
     <div>
         <button @click="showRounds = true" v-if="!showRounds">
+            <i class="fa fa-plus-circle mr-1" aria-hidden="true"></i>
             Add rounds to your short list.
         </button>
-        <button @click="showRounds = false" v-if="showRounds">Hide</button>
+        <button @click="showRounds = false" v-if="showRounds">
+            <i class="fa fa-minus-circle mr-1" aria-hidden="true"></i>Hide
+        </button>
 
         <div v-if="showRounds">
             <!-- Section for round selection -->
@@ -72,31 +75,41 @@ export default {
                 <div>
                     <!-- This div will be shown when showRounds is true -->
                     <!-- Added TextInput for search -->
-                    <TextInput
-                        v-model="search"
-                        @keyup.enter="searchRounds"
-                        placeholder="Search for rounds to add to your shortlist"
-                    />
+                    <div>
+                        <TextInput
+                            v-model="search"
+                            @keyup.enter="searchRounds"
+                            placeholder="Search for rounds to add to your shortlist"
+                            style="width: 100%"
+                        />
+                    </div>
                     <!-- Iterate over the rounds and create a checkbox for each one -->
                     <div
                         v-for="(round, index) in rounds"
                         :key="index"
-                        class="mb-2"
+                        class="mb-2 mr-2"
+                        style="display: inline-block"
                     >
-                        <input
-                            type="checkbox"
-                            :id="`round-${index}`"
-                            :value="round.id"
-                            @change="toggleRound(round)"
-                            :checked="
-                                selectedRounds.some(
-                                    (selectedRound) =>
-                                        selectedRound.uuid === round.uuid
-                                )
-                            "
-                        />
-                        <label :for="`round-${index}`">{{ round.name }}</label>
+                        <span>
+                            <input
+                                class="mr-1"
+                                type="checkbox"
+                                :id="`round-${index}`"
+                                :value="round.uuid"
+                                @change="toggleRound(round)"
+                                :checked="
+                                    selectedRounds.some(
+                                        (selectedRound) =>
+                                            selectedRound.uuid === round.uuid
+                                    )
+                                "
+                            />
+                            <label :for="`round-${index}`">{{
+                                round.name
+                            }}</label>
+                        </span>
                     </div>
+                    <hr class="mb-5" />
                 </div>
             </div>
 

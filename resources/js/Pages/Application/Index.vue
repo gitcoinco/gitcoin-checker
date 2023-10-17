@@ -44,17 +44,12 @@ watch(selectedApplicationStatusRef, (newStatus) => {
     );
 });
 
-function updateSelectedRounds(newRounds) {
+function updateSelectedRounds() {
     // Refresh applications using ajax
     axios
-        .get(
-            route("round.application.index", {
-                selectedRounds: newRounds,
-            }),
-            {
-                responseType: "json",
-            }
-        )
+        .get(route("round.application.index", {}), {
+            responseType: "json",
+        })
         .then((response) => {
             applications.value = response.data.applications;
         });
