@@ -220,7 +220,7 @@ async function evaluateApplication(event, application) {
                                 </span>
                             </td>
                             <td>
-                                <template v-if="application.latestPrompt">
+                                <template v-if="application.latest_prompt">
                                     <span
                                         v-if="
                                             (application.results &&
@@ -229,7 +229,8 @@ async function evaluateApplication(event, application) {
                                             (application.results.length > 0 &&
                                                 application.results[0]
                                                     .prompt_id !==
-                                                    application.latestPrompt.id)
+                                                    application.latest_prompt
+                                                        .id)
                                         "
                                     >
                                         <a
