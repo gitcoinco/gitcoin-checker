@@ -43,6 +43,43 @@ class RoundApplicationController extends Controller
             }
         }
 
+        if ($request->has('selectedApplicationRoundType')) {
+            $selectedApplicationRoundType = $request->input('selectedApplicationRoundType', 'all');
+            $selectedApplicationRoundUuidList = '[]';
+
+            $userPreference = UserPreference::firstOrCreate([
+                'user_id' => $request->user()->id,
+                'key' => 'selectedApplicationRoundType',
+            ]);
+            if (!$userPreference) {
+                $userPreference->value = json_encode($selectedApplicationRoundType);
+                $userPreference->save();
+            }
+
+            $userPreference = UserPreference::firstOrCreate([
+                'user_id' => $request->user()->id,
+                'key' => 'selectedApplicationRoundUuidList',
+            ]);
+            if (!$userPreference) {
+                $userPreference->value = json_encode([]);
+                $userPreference->save();
+            }
+        } else {
+            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationRoundType')->first();
+            if ($userPreference) {
+                $selectedApplicationRoundType = json_decode($userPreference->value);
+            } else {
+                $selectedApplicationRoundType = 'all';
+            }
+
+            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
+            if ($userPreference) {
+                $selectedApplicationRoundUuidList = json_decode($userPreference->value, true);
+            } else {
+                $selectedApplicationRoundUuidList = '[]';
+            }
+        }
+
         $applications = RoundApplication::with([
             'round',
             'project',
@@ -56,15 +93,38 @@ class RoundApplicationController extends Controller
             ->when($status != 'all', function ($query) use ($status) {
                 $query->where('status', strtolower($status));
             })
+            ->when($selectedApplicationRoundType != 'all', function ($query) {
+                $userPreference = UserPreference::where('user_id', auth()->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
+                if ($userPreference) {
+                    $selectedApplicationRoundUuidList = json_decode($userPreference->value, true);
+                    $listOfRoundIds = Round::whereIn('uuid', $selectedApplicationRoundUuidList)->pluck('id');
+                    $query->whereIn('round_id', $listOfRoundIds);
+                } else {
+                    $query->whereIn('round_id', []);
+                }
+
+                // $query->whereIn('round_id', json_decode($selectedApplicationRoundTypeDetails));
+            })
             ->orderBy('id', 'desc')
             ->paginate();
 
         // No need for the foreach loop, since we are already eager loading the latest prompt.
 
-        return Inertia::render('Application/Index', [
-            'applications' => $applications,
-            'selectedApplicationStatus' => $status,
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'applications' => $applications,
+                'selectedApplicationStatus' => $status,
+                'selectedApplicationRoundType' => $selectedApplicationRoundType,
+                'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+            ]);
+        } else {
+            return Inertia::render('Application/Index', [
+                'applications' => $applications,
+                'selectedApplicationStatus' => $status,
+                'selectedApplicationRoundType' => $selectedApplicationRoundType,
+                'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+            ]);
+        }
     }
 
 

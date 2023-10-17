@@ -7,8 +7,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoundPromptController;
 use App\Http\Controllers\RoundApplicationController;
 use App\Http\Controllers\ChainController;
+use App\Http\Controllers\UserPreferenceController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -64,6 +66,13 @@ Route::middleware([
     Route::prefix('application')->group(function () {
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
     });
+
+    Route::prefix('user-preferences')->group(function () {
+        Route::get('/rounds', [UserPreferenceController::class, 'roundsSearch'])->name('user-preferences.rounds.search');
+        Route::get('/round/toggle/{round}', [UserPreferenceController::class, 'roundToggle'])->name('user-preferences.round.toggle');
+        Route::post('/rounds', [UserPreferenceController::class, 'roundsUpdate'])->name('user-preferences.rounds.update');
+    });
+
 
     Route::prefix('chain')->group(function () {
         Route::get('/', [ChainController::class, 'index'])->name('chain.index');

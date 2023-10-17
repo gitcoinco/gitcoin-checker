@@ -8,6 +8,7 @@ import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
+import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
 
 import {
     copyToClipboard,
@@ -23,14 +24,18 @@ const applications = ref(usePage().props.applications.valueOf());
 const selectedApplicationStatus = ref(
     usePage().props.selectedApplicationStatus.valueOf()
 );
+const selectedApplicationRoundType = ref(
+    usePage().props.selectedApplicationRoundType.valueOf()
+);
 
 const roundPrompt = (round) => {
     router.visit(route("round.prompt.show", { round: round }));
 };
 
-const selectedStatus = ref(selectedApplicationStatus.value);
+const selectedApplicationStatusRef = ref(selectedApplicationStatus.value);
+const selectedApplicationRoundTypeRef = ref(selectedApplicationRoundType.value);
 
-watch(selectedStatus, (newStatus) => {
+watch(selectedApplicationStatusRef, (newStatus) => {
     // reload the page with the new status added to the query string
     router.visit(
         route("round.application.index", {
@@ -38,6 +43,22 @@ watch(selectedStatus, (newStatus) => {
         })
     );
 });
+
+function updateSelectedRounds(newRounds) {
+    // Refresh applications using ajax
+    axios
+        .get(
+            route("round.application.index", {
+                selectedRounds: newRounds,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            applications.value = response.data.applications;
+        });
+}
 
 const openModalId = ref(null);
 function toggleModal(applicationId) {
@@ -72,8 +93,6 @@ async function evaluateApplication(event, application) {
             applications.value.data[index].results.unshift(
                 response.data.project.applications[0].results[0]
             );
-
-            console.log(applications.value.data[index].results);
         })
         .finally(() => {
             // Stop loading for this specific project
@@ -92,12 +111,12 @@ async function evaluateApplication(event, application) {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <table v-if="applications && applications.data.length > 0">
+                <table>
                     <thead>
                         <tr>
                             <th class="whitespace-nowrap">
                                 <select
-                                    v-model="selectedStatus"
+                                    v-model="selectedApplicationStatusRef"
                                     class="p-1 mr-1 pr-6"
                                 >
                                     <option value="all">All</option>
@@ -118,12 +137,30 @@ async function evaluateApplication(event, application) {
                                 </Tooltip>
                             </th>
                             <th>Project</th>
-                            <th>Round</th>
+                            <th>
+                                <select
+                                    v-model="selectedApplicationRoundTypeRef"
+                                    class="p-1 mr-1 pr-6"
+                                >
+                                    <option value="all">All</option>
+                                    <option value="mine">My Rounds</option>
+                                </select>
+                            </th>
                             <th></th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-if="applications && applications.data.length > 0">
+                        <tr v-if="selectedApplicationRoundTypeRef == 'mine'">
+                            <td colspan="5" class="text-center">
+                                <SpecifyUserRounds
+                                    @selectedRoundsChanged="
+                                        updateSelectedRounds
+                                    "
+                                />
+                            </td>
+                        </tr>
+
                         <tr
                             v-for="(application, index) in applications.data"
                             :key="index"
@@ -304,6 +341,15 @@ async function evaluateApplication(event, application) {
                                         </template>
                                     </Tooltip>
                                 </template>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody
+                        v-else-if="selectedApplicationRoundTypeRef == 'mine'"
+                    >
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <SpecifyUserRounds />
                             </td>
                         </tr>
                     </tbody>
