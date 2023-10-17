@@ -76,7 +76,7 @@ async function evaluateApplication(event, application) {
     axios
         .post(
             route("round.application.chatgpt.list", {
-                application: application.id,
+                application: application.uuid,
             })
         )
         .then((response) => {
