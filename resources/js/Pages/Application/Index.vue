@@ -9,6 +9,7 @@ import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
+import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
 
 import {
     copyToClipboard,
@@ -67,33 +68,70 @@ function toggleModal(applicationId) {
 // New state for loading indicator for each applications
 const loadingStates = ref({});
 
-async function evaluateApplication(event, application) {
-    event.preventDefault();
-
+// Methods to handle events emitted by the GptEvaluationButton component
+const handleEvaluateApplication = async (application) => {
     // Start loading for this specific project
     loadingStates.value[application.id] = true;
 
-    axios
-        .post(
+    // Here, you might want to adjust depending on what the response looks like and what data you need to update
+    try {
+        const response = await axios.post(
             route("round.application.chatgpt.list", {
                 application: application.uuid,
             })
-        )
-        .then((response) => {
-            // find the application index in the applications array
-            const index = applications.value.data.findIndex(
-                (app) => app.id === application.id
-            );
+        );
 
-            applications.value.data[index].results.unshift(
-                response.data.project.applications[0].results[0]
-            );
-        })
-        .finally(() => {
-            // Stop loading for this specific project
-            delete loadingStates.value[application.id];
-        });
-}
+        // Find the application index in the applications array
+        const index = applications.value.data.findIndex(
+            (app) => app.id === application.id
+        );
+
+        // Assuming response.data.project.applications[0].results[0] contains the updated results you want to insert.
+        applications.value.data[index].results.unshift(
+            response.data.project.applications[0].results[0]
+        );
+    } catch (error) {
+        // Handle error properly, maybe set an error message to display in the UI
+        console.error("An error occurred:", error);
+    } finally {
+        // Stop loading for this specific project
+        delete loadingStates.value[application.id];
+    }
+};
+
+const handleRoundPrompt = (round) => {
+    // This function was already defined in your setup as 'roundPrompt'
+    // Just point it to the correct function here to maintain consistency in naming.
+    roundPrompt(round);
+};
+
+// async function evaluateApplication(event, application) {
+//     event.preventDefault();
+
+//     // Start loading for this specific project
+//     loadingStates.value[application.id] = true;
+
+//     axios
+//         .post(
+//             route("round.application.chatgpt.list", {
+//                 application: application.uuid,
+//             })
+//         )
+//         .then((response) => {
+//             // find the application index in the applications array
+//             const index = applications.value.data.findIndex(
+//                 (app) => app.id === application.id
+//             );
+
+//             applications.value.data[index].results.unshift(
+//                 response.data.project.applications[0].results[0]
+//             );
+//         })
+//         .finally(() => {
+//             // Stop loading for this specific project
+//             delete loadingStates.value[application.id];
+//         });
+// }
 </script>
 
 <template>
@@ -284,58 +322,14 @@ async function evaluateApplication(event, application) {
                                 </span>
                             </td>
                             <td>
-                                <template v-if="application.latest_prompt">
-                                    <span
-                                        v-if="
-                                            (application.results &&
-                                                application.results.length ===
-                                                    0) ||
-                                            (application.results.length > 0 &&
-                                                application.results[0]
-                                                    .prompt_id !==
-                                                    application.latest_prompt
-                                                        .id)
-                                        "
-                                    >
-                                        <a
-                                            @click="
-                                                evaluateApplication(
-                                                    $event,
-                                                    application
-                                                )
-                                            "
-                                            href="#"
-                                            class="text-blue-500 hover:underline"
-                                            :disabled="
-                                                loadingStates[application.id]
-                                            "
-                                        >
-                                            Evaluate
-                                        </a>
-                                    </span>
-                                </template>
-                                <template v-else>
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-exclamation-circle text-red-500"
-                                            aria-hidden="true"
-                                        ></i>
-                                        <template #content>
-                                            Cannot evaluate if a prompt is not
-                                            set for this round.<br /><br />
-                                            <SecondaryButton
-                                                @click="
-                                                    roundPrompt(
-                                                        application.round
-                                                    )
-                                                "
-                                                class="text-blue-500 hover:underline"
-                                            >
-                                                Set Evaluation Criteria
-                                            </SecondaryButton>
-                                        </template>
-                                    </Tooltip>
-                                </template>
+                                <GptEvaluationButton
+                                    :application="application"
+                                    :loadingStates="loadingStates"
+                                    @evaluate-application="
+                                        handleEvaluateApplication
+                                    "
+                                    @round-prompt="handleRoundPrompt"
+                                ></GptEvaluationButton>
                             </td>
                         </tr>
                     </tbody>
