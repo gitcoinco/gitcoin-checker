@@ -9,7 +9,9 @@ import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
 import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
-import EvaluationResults from "@/Components/Gitcoin/Application/EvaluationResults.vue";
+import UserEvaluationButton from "@/Components/Gitcoin/Application/UserEvaluationButton.vue";
+import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
+import HumanEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
 
 import {
     copyToClipboard,
@@ -224,11 +226,15 @@ const handleRoundPrompt = (round) => {
                                 </Link>
                             </td>
                             <td>
-                                <EvaluationResults
+                                <GptEvaluationResults
                                     :application="application"
                                     :loading-states="loadingStates"
                                 >
-                                </EvaluationResults>
+                                </GptEvaluationResults>
+                                <HumanEvaluationResults
+                                    :application="application"
+                                >
+                                </HumanEvaluationResults>
                             </td>
                             <td>
                                 <GptEvaluationButton
@@ -239,6 +245,9 @@ const handleRoundPrompt = (round) => {
                                     "
                                     @round-prompt="handleRoundPrompt"
                                 ></GptEvaluationButton>
+                                <UserEvaluationButton
+                                    :application="application"
+                                ></UserEvaluationButton>
                             </td>
                         </tr>
                     </tbody>

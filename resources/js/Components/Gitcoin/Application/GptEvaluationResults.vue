@@ -82,15 +82,18 @@ export default {
                     application.results.length > 0 && application.latest_prompt
                 "
             >
-            </span>
-            <span>
                 <a
                     href="#"
                     class="text-blue-500 hover:underline"
                     @click="toggleModal()"
                 >
                     <span>
-                        {{ totalScore }}
+                        <i
+                            class="fa fa-android mr-1"
+                            aria-hidden="true"
+                            style="display: inherit"
+                        ></i
+                        >{{ totalScore }}
                         <Tooltip
                             v-if="
                                 application.results &&
