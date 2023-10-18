@@ -70,7 +70,7 @@ Route::middleware([
     Route::prefix('user-preferences')->group(function () {
         Route::get('/rounds', [UserPreferenceController::class, 'roundsSearch'])->name('user-preferences.rounds.search');
         Route::get('/round/toggle/{round}', [UserPreferenceController::class, 'roundToggle'])->name('user-preferences.round.toggle');
-        Route::post('/rounds', [UserPreferenceController::class, 'roundsUpdate'])->name('user-preferences.rounds.update');
+        Route::get('/rounds/selectedApplicationRoundType', [UserPreferenceController::class, 'selectedApplicationRoundType'])->name('user-preferences.rounds.selectedApplicationRoundType');
     });
 
 

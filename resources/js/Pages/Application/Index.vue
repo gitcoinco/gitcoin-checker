@@ -45,6 +45,22 @@ watch(selectedApplicationStatusRef, (newStatus) => {
     );
 });
 
+watch(selectedApplicationRoundTypeRef, (newStatus) => {
+    // Refresh applications using ajax
+    axios
+        .get(
+            route("user-preferences.rounds.selectedApplicationRoundType", {
+                selectedApplicationRoundType: newStatus,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            updateSelectedRounds();
+        });
+});
+
 function updateSelectedRounds() {
     // Refresh applications using ajax
     axios
@@ -95,34 +111,6 @@ const handleRoundPrompt = (round) => {
     // Just point it to the correct function here to maintain consistency in naming.
     roundPrompt(round);
 };
-
-// async function evaluateApplication(event, application) {
-//     event.preventDefault();
-
-//     // Start loading for this specific project
-//     loadingStates.value[application.id] = true;
-
-//     axios
-//         .post(
-//             route("round.application.chatgpt.list", {
-//                 application: application.uuid,
-//             })
-//         )
-//         .then((response) => {
-//             // find the application index in the applications array
-//             const index = applications.value.data.findIndex(
-//                 (app) => app.id === application.id
-//             );
-
-//             applications.value.data[index].results.unshift(
-//                 response.data.project.applications[0].results[0]
-//             );
-//         })
-//         .finally(() => {
-//             // Stop loading for this specific project
-//             delete loadingStates.value[application.id];
-//         });
-// }
 </script>
 
 <template>
