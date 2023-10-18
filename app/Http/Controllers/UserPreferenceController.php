@@ -28,7 +28,7 @@ class UserPreferenceController extends Controller
         ];
     }
 
-    public function roundsUpdate(Request $request)
+    public function selectedApplicationRoundType(Request $request)
     {
         // die('here');
         $selectedApplicationRoundType = $request->input('selectedApplicationRoundType', 'all');
