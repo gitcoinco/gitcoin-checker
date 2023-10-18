@@ -9,7 +9,7 @@ import {
     shortenAddress,
     showDateInShortFormat,
 } from "@/utils.js";
-import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
+import ResultsData from "@/Components/Gitcoin/Application/ResultsData.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const application = ref(usePage().props.application.valueOf());

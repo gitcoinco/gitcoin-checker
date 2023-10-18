@@ -7,9 +7,9 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
-import ResultsData from "@/Components/Gitcoin/ResultsData.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
 import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
+import EvaluationResults from "@/Components/Gitcoin/Application/EvaluationResults.vue";
 
 import {
     copyToClipboard,
@@ -54,15 +54,6 @@ function updateSelectedRounds() {
         .then((response) => {
             applications.value = response.data.applications;
         });
-}
-
-const openModalId = ref(null);
-function toggleModal(applicationId) {
-    if (openModalId.value === applicationId) {
-        openModalId.value = null; // Close the modal if it's already open
-    } else {
-        openModalId.value = applicationId; // Open the modal for the clicked project
-    }
 }
 
 // New state for loading indicator for each applications
@@ -245,81 +236,11 @@ const handleRoundPrompt = (round) => {
                                 </Link>
                             </td>
                             <td>
-                                <span
-                                    v-if="loadingStates[application.id]"
-                                    class="ml-2"
+                                <EvaluationResults
+                                    :application="application"
+                                    :loading-states="loadingStates"
                                 >
-                                    <i class="fa fa-spinner fa-spin"></i>
-                                </span>
-                                <span v-else>
-                                    <span
-                                        v-if="
-                                            application.results.length > 0 &&
-                                            application.latestPrompt
-                                        "
-                                    >
-                                    </span>
-                                    <span>
-                                        <a
-                                            href="#"
-                                            class="text-blue-500 hover:underline"
-                                            @click="toggleModal(application.id)"
-                                        >
-                                            <span>
-                                                {{
-                                                    scoreTotal(
-                                                        application.results
-                                                    )
-                                                }}
-                                                <Tooltip
-                                                    v-if="
-                                                        application.results &&
-                                                        application.results
-                                                            .length > 0 &&
-                                                        application.latestPrompt &&
-                                                        application.results[0]
-                                                            .prompt_id !==
-                                                            application
-                                                                .latestPrompt.id
-                                                    "
-                                                >
-                                                    <i
-                                                        class="fa fa-exclamation-circle text-red-500"
-                                                        aria-hidden="true"
-                                                    ></i>
-                                                    <template #content>
-                                                        This score was
-                                                        calculated using an
-                                                        older version of the
-                                                        scoring criteria.
-                                                    </template>
-                                                </Tooltip>
-                                            </span>
-                                        </a>
-                                    </span>
-                                    <Modal
-                                        v-if="
-                                            application.results &&
-                                            application.results.length > 0
-                                        "
-                                        :show="openModalId === application.id"
-                                        @close="toggleModal(application.id)"
-                                    >
-                                        <div class="modal-content">
-                                            <h2 class="modal-title">
-                                                Score Details for
-                                                {{ application.project.title }}
-                                            </h2>
-
-                                            <ResultsData
-                                                :result="
-                                                    application.project
-                                                        .results[0]
-                                                "
-                                            />
-                                        </div>
-                                    </Modal>
-                                </span>
+                                </EvaluationResults>
                             </td>
                             <td>
                                 <GptEvaluationButton
