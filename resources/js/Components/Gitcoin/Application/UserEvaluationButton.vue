@@ -1,9 +1,11 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps, defineEmits } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import Slider from "@/Components/Slider.vue";
+
+const emit = defineEmits(["evaluatedApplication"]);
 
 // Accept application as a prop
 const props = defineProps({
@@ -61,10 +63,8 @@ const submitScore = async () => {
             }
         );
 
-        // Handle any response or post-submit logic here
-        // For instance, you might want to close the modal or show a success message
-        //showPromptModal.value = false;
-        // Optionally, refresh the user data to reflect changes
+        emit("evaluatedApplication");
+
         await fetchscoreData();
     } catch (error) {
         // Handle submission error (show error message, log, etc.)
@@ -107,7 +107,7 @@ const toggleModal = () => {
                         <label
                             for="score"
                             class="block text-sm font-medium text-gray-700"
-                            >Score {{ form.score }}</label
+                            >Score {{ form.score }}%</label
                         >
                         <Slider v-model="form.score" :min="0" :max="100" />
                     </div>
@@ -127,10 +127,8 @@ const toggleModal = () => {
                         ></textarea>
                     </div>
 
-                    <div class="mt-4">
-                        <SecondaryButton type="submit" class="w-full"
-                            >Submit</SecondaryButton
-                        >
+                    <div class="mt-4 text-right">
+                        <SecondaryButton type="submit">Save</SecondaryButton>
                     </div>
                 </form>
 
@@ -147,7 +145,7 @@ const toggleModal = () => {
                         <!-- Render table rows dynamically based on fetched user data -->
                         <tr v-for="(score, index) in scoreData" :key="index">
                             <td>{{ score.user.name }}</td>
-                            <td>{{ score.score }}</td>
+                            <td>{{ score.score }}%</td>
                             <td>{{ score.notes }}</td>
                         </tr>
                     </tbody>

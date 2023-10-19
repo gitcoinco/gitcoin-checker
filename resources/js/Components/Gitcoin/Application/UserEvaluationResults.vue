@@ -39,9 +39,9 @@ export default defineComponent({
 
 <template>
     <div class="text-blue-500 hover:underline" v-if="userScoreAverage">
-        <span @click="toggleModal">
+        <span @click="toggleModal" class="pointer">
             <i class="fa fa-users" aria-hidden="true"></i>
-            {{ userScoreAverage }}
+            {{ userScoreAverage }}%
         </span>
 
         <Modal :show="openModal" @close="toggleModal()">

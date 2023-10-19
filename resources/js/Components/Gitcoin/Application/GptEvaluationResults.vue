@@ -91,7 +91,7 @@ export default {
                         <i
                             class="fa fa-android mr-1"
                             aria-hidden="true"
-                            style="display: inherit"
+                            style="display: inherit; font-size: 1.3em"
                         ></i
                         >{{ totalScore }}
                         <Tooltip

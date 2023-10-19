@@ -77,6 +77,10 @@ function updateSelectedRounds() {
 // New state for loading indicator for each applications
 const loadingStates = ref({});
 
+const handleUserEvaluateApplication = async (application) => {
+    updateSelectedRounds();
+};
+
 // Methods to handle events emitted by the GptEvaluationButton component
 const handleEvaluateApplication = async (application) => {
     // Start loading for this specific project
@@ -229,6 +233,7 @@ const handleRoundPrompt = (round) => {
                                 <GptEvaluationResults
                                     :application="application"
                                     :loading-states="loadingStates"
+                                    class="mb-2"
                                 >
                                 </GptEvaluationResults>
                                 <HumanEvaluationResults
@@ -247,6 +252,9 @@ const handleRoundPrompt = (round) => {
                                 ></GptEvaluationButton>
                                 <UserEvaluationButton
                                     :application="application"
+                                    @evaluated-application="
+                                        handleUserEvaluateApplication
+                                    "
                                 ></UserEvaluationButton>
                             </td>
                         </tr>

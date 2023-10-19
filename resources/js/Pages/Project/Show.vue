@@ -5,6 +5,9 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
+import HumanEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
+
 import {
     formatDate,
     shortenAddress,
@@ -107,6 +110,7 @@ const applications = ref(usePage().props.applications.valueOf());
                 v-if="applications && applications.data.length > 0"
             >
                 <h2 class="text-xl">Applications</h2>
+
                 <table>
                     <thead>
                         <tr>
@@ -132,7 +136,8 @@ const applications = ref(usePage().props.applications.valueOf());
                                 >
                             </th>
                             <th>Eligibility</th>
-                            <th></th>
+                            <th>Prompt</th>
+                            <th>Evaluation</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -229,6 +234,17 @@ const applications = ref(usePage().props.applications.valueOf());
                                         ChatGPT for an evaluation.
                                     </template>
                                 </Tooltip>
+                            </td>
+                            <td>
+                                <GptEvaluationResults
+                                    :application="application"
+                                    class="mb-2"
+                                >
+                                </GptEvaluationResults>
+                                <HumanEvaluationResults
+                                    :application="application"
+                                >
+                                </HumanEvaluationResults>
                             </td>
                         </tr>
                     </tbody>
