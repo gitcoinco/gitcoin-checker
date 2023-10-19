@@ -7,21 +7,19 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('ingest:data')->hourly();
+        $schedule->command('ingest:data')->hourly()->withoutOverlapping();
+
+        // Regular maintenance command, safe to run daily
         $schedule->command('telescope:prune')->daily();
 
-        $schedule->command('ingest:data', ['--longRunning'])->daily();
+        // This is your long-running task. It's set to run daily and should not overlap with itself.
+        // This is especially important here because it's a long-running task.
+        $schedule->command('ingest:data', ['--longRunning'])->daily()->withoutOverlapping();
     }
 
-    /**
-     * Register the commands for the application.
-     */
+
     protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
