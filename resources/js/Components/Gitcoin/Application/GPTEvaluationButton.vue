@@ -80,6 +80,7 @@ export default {
                     class="fa fa-exclamation-circle text-red-500"
                     aria-hidden="true"
                 ></i>
+                <span class="text-blue-500 hover:underline"> Prompt </span>
                 <template #content>
                     Cannot evaluate if a prompt is not set for this round.<br /><br />
                     <SecondaryButton

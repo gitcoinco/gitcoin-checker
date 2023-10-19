@@ -12,6 +12,7 @@ import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationB
 import UserEvaluationButton from "@/Components/Gitcoin/Application/UserEvaluationButton.vue";
 import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
 import HumanEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
+import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
 
 import {
     copyToClipboard,
@@ -214,10 +215,14 @@ const handleRoundPrompt = (round) => {
                                             application.project
                                         )
                                     "
-                                    class="text-blue-500 hover:underline"
+                                    class="text-blue-500 hover:underline mr-2"
                                 >
                                     {{ application.project.title }}
                                 </Link>
+
+                                <ApplicationAnswers
+                                    :application="application"
+                                />
                             </td>
                             <td>
                                 <Link
@@ -249,6 +254,7 @@ const handleRoundPrompt = (round) => {
                                         handleEvaluateApplication
                                     "
                                     @round-prompt="handleRoundPrompt"
+                                    class="mb-2"
                                 ></GptEvaluationButton>
                                 <UserEvaluationButton
                                     :application="application"
