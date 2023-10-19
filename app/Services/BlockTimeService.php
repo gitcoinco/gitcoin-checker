@@ -30,34 +30,63 @@ class BlockTimeService
         $client = new Client(['base_uri' => 'https://api.etherscan.io']);
 
         try {
-            // Send a request to Etherscan API
-            $response = $client->get('/api', [
-                'query' => [
-                    'module' => 'block',
-                    'action' => 'getblockreward',
-                    'blockno' => $blockNumber, // Assuming this is the correct parameter for the block number
-                    'apikey' => env('ETHERSCAN_API_KEY'),
-                ]
-            ]);
+            $response = Cache::remember('blockTime-' . $blockNumber, now()->addYears(1), function () use ($client, $blockNumber) {
+                return $client->get('/api', [
+                    'query' => [
+                        'module' => 'block',
+                        'action' => 'getblockreward',
+                        'blockno' => $blockNumber, // Assuming this is the correct parameter for the block number
+                        'apikey' => env('ETHERSCAN_API_KEY'),
+                    ]
+                ]);
 
-            // If we're making a request, add a slight delay so that we don't go over Etherscan's rate limit
-            sleep(1);
+                // If we're making a request, add a slight delay so that we don't go over Etherscan's rate limit
+                sleep(1);
+            });
+
+            $responseStatus = $response->getStatusCode();
+
+            if ($responseStatus !== 200) {
+                return null;
+            }
 
             // Get the body of the response
             $body = $response->getBody();
 
+            if (!is_string($body) || !is_array(json_decode($body, true))) {
+                // Find the closest block to this one and estimate the time
+                $closestBlockMin = BlockTime::where('chain_id', $chain->id)
+                    ->where('block_number', '<', $blockNumber)
+                    ->orderBy('block_number', 'desc')
+                    ->first();
+                $closestBlockMax = BlockTime::where('chain_id', $chain->id)->where('block_number', '>', $blockNumber)->orderBy('block_number', 'asc')->first();
+
+                if ($closestBlockMin && $closestBlockMax) {
+                    $blockTimeMin = $closestBlockMin->timestamp;
+                    $blockTimeMax = $closestBlockMax->timestamp;
+
+                    $blockTime = BlockTime::create([
+                        'chain_id' => $chain->id,
+                        'block_number' => $blockNumber,
+                        'timestamp' => intval($blockTimeMin + (($blockTimeMax - $blockTimeMin) / 2)),
+                    ]);
+                    return $blockTime->timestamp;
+                }
+            }
+
             // Decode the JSON response
             $data = json_decode($body, true);
 
-            $timeStamp = $data['result']['timeStamp'];
+            if (isset($data['result']['timeStamp'])) {
+                $timeStamp = $data['result']['timeStamp'];
 
-            $blockTime = BlockTime::create([
-                'chain_id' => $chain->id,
-                'block_number' => $blockNumber,
-                'timestamp' => $timeStamp,
-            ]);
-
-            return $timeStamp;
+                $blockTime = BlockTime::create([
+                    'chain_id' => $chain->id,
+                    'block_number' => $blockNumber,
+                    'timestamp' => $timeStamp,
+                ]);
+                return $timeStamp;
+            }
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
             echo 'Request failed: ' . $e->getMessage();
             return null;
