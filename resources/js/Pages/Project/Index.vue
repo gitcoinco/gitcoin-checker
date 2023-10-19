@@ -7,6 +7,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { shortenURL } from "@/utils.js";
+import Tooltip from "@/Components/Tooltip.vue";
 
 const projects = ref(usePage().props.projects.valueOf());
 
@@ -57,9 +58,9 @@ if (urlParams.has("search")) {
             </h2>
         </template>
 
-        <div>
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <table v-if="projects && projects.data.length > 0">
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            <div v-if="projects && projects.data.length > 0">
+                <table>
                     <thead>
                         <tr>
                             <th>
@@ -179,6 +180,16 @@ if (urlParams.has("search")) {
                 </table>
 
                 <Pagination :links="projects.links" />
+            </div>
+            <div v-else-if="searchTerm">
+                <p>No results found for "{{ searchTerm }}"</p>
+
+                <Link
+                    :href="route('project.index')"
+                    class="text-blue-500 hover:underline"
+                >
+                    Clear Search
+                </Link>
             </div>
         </div>
     </AppLayout>
