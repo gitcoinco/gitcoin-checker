@@ -69,6 +69,7 @@ class BlockTimeService
                         'chain_id' => $chain->id,
                         'block_number' => $blockNumber,
                         'timestamp' => intval($blockTimeMin + (($blockTimeMax - $blockTimeMin) / 2)),
+                        'is_estimate' => true,
                     ]);
                     return $blockTime->timestamp;
                 }

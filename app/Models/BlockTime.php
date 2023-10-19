@@ -13,5 +13,6 @@ class BlockTime extends Model
         'chain_id',
         'block_number',
         'timestamp',
+        'is_estimate',
     ];
 }
