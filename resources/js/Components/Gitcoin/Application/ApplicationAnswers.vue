@@ -60,10 +60,12 @@ export default {
                                 v-for="(answer, index) in answers"
                                 :key="'answers-' + index"
                             >
-                                <td class="score-value">
+                                <td class="score-value" v-if="answer.question">
                                     {{ answer.question }}
                                 </td>
-                                <td>{{ answer.answer }}</td>
+                                <td v-if="answer.answer">
+                                    {{ answer.answer }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>

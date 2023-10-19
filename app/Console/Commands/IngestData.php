@@ -276,9 +276,15 @@ class IngestData extends Command
                         $description = $projectData['description'];
                     }
 
+                    $createdAt = now();
+                    if (isset($projectData['createdAt'])) {
+                        $createdAt = date('Y-m-d H:i:s', intval($projectData['createdAt'] / 1000));
+                    }
+
                     $project = Project::updateOrCreate(
                         ['id_addr' => $this->getAddress($data['projectId'])],
                         [
+                            'created_at' => $createdAt,
                             'title' => isset($projectData['title']) ? $projectData['title'] : null,
                             'description' => $description,
                             'website' => isset($projectData['website']) ? $projectData['website'] : null,

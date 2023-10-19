@@ -23,7 +23,7 @@ class Project extends Model
         'projectTwitter',
         'metadata',
         'flagged_at',
-
+        'created_at',
     ];
 
     protected $casts = [
