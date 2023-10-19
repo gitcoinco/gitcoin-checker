@@ -30,8 +30,8 @@ class BlockTimeService
         $client = new Client(['base_uri' => 'https://api.etherscan.io']);
 
         try {
-            $response = Cache::remember('blockTime-' . $blockNumber, now()->addYears(1), function () use ($client, $blockNumber) {
-                return $client->get('/api', [
+            $data = Cache::remember('blockTime3-' . $blockNumber, now()->addYears(1), function () use ($client, $blockNumber) {
+                $response = $client->get('/api', [
                     'query' => [
                         'module' => 'block',
                         'action' => 'getblockreward',
@@ -40,20 +40,20 @@ class BlockTimeService
                     ]
                 ]);
 
+                // Get the body of the response
+                $body = $response->getBody();
+
                 // If we're making a request, add a slight delay so that we don't go over Etherscan's rate limit
                 sleep(1);
+
+                // Decode the JSON response
+                $data = json_decode($body, true);
+
+                return $data;
             });
 
-            $responseStatus = $response->getStatusCode();
 
-            if ($responseStatus !== 200) {
-                return null;
-            }
-
-            // Get the body of the response
-            $body = $response->getBody();
-
-            if (!is_string($body) || !is_array(json_decode($body, true))) {
+            if (!isset($data['result']['timestamp'])) {
                 // Find the closest block to this one and estimate the time
                 $closestBlockMin = BlockTime::where('chain_id', $chain->id)
                     ->where('block_number', '<', $blockNumber)
@@ -73,12 +73,7 @@ class BlockTimeService
                     ]);
                     return $blockTime->timestamp;
                 }
-            }
-
-            // Decode the JSON response
-            $data = json_decode($body, true);
-
-            if (isset($data['result']['timeStamp'])) {
+            } else {
                 $timeStamp = $data['result']['timeStamp'];
 
                 $blockTime = BlockTime::create([
