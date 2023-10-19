@@ -10,6 +10,7 @@ use App\Models\Chain;
 use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
+use App\Services\BlockTimeService;
 use App\Services\DirectoryParser;
 use Exception;
 use \PsychoB\Ethereum\AddressValidator;
@@ -36,15 +37,18 @@ class IngestData extends Command
 
     protected $indexerUrl = '';
 
+    protected $blockTimeService;
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(BlockTimeService $blockTimeService)
     {
         parent::__construct();
         $this->indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+        $this->blockTimeService = $blockTimeService;
     }
 
     /**
@@ -316,14 +320,22 @@ class IngestData extends Command
 
                 $this->info("Processing application: {$data['projectId']}");
 
-                // TODO:::Unsure if project.createdAt is the correct field to use here
                 $createdAt = null;
-                if (isset($data['metadata']['application']['project']['createdAt'])) {
-                    $createdAt = date('Y-m-d H:i:s', $data['metadata']['application']['project']['createdAt'] / 1000);
-                    // update round last_updated_at if it's newer than the current value
-                    if ($createdAt > $round->last_application_at) {
-                        $round->last_application_at = $createdAt;
-                        $round->save();
+                // When was this application created?
+                if (isset($data['createdAtBlock'])) {
+                    $createdAt = $this->blockTimeService->getBlockTime($chain, $data['createdAtBlock']);
+                }
+
+                // When was this application approved / pending
+                $rejectedAt = null;
+                $approvedAt = null;
+                if ($data['statusSnapshots']) {
+                    foreach ($data['statusSnapshots'] as $key => $value) {
+                        if (strtolower($value['status']) == 'rejected') {
+                            $rejectedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']);
+                        } else if (strtolower($value['status']) == 'approved') {
+                            $approvedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']);
+                        }
                     }
                 }
 
@@ -335,8 +347,9 @@ class IngestData extends Command
                         'project_addr' => $data['projectId'],
                         'status' => $data['status'],
                         'metadata' => json_encode($data['metadata']),
-                        'created_at' => $createdAt,
-                        'updated_at' => $createdAt,
+                        'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
+                        'rejected_at' => $rejectedAt ? date('Y-m-d H:i:s', $rejectedAt) : null,
+                        'approved_at' => $approvedAt ? date('Y-m-d H:i:s', $approvedAt) : null,
                     ]
                 );
             }

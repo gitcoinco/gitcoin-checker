@@ -19,6 +19,8 @@ class RoundApplication extends Model
         'last_updated_on',
         'version',
         'metadata',
+        'approved_at',
+        'rejected_at',
     ];
 
     public function round()
