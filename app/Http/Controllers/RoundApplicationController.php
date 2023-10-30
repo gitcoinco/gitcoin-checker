@@ -83,6 +83,8 @@ class RoundApplicationController extends Controller
         $applications = RoundApplication::with([
             'round',
             'project',
+            'project.applications',
+            'project.applications.round',
             'userScores',
             'userScores.user',
             'latestPrompt' => function ($query) {
