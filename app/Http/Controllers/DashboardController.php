@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Round;
+use App\Models\RoundApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller

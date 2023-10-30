@@ -4,6 +4,7 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+import PreviousApplicationStatus from "@/Components/Gitcoin/Application/PreviousApplicationStatus.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
@@ -156,6 +157,7 @@ const handleRoundPrompt = (round) => {
                                 </Tooltip>
                             </th>
                             <th>Project</th>
+                            <th class="whitespace-nowrap">History</th>
                             <th>
                                 <select
                                     v-model="selectedApplicationRoundTypeRef"
@@ -221,6 +223,11 @@ const handleRoundPrompt = (round) => {
                                 </Link>
 
                                 <ApplicationAnswers
+                                    :application="application"
+                                />
+                            </td>
+                            <td class="whitespace-nowrap">
+                                <PreviousApplicationStatus
                                     :application="application"
                                 />
                             </td>
