@@ -23,9 +23,9 @@
             />
         </td>
         <td class="py-2 px-4">
-            <SecondaryButton @click="removeQuestion()">Remove</SecondaryButton>
-            <button @click="moveQuestion(-1)">&#8679;</button>
-            <button @click="moveQuestion(1)">&#8681;</button>
+            <SecondaryButton @click="remove">Remove</SecondaryButton>
+            <button @click="moveUp">&#8679;</button>
+            <button @click="moveDown">&#8681;</button>
         </td>
     </tr>
 </template>

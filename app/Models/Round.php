@@ -61,6 +61,11 @@ class Round extends Model
         return $this->hasMany(RoundRequirement::class);
     }
 
+    public function evaluationQuestions()
+    {
+        return $this->hasOne(RoundEvaluationQuestions::class);
+    }
+
     public function questions()
     {
         return $this->hasMany(RoundQuestion::class);

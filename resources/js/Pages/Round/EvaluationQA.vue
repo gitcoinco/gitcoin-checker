@@ -2,28 +2,28 @@
 import { ref, reactive, computed } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
-import Pagination from "@/Components/Pagination.vue";
 import Modal from "@/Components/Modal.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import QuestionTable from "./Components/EvaluationQA/QuestionTable.vue";
 import QuestionInput from "./Components/EvaluationQA/QuestionInput.vue";
-import {
-    copyToClipboard,
-    shortenAddress,
-    scoreTotal,
-    shortenURL,
-} from "@/utils.js";
+import { copyToClipboard, shortenAddress } from "@/utils.js";
 
 const round = ref(usePage().props.round.valueOf());
-const questions = reactive([]);
-const newQuestion = ref("");
-const newQuestionType = ref("select");
-const newOptions = ref("");
+const questions = reactive(
+    JSON.parse(round.value.evaluation_questions.questions) || []
+);
 
-const totalWeighting = computed(() => {
-    return questions.reduce((acc, question) => acc + question.weighting, 0);
+const form = useForm({
+    questions: questions,
+});
+
+// Original questions
+const originalQuestions = JSON.parse(JSON.stringify(questions));
+
+// Computed property to check for changes
+const hasChanges = computed(() => {
+    return JSON.stringify(questions) !== JSON.stringify(originalQuestions);
 });
 
 const addQuestion = (text, type, options) => {
@@ -88,28 +88,16 @@ const updateWeighting = (index, value) => {
 };
 
 const postQuestions = () => {
-    const data = {
-        questions: questions.map((question) => {
-            return {
-                text: question.text,
-                type: question.type,
-                options: question.options,
-                weighting: question.weighting,
-            };
+    form.questions = questions;
+    form.post(
+        route("round.evaluation.upsert", {
+            round: round.value.uuid,
         }),
-    };
-
-    axios
-        .post(
-            route("round.evaluation.upsert", { round: round.value.uuid }),
-            data
-        )
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+        {
+            onSuccess: (response) => {},
+            onError: (error) => {},
+        }
+    );
 };
 
 const updateQuestion = (index, field, value) => {
@@ -164,7 +152,18 @@ const moveQuestion = (index, direction) => {
                 />
 
                 <div class="mt-4">
-                    <PrimaryButton @click="postQuestions">Save</PrimaryButton>
+                    <PrimaryButton
+                        @click="postQuestions"
+                        :disabled="!hasChanges"
+                        class="text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
+                        :class="{
+                            'bg-blue-600 hover:bg-blue-700 focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-800':
+                                hasChanges,
+                            'bg-gray-400 cursor-not-allowed': !hasChanges,
+                        }"
+                    >
+                        Save
+                    </PrimaryButton>
                 </div>
             </div>
         </div>
