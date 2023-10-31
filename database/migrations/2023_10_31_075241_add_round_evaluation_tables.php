@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('round_evaluation_questions', function (Blueprint $table) {
+        Schema::create('round_application_evaluation_questions', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('round_id')->unsigned();
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('round_evaluation_answers', function (Blueprint $table) {
+        Schema::create('round_application_evaluation_answers', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('user_id')->unsigned();

@@ -6,7 +6,7 @@ use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RoundEvaluationAnswers extends Model
+class RoundApplicationEvaluationAnswers extends Model
 {
     use HasFactory, ShortUniqueUuidTrait;
 

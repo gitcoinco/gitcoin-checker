@@ -151,7 +151,7 @@ const moveQuestion = (index, direction) => {
                     :moveQuestionMethod="moveQuestion"
                 />
 
-                <div class="mt-4">
+                <div class="mt-4 flex justify-end">
                     <PrimaryButton
                         @click="postQuestions"
                         :disabled="!hasChanges"
@@ -164,6 +164,19 @@ const moveQuestion = (index, direction) => {
                     >
                         Save
                     </PrimaryButton>
+                </div>
+            </div>
+            <div>
+                <div class="max-w-7xl mx-auto py-10">
+                    <div class="mb-10"></div>
+                    <div>
+                        <Link
+                            :href="route('round.prompt.show', round)"
+                            class="text-blue-500 hover:underline"
+                        >
+                            ChatGPT Evaluation Criteria
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

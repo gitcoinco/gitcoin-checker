@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Round;
-use App\Models\RoundEvaluationQuestions;
+use App\Models\RoundApplicationEvaluationQuestions;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +29,7 @@ class RoundEvaluationController extends Controller
     public function showQA(Round $round)
     {
         if (!$round->evaluationQuestions) {
-            $questions = RoundEvaluationQuestions::firstOrCreate(['round_id' => $round->id]);
+            $questions = RoundApplicationEvaluationQuestions::firstOrCreate(['round_id' => $round->id]);
             $questions->save();
         }
 
@@ -58,7 +58,7 @@ class RoundEvaluationController extends Controller
             return redirect()->back()->withInput();
         }
 
-        $questions = RoundEvaluationQuestions::firstOrCreate(['round_id' => $round->id]);
+        $questions = RoundApplicationEvaluationQuestions::firstOrCreate(['round_id' => $round->id]);
         $questions->questions = request()->input('questions');
         $questions->save();
 
