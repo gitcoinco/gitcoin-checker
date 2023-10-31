@@ -6,6 +6,7 @@ use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoundPromptController;
 use App\Http\Controllers\RoundApplicationController;
+use App\Http\Controllers\RoundEvaluationController;
 use App\Http\Controllers\ChainController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationUserScoreController;
@@ -88,10 +89,14 @@ Route::middleware([
 
 
     Route::prefix('round')->group(function () {
+        Route::get('/evaluation/{round}', [RoundEvaluationController::class, 'show'])->name('round.evaluation.show');
+        Route::get('/evaluation/qa/{round}', [RoundEvaluationController::class, 'showQA'])->name('round.evaluation.show.qa');
+        Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');
+        Route::get('/evaluation/gpt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
+        Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
+
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
-        Route::get('/prompt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
-        Route::post('/prompt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
         Route::prefix('application')->group(function () {

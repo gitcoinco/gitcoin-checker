@@ -95,10 +95,10 @@ async function evaluateApplication(event, application) {
                     </h2>
                 </div>
                 <Link
-                    :href="route('round.prompt.show', round)"
+                    :href="route('round.evaluation.show', round)"
                     class="text-blue-500 hover:underline"
                 >
-                    Criteria
+                    Round Evaluation
                 </Link>
             </div>
         </template>

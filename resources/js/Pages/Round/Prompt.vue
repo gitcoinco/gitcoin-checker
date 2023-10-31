@@ -108,6 +108,21 @@ const addAccessControl = () => {
                     <PrimaryButton @click="savePrompts">Save</PrimaryButton>
                 </div>
             </div>
+            <div>
+                <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                    <div class="mb-10"></div>
+                    <div>
+                        <div>
+                            <Link
+                                :href="route('round.evaluation.show.qa', round)"
+                                class="text-blue-500 hover:underline"
+                            >
+                                Human Evaluation Criteria
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>
