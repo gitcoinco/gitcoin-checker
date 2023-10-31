@@ -3,11 +3,11 @@
         <label for="question">Add Question:</label>
         <input v-model="newQuestion" placeholder="Enter a question" />
         <select v-model="newQuestionType">
-            <option value="select">Select</option>
+            <option value="radio">Radio</option>
         </select>
         <input
             disabled
-            v-if="newQuestionType === 'select'"
+            v-if="newQuestionType === 'radio'"
             v-model="newOptions"
             placeholder="Enter options separated by comma"
         />
@@ -28,7 +28,7 @@ export default {
     },
     setup(props) {
         const newQuestion = ref("");
-        const newQuestionType = ref("select");
+        const newQuestionType = ref("radio");
         const newOptions = ref("");
 
         onMounted(() => {
@@ -42,7 +42,7 @@ export default {
                 newOptions.value
             );
             newQuestion.value = "";
-            newQuestionType.value = "select";
+            newQuestionType.value = "radio";
             // newOptions.value = "";
         };
 

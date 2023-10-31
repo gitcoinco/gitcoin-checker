@@ -46,7 +46,7 @@ class RoundEvaluationController extends Controller
 
         $validator = Validator::make(request()->all(), [
             'questions.*.text' => 'required|string|max:255',
-            'questions.*.type' => 'required|string|in:select',
+            'questions.*.type' => 'required|string|in:radio',
             'questions.*.options' => 'required|array',
             'questions.*.options.*' => 'string|max:100',
             'questions.*.weighting' => 'required|numeric|min:0|max:100',

@@ -7,6 +7,8 @@ import Slider from "@/Components/Slider.vue";
 
 const emit = defineEmits(["evaluatedApplication"]);
 
+const selectedAnswers = ref([]);
+
 // Accept application as a prop
 const props = defineProps({
     application: Object,
@@ -95,38 +97,38 @@ const toggleModal = () => {
         <!-- Modal component -->
         <Modal :show="showPromptModal" @close="showPromptModal = false">
             <div class="modal-content">
+                {{ selectedAnswers }}
                 <h2 class="modal-title flex justify-between">
                     <span>Human Evaluations</span>
                     <span @click="toggleModal" class="cursor-pointer">
                         <i class="fa fa-times-circle-o" aria-hidden="true"></i>
                     </span>
                 </h2>
-
                 <form @submit.prevent="submitScore" class="p-4">
-                    <div>
-                        <label
-                            for="score"
-                            class="block text-sm font-medium text-gray-700"
-                            >Score {{ form.score }}%</label
-                        >
-                        <Slider v-model="form.score" :min="0" :max="100" />
+                    <div
+                        v-for="(question, qIndex) in JSON.parse(
+                            application.round.evaluation_questions.questions
+                        )"
+                        :key="qIndex"
+                    >
+                        <p class="mb-2 font-bold">{{ question.text }}</p>
+                        <div class="flex flex-wrap">
+                            <div
+                                v-for="(option, cIndex) in question.options"
+                                :key="cIndex"
+                                class="mb-1 mr-2 flex items-center"
+                            >
+                                <input
+                                    type="radio"
+                                    :name="'question-' + qIndex"
+                                    :value="option"
+                                    v-model="selectedAnswers[qIndex]"
+                                    class="mr-2"
+                                />
+                                {{ option }}
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="mt-4">
-                        <label
-                            for="notes"
-                            class="block text-sm font-medium text-gray-700"
-                            >Notes</label
-                        >
-                        <textarea
-                            id="notes"
-                            v-model="form.notes"
-                            required
-                            rows="3"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                        ></textarea>
-                    </div>
-
                     <div class="mt-4 text-right">
                         <SecondaryButton type="submit">Save</SecondaryButton>
                     </div>
