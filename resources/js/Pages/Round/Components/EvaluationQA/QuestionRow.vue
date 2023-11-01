@@ -7,13 +7,18 @@
             />
         </td>
         <td class="py-2 px-4">{{ question.type }}</td>
-        <td class="py-2 px-4" v-if="question.type === 'select'">
-            <input
-                v-model="question.options"
-                @input="
-                    updateQuestion('options', $event.target.value.split(', '))
-                "
-            />
+        <td class="py-2 px-4">
+            <div v-if="question.type === 'radio'">
+                <input
+                    v-model="question.options"
+                    @input="
+                        updateQuestion(
+                            'options',
+                            $event.target.value.split(', ')
+                        )
+                    "
+                />
+            </div>
         </td>
         <td class="py-2 px-4">
             <input
