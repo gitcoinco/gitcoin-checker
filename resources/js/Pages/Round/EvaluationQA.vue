@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
@@ -151,7 +151,14 @@ const moveQuestion = (index, direction) => {
                     :moveQuestionMethod="moveQuestion"
                 />
 
-                <div class="mt-4 flex justify-end">
+                <div class="mt-4 flex justify-end items-center">
+                    <span v-if="hasChanges" class="mr-3">
+                        <i
+                            class="fa fa-exclamation-circle text-red-500"
+                            aria-hidden="true"
+                        ></i>
+                        Remember to save your changes!
+                    </span>
                     <PrimaryButton
                         @click="postQuestions"
                         :disabled="!hasChanges"

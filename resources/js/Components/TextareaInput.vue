@@ -3,10 +3,6 @@ import { onMounted, ref } from "vue";
 
 defineProps({
     modelValue: String,
-    rows: {
-        type: Number,
-        default: undefined,
-    },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -17,9 +13,7 @@ onMounted(() => {
     if (textarea.value.hasAttribute("autofocus")) {
         textarea.value.focus();
     }
-    if (rows === undefined) {
-        autoResize();
-    }
+    autoResize();
 });
 
 function onInput(event) {
@@ -29,7 +23,8 @@ function onInput(event) {
 
 function autoResize() {
     textarea.value.style.height = "auto";
-    textarea.value.style.height = textarea.value.scrollHeight + "px";
+    let newHeight = Math.max(textarea.value.scrollHeight, 100);
+    textarea.value.style.height = newHeight + "px";
 }
 
 defineExpose({ focus: () => textarea.value.focus(), onInput });
@@ -42,6 +37,5 @@ defineExpose({ focus: () => textarea.value.focus(), onInput });
         :value="modelValue"
         @input="onInput"
         style="width: 100%"
-        :rows="rows"
     ></textarea>
 </template>

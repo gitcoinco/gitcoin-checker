@@ -85,11 +85,27 @@ const toggleModal = () => {
 
 <template>
     <div>
-        <span
-            @click="toggleModal"
-            class="text-blue-500 hover:underline cursor-pointer"
-        >
-            Human Evaluation
+        <span class="text-blue-500 hover:underline cursor-pointer">
+            <div
+                v-if="
+                    application.round.evaluation_questions &&
+                    application.round.evaluation_questions.questions
+                "
+            >
+                <div @click="toggleModal">Human Evaluation</div>
+            </div>
+            <div>
+                <Link
+                    :href="route('round.evaluation.show.qa', application.round)"
+                    class="text-blue-500 hover:underline"
+                >
+                    <i
+                        class="fa fa-exclamation-circle text-red-500"
+                        aria-hidden="true"
+                    ></i>
+                    Setup human criteria
+                </Link>
+            </div>
         </span>
 
         <Modal :show="showPromptModal" @close="showPromptModal = false">
@@ -138,7 +154,6 @@ const toggleModal = () => {
                             <TextareaInput
                                 v-model="notes"
                                 placeholder="Notes"
-                                rows="4"
                             ></TextareaInput>
                         </div>
                         <div class="mt-4 flex justify-between items-center">
@@ -183,21 +198,6 @@ const toggleModal = () => {
                                 Save
                             </PrimaryButton>
                         </div>
-                    </div>
-                    <div v-else>
-                        Round doesn't have questions setup.
-
-                        <Link
-                            :href="
-                                route(
-                                    'round.evaluation.show.qa',
-                                    application.round
-                                )
-                            "
-                            class="text-blue-500 hover:underline"
-                        >
-                            Setup Human Evaluation Criteria
-                        </Link>
                     </div>
                 </form>
 
