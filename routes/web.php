@@ -10,6 +10,7 @@ use App\Http\Controllers\RoundEvaluationController;
 use App\Http\Controllers\ChainController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationUserScoreController;
+use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 
@@ -69,9 +70,11 @@ Route::middleware([
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
         Route::prefix('application')->group(function () {
 
-            Route::get('/{application}', [RoundApplicationUserScoreController::class, 'index'])->name('round.application.user.score.index');
-            Route::post('/{application}', [RoundApplicationUserScoreController::class, 'upsert'])->name('round.application.user.score.upsert');
             Route::delete('/{application}', [RoundApplicationUserScoreController::class, 'destroy'])->name('round.application.user.score.delete');
+
+
+            Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
+            Route::post('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'upsert'])->name('round.application.evaluation.answers.upsert');
         });
     });
 

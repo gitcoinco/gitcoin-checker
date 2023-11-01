@@ -16,6 +16,7 @@ class RoundApplicationEvaluationAnswers extends Model
         'application_id',
         'user_id',
         'questions',
+        'answers',
     ];
 
     public function round()

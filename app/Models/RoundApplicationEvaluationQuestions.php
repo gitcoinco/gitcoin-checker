@@ -21,7 +21,7 @@ class RoundApplicationEvaluationQuestions extends Model
         return $this->belongsTo(Round::class);
     }
 
-    public function answers()
+    public function evaluationAnswers()
     {
         return $this->hasMany(RoundApplicationEvaluationAnswers::class);
     }

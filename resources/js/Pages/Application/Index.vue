@@ -12,7 +12,7 @@ import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
 import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
 import UserEvaluationButton from "@/Components/Gitcoin/Application/UserEvaluationButton.vue";
 import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
-import HumanEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
+import UserEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
 import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
 
 import {
@@ -248,10 +248,10 @@ const handleRoundPrompt = (round) => {
                                     class="mb-2"
                                 >
                                 </GptEvaluationResults>
-                                <HumanEvaluationResults
+                                <UserEvaluationResults
                                     :application="application"
                                 >
-                                </HumanEvaluationResults>
+                                </UserEvaluationResults>
                             </td>
                             <td>
                                 <GptEvaluationButton
