@@ -52,7 +52,7 @@ export default defineComponent({
 
         <Modal :show="openModal" @close="toggleModal()">
             <div class="modal-content">
-                <h2 class="modal-title">Score Details</h2>
+                <h2 class="modal-title">Evaluation Details</h2>
                 <table
                     class="table-auto w-full"
                     v-if="application.evaluation_answers.length > 0"
@@ -62,6 +62,7 @@ export default defineComponent({
                             <th>Date</th>
                             <th>User</th>
                             <th>Score</th>
+                            <th>Notes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,6 +77,7 @@ export default defineComponent({
                             </td>
                             <td>{{ answer.user.name }}</td>
                             <td>{{ answer.score }}</td>
+                            <td>{{ answer.notes }}</td>
                         </tr>
                     </tbody>
                 </table>

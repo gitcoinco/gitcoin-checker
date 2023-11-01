@@ -12,6 +12,14 @@ class RoundApplicationEvaluationAnswersController extends Controller
 {
     public function upsert(RoundApplication $application)
     {
+        $this->authorize('update', AccessControl::class);
+
+        $this->validate(request(), [
+            'answers' => 'required|array',
+            'answers.*' => 'required',
+            'notes' => 'nullable|string',
+        ]);
+
         $user = auth()->user();
         $answers = RoundApplicationEvaluationAnswers::firstOrCreate(
             [
@@ -23,6 +31,7 @@ class RoundApplicationEvaluationAnswersController extends Controller
 
         $answers->questions = $application->round->evaluationQuestions->questions;
         $answers->answers = request()->input('answers');
+        $answers->notes = request()->input('notes');
 
         // Work out the score by checking for 'yes' answers, and using the question.weighting for the particular question
         $score = 0;

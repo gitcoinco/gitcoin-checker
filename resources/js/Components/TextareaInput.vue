@@ -3,6 +3,10 @@ import { onMounted, ref } from "vue";
 
 defineProps({
     modelValue: String,
+    rows: {
+        type: Number,
+        default: undefined,
+    },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -13,7 +17,9 @@ onMounted(() => {
     if (textarea.value.hasAttribute("autofocus")) {
         textarea.value.focus();
     }
-    autoResize();
+    if (rows === undefined) {
+        autoResize();
+    }
 });
 
 function onInput(event) {
@@ -36,5 +42,6 @@ defineExpose({ focus: () => textarea.value.focus(), onInput });
         :value="modelValue"
         @input="onInput"
         style="width: 100%"
+        :rows="rows"
     ></textarea>
 </template>

@@ -4,14 +4,18 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import { showDateInShortFormat } from "@/utils";
 import { Link } from "@inertiajs/vue3";
-
+import TextareaInput from "@/Components/TextareaInput.vue";
+1;
 const emit = defineEmits(["evaluatedApplication"]);
 
 const selectedAnswers = ref([]);
+const notes = ref(null);
 
 const props = defineProps({
     application: Object,
 });
+
+const saveStatus = ref(null);
 
 const showPromptModal = ref(false);
 const userEvaluationAnswers = ref([]);
@@ -33,6 +37,7 @@ const fetchUserData = async () => {
         );
         if (loggedInUserAnswers) {
             selectedAnswers.value = JSON.parse(loggedInUserAnswers.answers);
+            notes.value = loggedInUserAnswers.notes;
         }
     } catch (error) {
         console.error("There was an error fetching the user data:", error);
@@ -42,7 +47,10 @@ const fetchUserData = async () => {
 const submitEvaluation = async () => {
     const form = {
         answers: selectedAnswers.value,
+        notes: notes.value,
     };
+
+    saveStatus.value = "saving";
 
     try {
         await axios.post(
@@ -59,8 +67,10 @@ const submitEvaluation = async () => {
 
         emit("evaluatedApplication");
         await fetchUserData();
+        saveStatus.value = "success";
     } catch (error) {
         console.error("An error occurred while submitting the form:", error);
+        saveStatus.value = "error";
     }
 };
 
@@ -124,7 +134,34 @@ const toggleModal = () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-4 text-right">
+                        <div>
+                            <TextareaInput
+                                v-model="notes"
+                                placeholder="Notes"
+                                rows="4"
+                            ></TextareaInput>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <div>
+                                <div
+                                    v-if="saveStatus === 'saving'"
+                                    class="mt-2 text-blue-500"
+                                >
+                                    Saving...
+                                </div>
+                                <div
+                                    v-if="saveStatus === 'success'"
+                                    class="mt-2 text-green-500"
+                                >
+                                    Saved successfully!
+                                </div>
+                                <div
+                                    v-if="saveStatus === 'error'"
+                                    class="mt-2 text-red-500"
+                                >
+                                    Error saving data. Please try again.
+                                </div>
+                            </div>
                             <PrimaryButton
                                 type="submit"
                                 :disabled="
@@ -173,6 +210,7 @@ const toggleModal = () => {
                             <th>Date</th>
                             <th>User</th>
                             <th>Score</th>
+                            <th>Notes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -185,6 +223,9 @@ const toggleModal = () => {
                             </td>
                             <td>{{ answer.user.name }}</td>
                             <td>{{ answer.score }}</td>
+                            <td>
+                                {{ answer.notes }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
