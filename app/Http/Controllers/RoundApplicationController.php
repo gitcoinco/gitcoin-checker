@@ -90,8 +90,6 @@ class RoundApplicationController extends Controller
                 $query->orderBy('id', 'desc');
             },
             'evaluationAnswers.user',
-            'userScores',
-            'userScores.user',
             'latestPrompt' => function ($query) {
                 $query->orderBy('id', 'desc')->limit(1);
             },

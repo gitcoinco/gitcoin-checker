@@ -53,11 +53,6 @@ class RoundApplication extends Model
         return $this->hasMany(RoundApplicationEvaluationAnswers::class, 'application_id', 'id');
     }
 
-    public function userScores()
-    {
-        return $this->hasMany(RoundApplicationUserScore::class, 'application_id', 'id');
-    }
-
     public function getRouteKeyName()
     {
         return 'uuid';
