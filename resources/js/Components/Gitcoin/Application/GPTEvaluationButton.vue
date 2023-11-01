@@ -1,11 +1,13 @@
 <script>
 import Tooltip from "@/Components/Tooltip.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
+import { Link } from "@inertiajs/vue3";
 
 export default {
     components: {
         Tooltip,
         SecondaryButton,
+        Link,
     },
     props: {
         application: {
@@ -75,12 +77,26 @@ export default {
 
         <!-- Second condition -->
         <template v-else>
-            <Tooltip>
+            <Link
+                @click="roundPrompt(application.round)"
+                href="#"
+                class="text-blue-500 hover:underline"
+            >
                 <i
                     class="fa fa-exclamation-circle text-red-500"
                     aria-hidden="true"
                 ></i>
-                <span class="text-blue-500 hover:underline"> Prompt </span>
+                Setup GPT criteria
+            </Link>
+
+            <!-- <Tooltip>
+                <i
+                    class="fa fa-exclamation-circle text-red-500"
+                    aria-hidden="true"
+                ></i>
+                <span class="text-blue-500 hover:underline">
+                    GPT prompt needed
+                </span>
                 <template #content>
                     Cannot evaluate if a prompt is not set for this round.<br /><br />
                     <SecondaryButton
@@ -90,7 +106,7 @@ export default {
                         Set Evaluation Criteria
                     </SecondaryButton>
                 </template>
-            </Tooltip>
+            </Tooltip> -->
         </template>
     </div>
 </template>

@@ -82,7 +82,6 @@ const addAccessControl = () => {
                     <TextareaInput
                         id="system-prompt"
                         v-model="form.system_prompt"
-                        rows="4"
                     />
                 </div>
 
@@ -95,7 +94,6 @@ const addAccessControl = () => {
                     <TextareaInput
                         id="evaluation-prompt"
                         v-model="form.prompt"
-                        rows="4"
                     />
                 </div>
 
