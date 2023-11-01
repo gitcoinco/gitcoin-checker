@@ -29,9 +29,7 @@ class ProjectController extends Controller
     {
         $applications = $project->applications()->orderBy('id', 'desc')->with([
             'round',
-            'userScores',
             'project',
-            'userScores.user',
             'latestPrompt' => function ($query) {
                 $query->orderBy('id', 'desc')->limit(1);
             },

@@ -5,29 +5,36 @@ namespace App\Models;
 use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class RoundApplicationUserScore extends Model
+class RoundApplicationEvaluationAnswers extends Model
 {
-    use HasFactory, SoftDeletes, ShortUniqueUuidTrait;
+    use HasFactory, ShortUniqueUuidTrait;
 
     protected $fillable = [
-        'user_id',
-        'application_id',
+        'uuid',
         'round_id',
-        'score',
+        'application_id',
+        'user_id',
+        'questions',
+        'answers',
         'notes',
     ];
 
+    public function round()
+    {
+        return $this->belongsTo(Round::class);
+    }
+
     public function application()
     {
-        return $this->belongsTo(RoundApplication::class, 'application_id', 'id');
+        return $this->belongsTo(Application::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
 
     public function getRouteKeyName()
     {

@@ -48,9 +48,9 @@ class RoundApplication extends Model
         return $this->hasOne(RoundPrompt::class, 'round_id', 'round_id')->orderBy('id', 'desc');
     }
 
-    public function userScores()
+    public function evaluationAnswers()
     {
-        return $this->hasMany(RoundApplicationUserScore::class, 'application_id', 'id');
+        return $this->hasMany(RoundApplicationEvaluationAnswers::class, 'application_id', 'id');
     }
 
     public function getRouteKeyName()

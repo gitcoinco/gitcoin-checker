@@ -82,11 +82,14 @@ class RoundApplicationController extends Controller
 
         $applications = RoundApplication::with([
             'round',
+            'round.evaluationQuestions',
             'project',
             'project.applications',
             'project.applications.round',
-            'userScores',
-            'userScores.user',
+            'evaluationAnswers' => function ($query) {
+                $query->orderBy('id', 'desc');
+            },
+            'evaluationAnswers.user',
             'latestPrompt' => function ($query) {
                 $query->orderBy('id', 'desc')->limit(1);
             },
