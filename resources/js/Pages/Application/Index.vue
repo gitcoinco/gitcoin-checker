@@ -4,6 +4,7 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+import CheckBox from "@/Components/CheckBox.vue";
 import PreviousApplicationStatus from "@/Components/Gitcoin/Application/PreviousApplicationStatus.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
@@ -32,6 +33,9 @@ const selectedApplicationStatus = ref(
 const selectedApplicationRoundType = ref(
     usePage().props.selectedApplicationRoundType.valueOf()
 );
+const selectedApplicationRemoveTests = ref(
+    usePage().props.selectedApplicationRemoveTests.valueOf()
+);
 
 const roundPrompt = (round) => {
     router.visit(route("round.prompt.show", { round: round }));
@@ -39,6 +43,18 @@ const roundPrompt = (round) => {
 
 const selectedApplicationStatusRef = ref(selectedApplicationStatus.value);
 const selectedApplicationRoundTypeRef = ref(selectedApplicationRoundType.value);
+const selectedApplicationRemoveTestsRef = ref(
+    selectedApplicationRemoveTests.value
+);
+
+watch(selectedApplicationRemoveTestsRef, (newStatus) => {
+    // reload the page with the new status added to the query string
+    router.visit(
+        route("round.application.index", {
+            selectedApplicationRemoveTests: newStatus,
+        })
+    );
+});
 
 watch(selectedApplicationStatusRef, (newStatus) => {
     // reload the page with the new status added to the query string
@@ -131,6 +147,19 @@ const handleRoundPrompt = (round) => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-end mb-3">
+                    <CheckBox
+                        v-model="selectedApplicationRemoveTestsRef"
+                        :checked="selectedApplicationRemoveTestsRef == 1"
+                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    />
+                    <label
+                        for="remove-test-projects"
+                        class="ml-2 block text-sm text-gray-900"
+                    >
+                        Remove "test" rounds
+                    </label>
+                </div>
                 <table>
                     <thead>
                         <tr>

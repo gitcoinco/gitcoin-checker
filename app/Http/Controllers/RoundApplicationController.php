@@ -80,6 +80,25 @@ class RoundApplicationController extends Controller
             }
         }
 
+        $userPreference = UserPreference::firstOrCreate([
+            'user_id' => $request->user()->id,
+            'key' => 'selectedApplicationRemoveTests',
+        ], [
+            'value' => json_encode(0)
+        ]);
+        $selectedApplicationRemoveTests = json_decode($userPreference->value);
+        if ($request->has('selectedApplicationRemoveTests')) {
+            $userPreference->value = json_encode($request->input('selectedApplicationRemoveTests'));
+            $userPreference->save();
+            $selectedApplicationRemoveTests = json_decode($userPreference->value);
+        }
+
+        $listOfApplicationIdsToExclude = [];
+        if ($selectedApplicationRemoveTests) {
+            $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
+            $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
+        }
+
         $applications = RoundApplication::with([
             'round',
             'round.evaluationQuestions',
@@ -112,10 +131,10 @@ class RoundApplicationController extends Controller
 
                 // $query->whereIn('round_id', json_decode($selectedApplicationRoundTypeDetails));
             })
+            ->whereNotIn('id', $listOfApplicationIdsToExclude)
             ->orderBy('id', 'desc')
             ->paginate();
 
-        // No need for the foreach loop, since we are already eager loading the latest prompt.
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -123,6 +142,7 @@ class RoundApplicationController extends Controller
                 'selectedApplicationStatus' => $status,
                 'selectedApplicationRoundType' => $selectedApplicationRoundType,
                 'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             ]);
         } else {
             return Inertia::render('Application/Index', [
@@ -130,6 +150,7 @@ class RoundApplicationController extends Controller
                 'selectedApplicationStatus' => $status,
                 'selectedApplicationRoundType' => $selectedApplicationRoundType,
                 'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             ]);
         }
     }
