@@ -94,7 +94,7 @@ const toggleModal = () => {
             >
                 <div @click="toggleModal">Human Evaluation</div>
             </div>
-            <div>
+            <div v-else>
                 <Link
                     :href="route('round.evaluation.show.qa', application.round)"
                     class="text-blue-500 hover:underline"

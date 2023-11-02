@@ -20,18 +20,13 @@ export default defineComponent({
     },
     computed: {
         userEvaluationAverage() {
-            if (!this.application.evaluation_answers.length > 0) {
-                return null;
+            if (this.application?.evaluation_answers?.length > 0) {
+                const total = this.application.evaluation_answers.reduce(
+                    (acc, curr) => acc + curr.score,
+                    0
+                );
+                return total / this.application.evaluation_answers.length;
             }
-            let total = 0;
-            for (
-                let i = 0;
-                i < this.application.evaluation_answers.length;
-                i++
-            ) {
-                total += this.application.evaluation_answers[i].score;
-            }
-            return total / this.application.evaluation_answers.length;
         },
     },
     methods: {

@@ -80,6 +80,25 @@ class RoundApplicationController extends Controller
             }
         }
 
+        $userPreference = UserPreference::firstOrCreate([
+            'user_id' => $request->user()->id,
+            'key' => 'selectedApplicationRemoveTests',
+        ], [
+            'value' => json_encode(0)
+        ]);
+        $selectedApplicationRemoveTests = json_decode($userPreference->value);
+        if ($request->has('selectedApplicationRemoveTests')) {
+            $userPreference->value = json_encode($request->input('selectedApplicationRemoveTests'));
+            $userPreference->save();
+            $selectedApplicationRemoveTests = json_decode($userPreference->value);
+        }
+
+        $listOfApplicationIdsToExclude = [];
+        if ($selectedApplicationRemoveTests) {
+            $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
+            $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
+        }
+
         $applications = RoundApplication::with([
             'round',
             'round.evaluationQuestions',
@@ -112,10 +131,10 @@ class RoundApplicationController extends Controller
 
                 // $query->whereIn('round_id', json_decode($selectedApplicationRoundTypeDetails));
             })
+            ->whereNotIn('id', $listOfApplicationIdsToExclude)
             ->orderBy('id', 'desc')
             ->paginate();
 
-        // No need for the foreach loop, since we are already eager loading the latest prompt.
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -123,6 +142,7 @@ class RoundApplicationController extends Controller
                 'selectedApplicationStatus' => $status,
                 'selectedApplicationRoundType' => $selectedApplicationRoundType,
                 'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             ]);
         } else {
             return Inertia::render('Application/Index', [
@@ -130,6 +150,7 @@ class RoundApplicationController extends Controller
                 'selectedApplicationStatus' => $status,
                 'selectedApplicationRoundType' => $selectedApplicationRoundType,
                 'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             ]);
         }
     }
@@ -266,15 +287,50 @@ class RoundApplicationController extends Controller
             "criteria": "A specific bit of evaluation criteria"
         }]';
 
-        $projectTwitter = 'Project Twitter: ' . ($project->projectTwitter ? 'https://twitter.com/' . $project->projectTwitter : 'N/A');
-        $projectGithub = 'Project Github: ' . ($project->projectGithub ? 'https://github.com/' . $project->projectGithub : 'N/A');
-        $userGithub = 'User Github: ' . ($project->userGithub ? 'https://github.com/' . $project->userGithub : 'N/A');
+
+        $search = [];
+        $replace = [];
+
+        $search[] = '{{ applicationAnswers }}';
+        $replace[] = RoundApplicationController::getApplicationAnswers($application);
+
+        $search[] = '{{ projectDetails }}';
+        $replace[] = RoundApplicationController::getProjectDetails($application);
 
         $data = [
             'system_prompt' => $prompt->system_prompt . PHP_EOL . PHP_EOL . $returnedFormat,
-            'prompt' => $prompt->prompt . PHP_EOL . PHP_EOL . 'Project name: ' . $project->title . PHP_EOL . 'Project website: ' . $project->website . PHP_EOL . 'Project description: ' . $project->description . PHP_EOL . $projectTwitter . PHP_EOL . $projectGithub . PHP_EOL . $userGithub . PHP_EOL,
+            'prompt' => str_replace($search, $replace, $prompt->prompt),
         ];
 
         return $data;
+    }
+
+    public static function getProjectDetails(RoundApplication $application)
+    {
+        $project = $application->project;
+        $details = '';
+
+        $details .= 'Project name: ' . $project->title . PHP_EOL;
+        $details .= 'Project website: ' . $project->website . PHP_EOL;
+        $details .= 'Project description: ' . $project->description . PHP_EOL;
+
+        $details .= 'Project Twitter: ' . ($project->projectTwitter ? 'https://twitter.com/' . $project->projectTwitter : 'N/A') . PHP_EOL;
+        $details .= 'Project Github: ' . ($project->projectGithub ? 'https://github.com/' . $project->projectGithub : 'N/A') . PHP_EOL;
+        $details .= 'User Github: ' . ($project->userGithub ? 'https://github.com/' . $project->userGithub : 'N/A') . PHP_EOL;
+
+        return $details;
+    }
+
+    public static function getApplicationAnswers($application)
+    {
+        $metadata = json_decode($application->metadata, true);
+        $answers = '';
+        foreach ($metadata['application']['answers'] as $key => $answer) {
+            if (!$answer['hidden']) {
+                $answers .= $answer['question'] . ': ' . $answer['answer'] . PHP_EOL;
+            }
+        }
+
+        return $answers;
     }
 }
