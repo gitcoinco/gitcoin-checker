@@ -46,6 +46,7 @@ jobs:
         run: ./vendor/bin/phpunit
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: testing # This ensures deployment only happens if testing job passes
     runs-on: ubuntu-latest
     steps:
@@ -83,6 +84,7 @@ jobs:
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
 
   data-import:
+    if: github.ref == 'refs/heads/main'
     needs: deploy
     runs-on: ubuntu-latest
     steps:
