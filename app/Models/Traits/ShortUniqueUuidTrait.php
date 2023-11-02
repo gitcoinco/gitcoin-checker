@@ -29,7 +29,7 @@ trait ShortUniqueUuidTrait
     protected static function getUniqueShortUniqueUuid($model)
     {
         $hashids = new Hashids(class_basename($model), 7);
-        $uuid = $hashids->encode($model->id);
+        $uuid = $hashids->encode($model->id . time());
 
         for ($i = 0; $i < 100; $i++) {
             $basename = get_class($model);
