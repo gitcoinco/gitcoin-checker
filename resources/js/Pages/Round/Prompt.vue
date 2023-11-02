@@ -71,30 +71,72 @@ const addAccessControl = () => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <h2>Evaluation Criteria</h2>
+                <h2 class="mb-5">Evaluation Criteria</h2>
 
-                <div class="mb-4">
-                    <label
-                        for="system-prompt"
-                        class="block text-gray-700 text-sm font-bold mb-2"
-                        >System Prompt:</label
-                    >
-                    <TextareaInput
-                        id="system-prompt"
-                        v-model="form.system_prompt"
-                    />
-                </div>
-
-                <div class="mb-4">
-                    <label
-                        for="evaluation-prompt"
-                        class="block text-gray-700 text-sm font-bold mb-2"
-                        >Evaluation Prompt:</label
-                    >
-                    <TextareaInput
-                        id="evaluation-prompt"
-                        v-model="form.prompt"
-                    />
+                <div class="flex">
+                    <div class="w-5/6">
+                        <div class="mb-4">
+                            <label
+                                for="system-prompt"
+                                class="block text-gray-700 text-sm mb-2"
+                                >System Prompt:</label
+                            >
+                            <TextareaInput
+                                id="system-prompt"
+                                v-model="form.system_prompt"
+                            />
+                        </div>
+                        <div class="mb-4">
+                            <label
+                                for="evaluation-prompt"
+                                class="block text-gray-700 text-sm mb-2"
+                                >Evaluation Prompt:</label
+                            >
+                            <TextareaInput
+                                id="evaluation-prompt"
+                                v-model="form.prompt"
+                            />
+                        </div>
+                    </div>
+                    <div class="w-1/2 p-5">
+                        <h2 class="mb-5">Variables</h2>
+                        <p class="mb-5">
+                            You can use the variables below to pull in dynamic
+                            data from the user:
+                        </p>
+                        <div class="mb-2">
+                            <span v-pre class="mr-3">{{
+                                applicationAnswers
+                            }}</span>
+                            <span
+                                @click="
+                                    copyToClipboard('{{ applicationAnswers }}')
+                                "
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            The answers the user gave in their application.
+                        </div>
+                        <div class="mb-2">
+                            <span v-pre class="mr-3">{{ projectDetails }}</span>
+                            <span
+                                @click="copyToClipboard('{{ projectDetails }}')"
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            Details of the project, e.g. name, website,
+                            description, twitter, github (project), github
+                            (user).
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-4 text-right">
