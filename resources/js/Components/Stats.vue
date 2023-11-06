@@ -17,7 +17,7 @@ const chartOptions = ref({
         id: "basic-bar",
         type: "line",
         title: {
-            text: "Application response time",
+            text: "",
             align: "left",
         },
     },
@@ -26,7 +26,7 @@ const chartOptions = ref({
     },
     yaxis: {
         title: {
-            text: "Number of applications",
+            text: "Finalisation in hours",
         },
     },
     stroke: {
@@ -48,11 +48,11 @@ const series = ref([
     //     data: [],
     // },
     {
-        name: "Avg. mins approval",
+        name: "Avg. hours approval",
         data: [],
     },
     {
-        name: "Avg. mins rejection",
+        name: "Avg. hours rejection",
         data: [],
     },
 ]);
@@ -76,22 +76,22 @@ onMounted(async () => {
         //     y: item.rejected,
         // }));
 
-        const avgMinutesToApproval = response.data.map((item) => ({
-            x: new Date(item.date + "-01").getTime(),
-            y: item.avgMinutesToApproval,
+        const avgHoursToApproval = response.data.map((item) => ({
+            x: new Date(item.date).getTime(),
+            y: item.avgHoursToApproval,
         }));
 
-        const avgMinutesToRejection = response.data.map((item) => ({
-            x: new Date(item.date + "-01").getTime(),
-            y: item.avgMinutesToRejection,
+        const avgHoursToRejection = response.data.map((item) => ({
+            x: new Date(item.date).getTime(),
+            y: item.avgHoursToRejection,
         }));
 
         series.value = [
             // { ...series.value[0], data: defaultData },
             // { ...series.value[1], data: approvedData },
             // { ...series.value[2], data: rejectedData },
-            { ...series.value[0], data: avgMinutesToApproval },
-            { ...series.value[1], data: avgMinutesToRejection },
+            { ...series.value[0], data: avgHoursToApproval },
+            { ...series.value[1], data: avgHoursToRejection },
         ];
     } catch (error) {
         console.error("There was an error fetching the data:", error);
@@ -111,7 +111,9 @@ onMounted(async () => {
         </div>
 
         <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
-            <h2 class="text-2xl mb-5">Applications dealt with over time</h2>
+            <h2 class="text-2xl mb-5">
+                How long it takes to finalise applications
+            </h2>
             <apexchart
                 type="line"
                 :options="chartOptions"

@@ -339,54 +339,45 @@ class RoundApplicationController extends Controller
     {
         $user = auth()->user();
 
-        $nrMonths = 12;
+        $nrWeeks = 52;
 
-        // pull out data for the past 6 months
+        // pull out data for the past 52 weeks
         $historicApplicationsCreated = [];
-        // $historicApplicationsCreated = RoundApplication::where('created_at', '>=', now()->subMonths($nrMonths))
-        //     ->get()
-        //     ->groupBy(function ($item) {
-        //         return $item->created_at->format('Y-m');
-        //     })
-        //     ->map(function ($item) {
-        //         return ['date' => $item->first()->created_at->format('Y-m'), 'created' => 0];
-        //     })->toArray();
-
-        // Pad empty months with data
-        $start = now()->subMonths($nrMonths);
-        for ($i = 0; $i < $nrMonths; $i++) {
-            $date = $start->addMonth()->startOfMonth();
-            $dateEndOfTheMonth = $date->copy()->endOfMonth();
-            $month = $date->format('Y-m');
-            if (!isset($historicApplicationsCreated[$month])) {
-                $historicApplicationsCreated[$month] = ['date' => $month, 'created' => 0, 'approved' => 0, 'rejected' => 0, 'avgMinutesToApproval' => 0, 'avgMinutesToRejection' => 0];
+        // Pad empty weeks with data
+        $start = now()->subWeeks($nrWeeks);
+        for ($i = 0; $i < $nrWeeks; $i++) {
+            $date = $start->addWeek()->startOfWeek();
+            $dateEndOfTheWeek = $date->copy()->endOfWeek();
+            $week = $date->format('Y-m-d');
+            if (!isset($historicApplicationsCreated[$week])) {
+                $historicApplicationsCreated[$week] = ['date' => $week, 'created' => 0, 'approved' => 0, 'rejected' => 0, 'avgMinutesToApproval' => 0, 'avgMinutesToRejection' => 0];
             }
 
 
             $createdNr = RoundApplication::where('created_at', '>=', $date)
-                ->where('created_at', '<=', $dateEndOfTheMonth)
+                ->where('created_at', '<=', $dateEndOfTheWeek)
                 ->count();
-            $historicApplicationsCreated[$month]['created'] = $createdNr;
+            $historicApplicationsCreated[$week]['created'] = $createdNr;
 
             $approvedNr = RoundApplication::where('approved_at', '>=', $date)
-                ->where('approved_at', '<=', $dateEndOfTheMonth)
+                ->where('approved_at', '<=', $dateEndOfTheWeek)
                 ->count();
-            $historicApplicationsCreated[$month]['approved'] = $approvedNr;
+            $historicApplicationsCreated[$week]['approved'] = $approvedNr;
 
             $rejectedNr = RoundApplication::where('rejected_at', '>=', $date)
-                ->where('rejected_at', '<=', $dateEndOfTheMonth)
+                ->where('rejected_at', '<=', $dateEndOfTheWeek)
                 ->count();
-            $historicApplicationsCreated[$month]['rejected'] = $rejectedNr;
+            $historicApplicationsCreated[$week]['rejected'] = $rejectedNr;
 
-            $avgMinutesToApproval = RoundApplication::where('approved_at', '>=', $date)
-                ->where('approved_at', '<=', $dateEndOfTheMonth)
-                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60;
-            $historicApplicationsCreated[$month]['avgMinutesToApproval'] = intval($avgMinutesToApproval);
+            $avgHoursToApproval = RoundApplication::where('approved_at', '>=', $date)
+                ->where('approved_at', '<=', $dateEndOfTheWeek)
+                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60 / 60;
+            $historicApplicationsCreated[$week]['avgHoursToApproval'] = intval($avgHoursToApproval);
 
-            $avgMinutesToRejection = RoundApplication::where('rejected_at', '>=', $date)
-                ->where('rejected_at', '<=', $dateEndOfTheMonth)
-                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60;
-            $historicApplicationsCreated[$month]['avgMinutesToRejection'] = intval($avgMinutesToRejection);
+            $avgHoursToRejection = RoundApplication::where('rejected_at', '>=', $date)
+                ->where('rejected_at', '<=', $dateEndOfTheWeek)
+                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60 / 60;
+            $historicApplicationsCreated[$week]['avgHoursToRejection'] = intval($avgHoursToRejection);
         }
 
         // Sort by keys to make sure data is in chronological order
