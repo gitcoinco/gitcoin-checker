@@ -19,7 +19,7 @@ class ChainSeeder extends Seeder
             137 => ['name' => 'Polygon', 'rpc_endpoint' => 'https://rpc-mainnet.maticvigil.com'],
             250 => ['name' => 'Fantom', 'rpc_endpoint' => 'https://rpc.ftm.tools'],
             42161 => ['name' => 'Arbitrum', 'rpc_endpoint' => 'https://arb1.arbitrum.io/rpc'],
-            421613 => ['name' => 'Arbitrum Testnet', 'rpc_endpoint' => 'https://rinkeby.arbitrum.io/rpc'],
+            421613 => ['name' => 'Arbitrum Goerli', 'rpc_endpoint' => 'https://arbitrum-goerli.publicnode.com'],
             424 => ['name' => 'PGN Mainnet', 'rpc_endpoint' => 'https://rpc.publicgoods.network'],
             5 => ['name' => 'Goerli', 'rpc_endpoint' => 'https://goerli.infura.io/v3/'],
             58008 => ['name' => 'PGN Testnet', 'rpc_endpoint' => 'https://sepolia.publicgoods.network'],

@@ -22,7 +22,7 @@ class BlockTimeService
     private function getBlockTimeFromRPC($rpcEndpoint, $blockNumber)
     {
         $cacheKey = "blockTimeF:{$rpcEndpoint}:{$blockNumber}";
-        $timestamp = Cache::remember($cacheKey, now()->addDay(), function () use ($rpcEndpoint, $blockNumber) {
+        $timestamp = Cache::remember($cacheKey, now()->addDay(), function () use ($rpcEndpoint, $blockNumber, $cacheKey) {
             $payload = json_encode([
                 'jsonrpc' => '2.0',
                 'method'  => 'eth_getBlockByNumber',
@@ -40,6 +40,9 @@ class BlockTimeService
             curl_close($ch);
 
             if (curl_errno($ch)) {
+                // Clear cache
+                throw new \Exception(curl_error($ch));
+                Cache::forget($cacheKey);
                 return null;
             } else {
                 $decoded = json_decode($response, true);
@@ -71,6 +74,7 @@ class BlockTimeService
             return null;
         }
 
+
         $blockTime = BlockTime::where('chain_id', $chain->chain_id)
             ->where('block_number', $blockNumber)
             ->first();
@@ -82,11 +86,19 @@ class BlockTimeService
             $previousBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 1);
 
             if (!$currentBlockTime || !$previousBlockTime) {
+                // Estimate by looking at 10 blocks before
+                $currentBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 10);
+                $previousBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 11);
+                $diff = $currentBlockTime - $previousBlockTime;
+                $currentBlockTime = $currentBlockTime + (10 * $diff);
+                $previousBlockTime = $previousBlockTime + (10 * $diff);
+            }
+
+            if (!$currentBlockTime || !$previousBlockTime) {
                 return null;
             }
 
             $blockTimeEstimate = $currentBlockTime - $previousBlockTime;
-
 
             // Add before and after based on $blockTimeEstimate to reduce calls to alchemy
             $blockTimes = [];

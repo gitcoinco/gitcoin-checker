@@ -340,7 +340,7 @@ class IngestData extends Command
                 }
 
                 if (!$createdAt) {
-                    throw new Exception("Unable to determine createdAt for application {$data['projectId']}");
+                    throw new Exception("Unable to determine createdAt for application {$data['projectId']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
                 }
 
                 $roundApplication = RoundApplication::updateOrCreate(

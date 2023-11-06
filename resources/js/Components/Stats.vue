@@ -12,7 +12,7 @@ const apexchart = VueApexCharts;
 
 const { projectsCount, roundsCount } = usePage().props;
 const chartOptions = ref({
-    colors: ["#007BFF", "#28A745", "#DC3545"],
+    colors: ["#28A745", "#DC3545", "#007BFF"],
     chart: {
         id: "basic-bar",
         type: "line",
