@@ -24,6 +24,7 @@
         "@bugsnag/plugin-vue": "^7.19.0",
         "font-awesome": "^4.7.0",
         "markdown-it": "^13.0.2",
+        "vue3-apexcharts": "^1.4.4",
         "web3": "^4.1.2"
     }
 }

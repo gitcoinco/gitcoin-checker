@@ -35,6 +35,7 @@ class ChainController extends Controller
         foreach ($chainData as $chain) {
             $chainModel = Chain::where('id', $chain['id'])->first();
             $chainModel->name = $chain['name'];
+            $chainModel->rpc_endpoint = $chain['rpc_endpoint'];
             $chainModel->save();
         }
 

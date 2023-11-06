@@ -339,19 +339,24 @@ class IngestData extends Command
                     }
                 }
 
-                RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])],
-                    [
-                        'application_id' => $data['id'],
-                        'round_id' => $round->id,
-                        'project_addr' => $data['projectId'],
-                        'status' => $data['status'],
-                        'metadata' => json_encode($data['metadata']),
-                        'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
-                        'rejected_at' => $rejectedAt ? date('Y-m-d H:i:s', $rejectedAt) : null,
-                        'approved_at' => $approvedAt ? date('Y-m-d H:i:s', $approvedAt) : null,
-                    ]
+                if (!$createdAt) {
+                    throw new Exception("Unable to determine createdAt for application {$data['projectId']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
+                }
+
+                $roundApplication = RoundApplication::updateOrCreate(
+                    ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])]
                 );
+
+                $roundApplication->update([
+                    'application_id' => $data['id'],
+                    'round_id' => $round->id,
+                    'project_addr' => $data['projectId'],
+                    'status' => $data['status'],
+                    'metadata' => json_encode($data['metadata']),
+                    'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
+                    'rejected_at' => $rejectedAt ? date('Y-m-d H:i:s', $rejectedAt) : null,
+                    'approved_at' => $approvedAt ? date('Y-m-d H:i:s', $approvedAt) : null,
+                ]);
             }
         }
     }

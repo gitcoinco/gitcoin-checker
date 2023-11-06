@@ -34,6 +34,7 @@ const updateChains = () => {
                         <tr>
                             <th>Chain Id</th>
                             <th>Name</th>
+                            <th>RPC Endpoint</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,6 +45,12 @@ const updateChains = () => {
                             <td>
                                 <TextInput
                                     v-model="form.chains[index].name"
+                                    @keydown.enter="updateChains()"
+                                />
+                            </td>
+                            <td>
+                                <TextInput
+                                    v-model="form.chains[index].rpc_endpoint"
                                     @keydown.enter="updateChains()"
                                 />
                             </td>

@@ -9,6 +9,8 @@ use App\Models\BlockTimestamp;
 use App\Models\Chain;
 use DateTime;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+
 
 class BlockTimeService
 {
@@ -16,76 +18,118 @@ class BlockTimeService
     {
     }
 
+    // Make an RPC call to get the block time
+    private function getBlockTimeFromRPC($rpcEndpoint, $blockNumber)
+    {
+        $cacheKey = "blockTimeF:{$rpcEndpoint}:{$blockNumber}";
+        $timestamp = Cache::remember($cacheKey, now()->addDay(), function () use ($rpcEndpoint, $blockNumber, $cacheKey) {
+            $payload = json_encode([
+                'jsonrpc' => '2.0',
+                'method'  => 'eth_getBlockByNumber',
+                'params'  => ['0x' . dechex($blockNumber), true],
+                'id'      => 1,
+            ]);
+
+            $ch = curl_init($rpcEndpoint);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            if (curl_errno($ch)) {
+                // Clear cache
+                throw new \Exception(curl_error($ch));
+                Cache::forget($cacheKey);
+                return null;
+            } else {
+                $decoded = json_decode($response, true);
+                $timestamp = hexdec($decoded['result']['timestamp']);
+                return $timestamp;
+            }
+        });
+
+        return $timestamp;
+    }
+
+    private function getBlockTimeFromChain(Chain $chain, $blockNumber)
+    {
+
+        if (!$chain->chain_id) {
+            throw new \Exception('Chain ID not set');
+        }
+
+        if (!$chain->rpc_endpoint) {
+            throw new \Exception('RPC endpoint not set for chainId ' . $chain->chain_id);
+        }
+
+        return $this->getBlockTimeFromRPC($chain->rpc_endpoint, $blockNumber);
+    }
+
     public function getBlockTime(Chain $chain, $blockNumber)
     {
-        $blockTime = BlockTime::where('chain_id', $chain->id)
+        if (!$chain->chain_id) {
+            return null;
+        }
+
+
+        $blockTime = BlockTime::where('chain_id', $chain->chain_id)
             ->where('block_number', $blockNumber)
             ->first();
 
         if ($blockTime) {
             return $blockTime->timestamp;
-        }
+        } else {
+            $currentBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber);
+            $previousBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 1);
 
-        // Create a client with a base URI
-        $client = new Client(['base_uri' => 'https://api.etherscan.io']);
-
-        try {
-            $data = Cache::remember('blockTime3-' . $blockNumber, now()->addYears(1), function () use ($client, $blockNumber) {
-                $response = $client->get('/api', [
-                    'query' => [
-                        'module' => 'block',
-                        'action' => 'getblockreward',
-                        'blockno' => $blockNumber, // Assuming this is the correct parameter for the block number
-                        'apikey' => env('ETHERSCAN_API_KEY'),
-                    ]
-                ]);
-
-                // Get the body of the response
-                $body = $response->getBody();
-
-                // If we're making a request, add a slight delay so that we don't go over Etherscan's rate limit
-                sleep(1);
-
-                // Decode the JSON response
-                $data = json_decode($body, true);
-
-                return $data;
-            });
-
-
-            if (!isset($data['result']['timestamp'])) {
-                // Find the closest block to this one and estimate the time
-                $closestBlockMin = BlockTime::where('chain_id', $chain->id)
-                    ->where('block_number', '<', $blockNumber)
-                    ->orderBy('block_number', 'desc')
-                    ->first();
-                $closestBlockMax = BlockTime::where('chain_id', $chain->id)->where('block_number', '>', $blockNumber)->orderBy('block_number', 'asc')->first();
-
-                if ($closestBlockMin && $closestBlockMax) {
-                    $blockTimeMin = $closestBlockMin->timestamp;
-                    $blockTimeMax = $closestBlockMax->timestamp;
-
-                    $blockTime = BlockTime::create([
-                        'chain_id' => $chain->id,
-                        'block_number' => $blockNumber,
-                        'timestamp' => intval($blockTimeMin + (($blockTimeMax - $blockTimeMin) / 2)),
-                        'is_estimate' => true,
-                    ]);
-                    return $blockTime->timestamp;
-                }
-            } else {
-                $timeStamp = $data['result']['timeStamp'];
-
-                $blockTime = BlockTime::create([
-                    'chain_id' => $chain->id,
-                    'block_number' => $blockNumber,
-                    'timestamp' => $timeStamp,
-                ]);
-                return $timeStamp;
+            if (!$currentBlockTime || !$previousBlockTime) {
+                // Estimate by looking at 10 blocks before
+                $currentBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 10);
+                $previousBlockTime = $this->getBlockTimeFromChain($chain, $blockNumber - 11);
+                $diff = $currentBlockTime - $previousBlockTime;
+                $currentBlockTime = $currentBlockTime + (10 * $diff);
+                $previousBlockTime = $previousBlockTime + (10 * $diff);
             }
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-            echo 'Request failed: ' . $e->getMessage();
-            return null;
+
+            if (!$currentBlockTime || !$previousBlockTime) {
+                return null;
+            }
+
+            $blockTimeEstimate = $currentBlockTime - $previousBlockTime;
+
+            // Add before and after based on $blockTimeEstimate to reduce calls to alchemy
+            $blockTimes = [];
+            for ($i = -1000; $i <= 1000; $i++) {
+                // Check if the block exists
+                $blockExists = BlockTime::where('chain_id', $chain->chain_id)
+                    ->where('block_number', $blockNumber + $i)
+                    ->exists();
+
+                if ($blockExists) {
+                    continue;
+                }
+
+                if ($i == 0) {
+                    $blockTimes[] = [
+                        'chain_id' => $chain->chain_id,
+                        'block_number' => $blockNumber,
+                        'timestamp' => $currentBlockTime,
+                        'is_estimate' => false,
+                    ];
+                } else {
+                    $blockTimes[] = [
+                        'chain_id' => $chain->chain_id,
+                        'block_number' => $blockNumber + $i,
+                        'timestamp' => $currentBlockTime + ($i * $blockTimeEstimate),
+                        'is_estimate' => true,
+                    ];
+                }
+            }
+            BlockTime::insert($blockTimes);
+            return $currentBlockTime;
         }
     }
 }

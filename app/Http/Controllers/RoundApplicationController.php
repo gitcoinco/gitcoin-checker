@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\DB;
 
 class RoundApplicationController extends Controller
 {
@@ -332,5 +333,68 @@ class RoundApplicationController extends Controller
         }
 
         return $answers;
+    }
+
+    public function statsHistory()
+    {
+        $user = auth()->user();
+
+        $nrMonths = 12;
+
+        // pull out data for the past 6 months
+        $historicApplicationsCreated = [];
+        // $historicApplicationsCreated = RoundApplication::where('created_at', '>=', now()->subMonths($nrMonths))
+        //     ->get()
+        //     ->groupBy(function ($item) {
+        //         return $item->created_at->format('Y-m');
+        //     })
+        //     ->map(function ($item) {
+        //         return ['date' => $item->first()->created_at->format('Y-m'), 'created' => 0];
+        //     })->toArray();
+
+        // Pad empty months with data
+        $start = now()->subMonths($nrMonths);
+        for ($i = 0; $i < $nrMonths; $i++) {
+            $date = $start->addMonth()->startOfMonth();
+            $dateEndOfTheMonth = $date->copy()->endOfMonth();
+            $month = $date->format('Y-m');
+            if (!isset($historicApplicationsCreated[$month])) {
+                $historicApplicationsCreated[$month] = ['date' => $month, 'created' => 0, 'approved' => 0, 'rejected' => 0, 'avgMinutesToApproval' => 0, 'avgMinutesToRejection' => 0];
+            }
+
+
+            $createdNr = RoundApplication::where('created_at', '>=', $date)
+                ->where('created_at', '<=', $dateEndOfTheMonth)
+                ->count();
+            $historicApplicationsCreated[$month]['created'] = $createdNr;
+
+            $approvedNr = RoundApplication::where('approved_at', '>=', $date)
+                ->where('approved_at', '<=', $dateEndOfTheMonth)
+                ->count();
+            $historicApplicationsCreated[$month]['approved'] = $approvedNr;
+
+            $rejectedNr = RoundApplication::where('rejected_at', '>=', $date)
+                ->where('rejected_at', '<=', $dateEndOfTheMonth)
+                ->count();
+            $historicApplicationsCreated[$month]['rejected'] = $rejectedNr;
+
+            $avgMinutesToApproval = RoundApplication::where('approved_at', '>=', $date)
+                ->where('approved_at', '<=', $dateEndOfTheMonth)
+                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60;
+            $historicApplicationsCreated[$month]['avgMinutesToApproval'] = intval($avgMinutesToApproval);
+
+            $avgMinutesToRejection = RoundApplication::where('rejected_at', '>=', $date)
+                ->where('rejected_at', '<=', $dateEndOfTheMonth)
+                ->avg(DB::raw('TIME_TO_SEC(TIMEDIFF(approved_at, created_at))')) / 60;
+            $historicApplicationsCreated[$month]['avgMinutesToRejection'] = intval($avgMinutesToRejection);
+        }
+
+        // Sort by keys to make sure data is in chronological order
+        ksort($historicApplicationsCreated);
+
+        // To ensure JSON array format instead of JSON object, use array_values to discard the original keys.
+        $historicApplicationsArray = array_values($historicApplicationsCreated);
+
+        return response()->json($historicApplicationsArray);
     }
 }

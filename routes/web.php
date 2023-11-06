@@ -117,4 +117,8 @@ Route::middleware([
         Route::post('/upsert', [AccessControlController::class, 'upsert'])->name('access-control.upsert');
         Route::delete('/delete/{accessControl}', [AccessControlController::class, 'destroy'])->name('access-control.delete');
     });
+
+    Route::prefix('access-control')->group(function () {
+        Route::get('/pothole/stats/history', [RoundApplicationController::class, 'statsHistory'])->name('api.applications.stats.history');
+    });
 });

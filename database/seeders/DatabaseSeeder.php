@@ -16,10 +16,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Run the 'php artisan ingest:data' command
-        Artisan::call('ingest:data');
+        //        Artisan::call('ingest:data');
 
         // Capture the output
         $output = Artisan::output();
+
+
+        $this->call([
+            ChainSeeder::class,
+        ]);
 
         // Display the output in the console
         $this->command->info($output);
