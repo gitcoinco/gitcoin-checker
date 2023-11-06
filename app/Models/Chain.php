@@ -15,6 +15,7 @@ class Chain extends Model
         'chain_id',
         'name',
         'number',
+        'rpc_endpoint',
     ];
 
     public function rounds()
