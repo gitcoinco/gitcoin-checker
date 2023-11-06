@@ -21,6 +21,7 @@ class RoundApplication extends Model
         'metadata',
         'approved_at',
         'rejected_at',
+        'created_at',
     ];
 
     public function round()
