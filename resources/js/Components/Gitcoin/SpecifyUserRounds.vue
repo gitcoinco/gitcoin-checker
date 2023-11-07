@@ -1,61 +1,46 @@
-<script>
+<script setup>
+import { ref, onMounted, defineEmits } from "vue";
 import TextInput from "@/Components/TextInput.vue";
+import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 
-export default {
-    components: {
-        TextInput,
-    },
-    data() {
-        return {
-            rounds: [],
-            selectedRounds: [],
-            paginationLinks: [],
-            showRounds: false, // Initially, rounds selection is not visible
-            search: "", // Added search data property
-        };
-    },
-    methods: {
-        async fetchRounds(pageUrl) {},
-        async searchRounds() {
-            // Added searchRounds method
-            axios
-                .get(
-                    route("user-preferences.rounds.search") +
-                        `?search=${this.search}`
-                )
-                .then((response) => {
-                    this.rounds = response.data.rounds;
-                    this.selectedRounds = response.data.selectedRounds;
-                });
-        },
-        async toggleRound(round) {
-            // No need for 'const self = this;' because 'this' inside arrow function will refer to your Vue instance
+const emit = defineEmits(["selectedRoundsChanged"]);
 
-            try {
-                const response = await axios.get(
-                    route("user-preferences.round.toggle", {
-                        round: round.uuid,
-                    })
-                );
+const rounds = ref([]);
+const selectedRounds = ref([]);
+const showRounds = ref(false);
+const search = ref("");
 
-                this.selectedRounds = response.data.selectedRounds;
-                //TODO::: This emit isn't happening consistently, which prevents the parent from refreshing the application results
-                this.$emit("selectedRoundsChanged");
-            } catch (error) {
-                console.error(error);
-            }
-        },
-    },
-    created() {
-        axios
-            .get(route("user-preferences.rounds.search", {}))
-            .then((response) => {
-                this.rounds = response.data.rounds;
-                this.selectedRounds = response.data.selectedRounds;
-            })
-            .finally(() => {});
-    },
+async function searchRounds() {
+    try {
+        const response = await axios.get(
+            `${route("user-preferences.rounds.search")}?search=${search.value}`
+        );
+        rounds.value = response.data.rounds;
+        selectedRounds.value = response.data.selectedRounds;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const toggleRound = async (round) => {
+    try {
+        const response = await axios.get(
+            route("user-preferences.round.toggle", { round: round.uuid })
+        );
+        selectedRounds.value = response.data.selectedRounds;
+        emit("selectedRoundsChanged");
+    } catch (error) {
+        console.error(error);
+    }
 };
+
+onMounted(async () => {
+    try {
+        await searchRounds();
+    } catch (error) {
+        console.error(error);
+    }
+});
 </script>
 
 <template>

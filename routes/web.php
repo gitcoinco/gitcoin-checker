@@ -67,6 +67,7 @@ Route::middleware([
 
     Route::prefix('application')->group(function () {
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
+        Route::get('/set/filters', [RoundApplicationController::class, 'setFilters'])->name('round.application.set.filters');
         Route::prefix('application')->group(function () {
             Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
             Route::post('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'upsert'])->name('round.application.evaluation.answers.upsert');

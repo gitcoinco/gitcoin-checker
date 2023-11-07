@@ -23,7 +23,7 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
-    public function index(Request $request)
+    public function setFilters(Request $request)
     {
         if ($request->has('status')) {
             // Validate the request if necessary
@@ -94,6 +94,28 @@ class RoundApplicationController extends Controller
             $selectedApplicationRemoveTests = json_decode($userPreference->value);
         }
 
+
+        $filterData = [
+            'status' => $status,
+            'selectedApplicationRoundType' => $selectedApplicationRoundType,
+            'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+            'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+        ];
+
+        return $filterData;
+    }
+
+    public function getApplications(Request $request)
+    {
+        $filterData = $this->setFilters($request);
+
+        $status = $filterData['status'];
+        $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
+
+        $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
+        $selectedApplicationRemoveTests = $filterData['selectedApplicationRemoveTests'];
+
+
         $listOfApplicationIdsToExclude = [];
         if ($selectedApplicationRemoveTests) {
             $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
@@ -129,29 +151,42 @@ class RoundApplicationController extends Controller
                 } else {
                     $query->whereIn('round_id', []);
                 }
-
-                // $query->whereIn('round_id', json_decode($selectedApplicationRoundTypeDetails));
             })
             ->whereNotIn('id', $listOfApplicationIdsToExclude)
             ->orderBy('id', 'desc')
             ->paginate();
 
+        $data = [
+            'applications' => $applications,
+            'status' => $status,
+            'selectedApplicationRoundType' => $selectedApplicationRoundType,
+            'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
+            'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+        ];
+        return $data;
+    }
+
+    public function index(Request $request)
+    {
+        $data = $this->getApplications($request);
 
         if ($request->wantsJson()) {
             return response()->json([
-                'applications' => $applications,
-                'selectedApplicationStatus' => $status,
-                'selectedApplicationRoundType' => $selectedApplicationRoundType,
-                'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
-                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+                'indexData' => env('INDEXER_URL'),
+                'applications' => $data['applications'],
+                'selectedApplicationStatus' => $data['status'],
+                'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
             ]);
         } else {
             return Inertia::render('Application/Index', [
-                'applications' => $applications,
-                'selectedApplicationStatus' => $status,
-                'selectedApplicationRoundType' => $selectedApplicationRoundType,
-                'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
-                'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+                'indexData' => env('INDEXER_URL'),
+                'applications' => $data['applications'],
+                'selectedApplicationStatus' => $data['status'],
+                'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
             ]);
         }
     }

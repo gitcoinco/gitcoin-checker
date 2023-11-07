@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,14 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    private $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    public function index(Request $request)
     {
         $projectsCount = Cache::remember('projectsCount', 60, function () {
             return Project::where('title', 'not like', '%test%')->count();
@@ -21,11 +29,31 @@ class DashboardController extends Controller
             return Round::where('name', 'not like', '%test%')->count();
         });
 
+        $roundApplicationController = new RoundApplicationController($this->notificationService);
 
-        return Inertia::render('Dashboard', [
-            'indexData' => env('INDEXER_URL'),
-            'projectsCount' => $projectsCount,
-            'roundsCount' => $roundsCount,
-        ]);
+        $applicationsReturn = $roundApplicationController->getApplications($request);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'projectsCount' => $projectsCount,
+                'roundsCount' => $roundsCount,
+                'applications' => $applicationsReturn['applications'],
+                'selectedApplicationStatus' => $applicationsReturn['status'],
+                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+            ]);
+        } else {
+            return Inertia::render('Dashboard', [
+                'indexData' => env('INDEXER_URL'),
+                'projectsCount' => $projectsCount,
+                'roundsCount' => $roundsCount,
+                'applications' => $applicationsReturn['applications'],
+                'selectedApplicationStatus' => $applicationsReturn['status'],
+                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+            ]);
+        }
     }
 }

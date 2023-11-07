@@ -14,7 +14,7 @@ const { projectsCount, roundsCount } = usePage().props;
 const chartOptions = ref({
     colors: ["#28A745", "#DC3545", "#007BFF"],
     chart: {
-        id: "basic-bar",
+        id: "line-chart",
         type: "line",
         title: {
             text: "",
