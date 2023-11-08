@@ -12,10 +12,12 @@ import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
 import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
-import UserEvaluationButton from "@/Components/Gitcoin/Application/UserEvaluationButton.vue";
+import UserEvaluationButton from "@/Pages/Application/Components/UserEvaluationButton.vue";
 import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
 import UserEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
 import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
+import Evaluation from "./Evaluation.vue";
+import ResultsSummary from "./ResultsSummary.vue";
 
 import {
     copyToClipboard,
@@ -101,7 +103,6 @@ const handleEvaluateApplication = async (application) => {
     // Start loading for this specific project
     loadingStates.value[application.id] = true;
 
-    // Here, you might want to adjust depending on what the response looks like and what data you need to update
     try {
         const response = await axios.post(
             route("round.application.chatgpt.list", {
@@ -118,6 +119,29 @@ const handleEvaluateApplication = async (application) => {
         props.applications.data[index].results.unshift(
             response.data.project.applications[0].results[0]
         );
+    } catch (error) {
+        // Handle error properly, maybe set an error message to display in the UI
+        console.error("An error occurred:", error);
+    } finally {
+        // Stop loading for this specific project
+        delete loadingStates.value[application.id];
+    }
+};
+
+const refreshApplication = async (application) => {
+    try {
+        const response = await axios.get(
+            route("round.application.show", {
+                application: application.uuid,
+            })
+        );
+
+        // Find the application index in the applications array
+        const index = props.applications.data.findIndex(
+            (app) => app.id === application.id
+        );
+
+        props.applications.data[index] = response.data.application;
     } catch (error) {
         // Handle error properly, maybe set an error message to display in the UI
         console.error("An error occurred:", error);
@@ -195,7 +219,6 @@ const handleRoundPrompt = (round) => {
                             </select>
                         </th>
                         <th></th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody
@@ -259,18 +282,19 @@ const handleRoundPrompt = (round) => {
                             </Link>
                         </td>
                         <td>
-                            <GptEvaluationResults
-                                :application="application"
-                                :loading-states="loadingStates"
-                                class="mb-2"
-                            >
-                            </GptEvaluationResults>
-                            <UserEvaluationResults :application="application">
-                            </UserEvaluationResults>
-                        </td>
-                        <td>
-                            <div v-if="application.project">
-                                <GptEvaluationButton
+                            <div v-if="application.project" class="text-center">
+                                <Evaluation
+                                    :application="application"
+                                    @perform-gpt-evaluation="
+                                        handleEvaluateApplication
+                                    "
+                                    @user-evaluation-updated="
+                                        refreshApplication
+                                    "
+                                />
+                                <ResultsSummary :application="application" />
+
+                                <!-- <GptEvaluationButton
                                     :application="application"
                                     :loadingStates="loadingStates"
                                     @evaluate-application="
@@ -284,7 +308,7 @@ const handleRoundPrompt = (round) => {
                                     @evaluated-application="
                                         handleUserEvaluateApplication
                                     "
-                                ></UserEvaluationButton>
+                                ></UserEvaluationButton> -->
                             </div>
                             <div v-else>No project data available yet</div>
                         </td>
