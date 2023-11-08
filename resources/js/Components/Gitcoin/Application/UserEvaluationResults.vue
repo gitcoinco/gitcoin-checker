@@ -47,7 +47,13 @@ export default defineComponent({
 
         <Modal :show="openModal" @close="toggleModal()">
             <div class="modal-content">
-                <h2 class="modal-title">Evaluation Details</h2>
+                <h2 class="modal-title flex justify-between">
+                    Evaluation Details
+                    <span @click="toggleModal" class="cursor-pointer">
+                        <i class="fa fa-times-circle-o" aria-hidden="true"></i>
+                    </span>
+                </h2>
+
                 <table
                     class="table-auto w-full"
                     v-if="application.evaluation_answers.length > 0"

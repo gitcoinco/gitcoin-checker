@@ -316,10 +316,26 @@ async function evaluateApplication(event, application) {
                                             @close="toggleModal(project.id)"
                                         >
                                             <div class="modal-content">
-                                                <h2 class="modal-title">
+                                                <h2
+                                                    class="modal-title flex justify-between"
+                                                >
                                                     Score Details for
                                                     {{ project.title }}
+                                                    <span
+                                                        @click="
+                                                            toggleModal(
+                                                                project.id
+                                                            )
+                                                        "
+                                                        class="cursor-pointer"
+                                                    >
+                                                        <i
+                                                            class="fa fa-times-circle-o"
+                                                            aria-hidden="true"
+                                                        ></i>
+                                                    </span>
                                                 </h2>
+
                                                 <table class="score-table">
                                                     <thead>
                                                         <tr>

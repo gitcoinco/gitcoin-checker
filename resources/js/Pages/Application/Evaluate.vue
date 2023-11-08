@@ -97,13 +97,19 @@ const checkAgainstChatGPT = async () => {
                         @close="showPromptModal = false"
                     >
                         <div class="modal-content">
-                            <h2 class="modal-title">
+                            <h2 class="modal-title flex justify-between">
+                                Evaluate
                                 <span
-                                    @click="showPromptModal = !showPromptModal"
+                                    @click="toggleModal"
+                                    class="cursor-pointer"
                                 >
-                                    Close
+                                    <i
+                                        class="fa fa-times-circle-o"
+                                        aria-hidden="true"
+                                    ></i>
                                 </span>
                             </h2>
+
                             {{ result.prompt_data }}
                         </div>
                     </Modal>
