@@ -48,21 +48,36 @@ const round = ref(usePage().props.round.valueOf());
                 >
                     Set evaluation criteria for the {{ round.name }} round
                 </h2>
-                <div>
+                <div class="mb-5">
                     <Link
                         :href="route('round.prompt.show', round)"
                         class="text-blue-500 hover:underline"
                     >
+                        <i class="fa fa-server mr-1" aria-hidden="true"></i>
                         ChatGPT Evaluation Criteria
                     </Link>
+                    <p>
+                        By default this has a standard set of evaluation
+                        criteria inherited by the evaluation criteria of the
+                        round. Override it with your own criteria and note the
+                        potential use of variables in the criteria that you
+                        specify.
+                    </p>
                 </div>
                 <div>
                     <Link
                         :href="route('round.evaluation.show.qa', round)"
                         class="text-blue-500 hover:underline"
                     >
+                        <i class="fa fa-user mr-1" aria-hidden="true"></i>
                         Human Evaluation Criteria
                     </Link>
+                    <p>
+                        By default this has a standard set of evaluation
+                        criteria inherited from the eligibility criteria of the
+                        round. You can also set your own criteria by overriding
+                        the default questions.
+                    </p>
                 </div>
             </div>
         </div>
