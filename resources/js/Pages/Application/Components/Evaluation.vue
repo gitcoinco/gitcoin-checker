@@ -109,7 +109,7 @@ const getGPTScore = (results) => {
                         </td>
                     </tr>
                     <tr v-else>
-                        <td></td>
+                        <td>-</td>
                         <td>
                             <i class="fa fa-server mr-1" aria-hidden="true"></i>
 
@@ -126,7 +126,7 @@ const getGPTScore = (results) => {
                                 <span v-else>Do GPT evaluation</span>
                             </SecondaryButton>
                         </td>
-                        <td></td>
+                        <td>Evaluation not done yet</td>
                     </tr>
                     <tr
                         v-for="(
