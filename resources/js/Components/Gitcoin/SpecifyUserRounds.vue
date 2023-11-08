@@ -3,7 +3,7 @@ import { ref, onMounted, defineEmits } from "vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 
-const emit = defineEmits(["selectedRoundsChanged"]);
+const emit = defineEmits(["selected-rounds-changed"]);
 
 const rounds = ref([]);
 const selectedRounds = ref([]);
@@ -28,7 +28,7 @@ const toggleRound = async (round) => {
             route("user-preferences.round.toggle", { round: round.uuid })
         );
         selectedRounds.value = response.data.selectedRounds;
-        emit("selectedRoundsChanged");
+        emit("selected-rounds-changed");
     } catch (error) {
         console.error(error);
     }

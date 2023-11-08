@@ -123,7 +123,7 @@ const getGPTScore = (results) => {
                                 <span v-if="busyDoingGPTEvaluation"
                                     >Busy...</span
                                 >
-                                <span v-else>Do GPT evaluation</span>
+                                <span v-else>GPT evaluation</span>
                             </SecondaryButton>
                         </td>
                         <td>Evaluation not done yet</td>

@@ -229,7 +229,7 @@ const handleRoundPrompt = (round) => {
                     <tr v-if="selectedApplicationRoundTypeRef == 'mine'">
                         <td colspan="6" class="text-center">
                             <SpecifyUserRounds
-                                @selectedRoundsChanged="updateSelectedRounds"
+                                @selected-rounds-changed="updateSelectedRounds"
                             />
                         </td>
                     </tr>
@@ -293,22 +293,6 @@ const handleRoundPrompt = (round) => {
                                     "
                                 />
                                 <ResultsSummary :application="application" />
-
-                                <!-- <GptEvaluationButton
-                                    :application="application"
-                                    :loadingStates="loadingStates"
-                                    @evaluate-application="
-                                        handleEvaluateApplication
-                                    "
-                                    @round-prompt="handleRoundPrompt"
-                                    class="mb-2"
-                                ></GptEvaluationButton>
-                                <UserEvaluationButton
-                                    :application="application"
-                                    @evaluated-application="
-                                        handleUserEvaluateApplication
-                                    "
-                                ></UserEvaluationButton> -->
                             </div>
                             <div v-else>No project data available yet</div>
                         </td>
@@ -317,7 +301,9 @@ const handleRoundPrompt = (round) => {
                 <tbody v-else-if="selectedApplicationRoundTypeRef == 'mine'">
                     <tr>
                         <td colspan="5" class="text-center">
-                            <SpecifyUserRounds />
+                            <SpecifyUserRounds
+                                @selected-rounds-changed="updateSelectedRounds"
+                            />
                         </td>
                     </tr>
                 </tbody>
