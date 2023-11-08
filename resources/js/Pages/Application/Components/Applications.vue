@@ -179,8 +179,8 @@ const formatDate = (dateString) => {
                     Remove "test" rounds
                 </label>
             </div>
-            <table>
-                <thead>
+            <table class="">
+                <thead class="bg-gray-200">
                     <tr>
                         <th class="whitespace-nowrap">
                             <select
@@ -227,7 +227,17 @@ const formatDate = (dateString) => {
                                 aria-hidden="true"
                             ></i>
                         </th>
-                        <th class="text-center"></th>
+                        <th class="text-center">
+                            <div
+                                v-if="selectedApplicationRoundTypeRef == 'mine'"
+                            >
+                                <SpecifyUserRounds
+                                    @selected-rounds-changed="
+                                        updateSelectedRounds
+                                    "
+                                />
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody
@@ -235,19 +245,11 @@ const formatDate = (dateString) => {
                         props.applications && props.applications.data.length > 0
                     "
                 >
-                    <tr v-if="selectedApplicationRoundTypeRef == 'mine'">
-                        <td colspan="6" class="text-center">
-                            <SpecifyUserRounds
-                                @selected-rounds-changed="updateSelectedRounds"
-                            />
-                        </td>
-                    </tr>
-
                     <tr
                         v-for="(application, index) in applications.data"
                         :key="index"
                     >
-                        <td>
+                        <td class="border-l-0">
                             <div class="flex items-center">
                                 <span
                                     v-html="
@@ -298,7 +300,7 @@ const formatDate = (dateString) => {
                                 :application="application"
                             />
                         </td>
-                        <td>
+                        <td class="border-r-0">
                             <div v-if="application.project" class="text-center">
                                 <Evaluation
                                     :application="application"

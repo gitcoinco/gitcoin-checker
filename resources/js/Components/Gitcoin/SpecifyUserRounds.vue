@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, defineEmits } from "vue";
 import TextInput from "@/Components/TextInput.vue";
+import Modal from "@/Components/Modal.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 
 const emit = defineEmits(["selected-rounds-changed"]);
@@ -46,38 +47,43 @@ onMounted(async () => {
 <template>
     <div>
         <button @click="showRounds = true" v-if="!showRounds">
-            <i class="fa fa-plus-circle mr-1" aria-hidden="true"></i>
-            Add rounds to your short list.
+            <i class="fa fa-filter mr-1" aria-hidden="true"></i>
+            Rounds Filter
         </button>
         <button @click="showRounds = false" v-if="showRounds">
             <i class="fa fa-minus-circle mr-1" aria-hidden="true"></i>Hide
         </button>
 
-        <div v-if="showRounds">
-            <!-- Section for round selection -->
-            <div>
-                <!-- Added click event and changed text -->
-                <div>
-                    <!-- This div will be shown when showRounds is true -->
-                    <!-- Added TextInput for search -->
-                    <div>
-                        <TextInput
-                            v-model="search"
-                            @keyup.enter="searchRounds"
-                            placeholder="Search for rounds to add to your shortlist"
-                            style="width: 100%"
-                        />
+        <Modal :show="showRounds" @close="showRounds = false">
+            <div class="p-5">
+                <div class="modal-header">
+                    <div class="flex justify-between">
+                        <h2>Select Rounds</h2>
+                        <button
+                            class="close text-4xl"
+                            @click="showRounds = false"
+                        >
+                            &times;
+                        </button>
                     </div>
-                    <!-- Iterate over the rounds and create a checkbox for each one -->
+                </div>
+                <div class="modal-body">
+                    <TextInput
+                        v-model="search"
+                        @keyup.enter="searchRounds"
+                        placeholder="Search for rounds"
+                        class="mb-3"
+                    />
+
+                    <!-- Display selected rounds -->
+
                     <div
                         v-for="(round, index) in rounds"
                         :key="index"
-                        class="mb-2 mr-2"
-                        style="display: inline-block"
+                        class="mb-2 flex items-center"
                     >
-                        <span>
+                        <div>
                             <input
-                                class="mr-1"
                                 type="checkbox"
                                 :id="`round-${index}`"
                                 :value="round.uuid"
@@ -88,33 +94,36 @@ onMounted(async () => {
                                             selectedRound.uuid === round.uuid
                                     )
                                 "
+                                class="mr-2"
                             />
                             <label :for="`round-${index}`">{{
                                 round.name
                             }}</label>
-                        </span>
+                        </div>
                     </div>
-                    <hr class="mb-5" />
+
+                    <div v-if="selectedRounds.length > 0">
+                        <ul>
+                            <li
+                                v-for="(round, index) in selectedRounds"
+                                :key="index"
+                            >
+                                {{ round.name }}
+                                <button @click="toggleRound(round)">
+                                    <i
+                                        class="fa fa-trash"
+                                        aria-hidden="true"
+                                    ></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @click="showRounds = false">Close</button>
                 </div>
             </div>
-
-            <!-- Display selected rounds -->
-            <div v-if="selectedRounds.length > 0">
-                <!-- This div will be shown when there are selected rounds -->
-                <ul style="display: flex; flex-wrap: wrap; padding: 0">
-                    <li
-                        v-for="(round, index) in selectedRounds"
-                        :key="index"
-                        style="margin-right: 10px"
-                    >
-                        {{ round.name }}
-                        <button @click="toggleRound(round)">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        </Modal>
     </div>
 </template>
 

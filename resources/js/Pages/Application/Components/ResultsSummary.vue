@@ -26,13 +26,20 @@ const totalEvaluationAverage = () => {
 
 const gptEvaluationAverage = () => {
     if (props.application?.results?.length > 0) {
-        let results = JSON.parse(props.application?.results[0].results_data);
-        let total = 0;
-        for (let i = 0; i < results.length; i++) {
-            total += parseInt(results[i].score);
-        }
+        try {
+            let results = JSON.parse(
+                props.application?.results[0].results_data
+            );
+            let total = 0;
+            for (let i = 0; i < results.length; i++) {
+                total += parseInt(results[i].score);
+            }
 
-        return parseInt(total / results.length);
+            return parseInt(total / results.length);
+        } catch (error) {
+            console.error("Error parsing JSON: ", error);
+            return null;
+        }
     }
 };
 </script>
