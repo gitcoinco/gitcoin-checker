@@ -19,7 +19,8 @@ const totalEvaluationAverage = () => {
 
         return total / (props.application.evaluation_answers.length + 1) + "%";
     } else {
-        return null;
+        const gptAverage = gptEvaluationAverage();
+        return gptAverage ? gptAverage + "%" : null;
     }
 };
 
