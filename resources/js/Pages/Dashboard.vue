@@ -17,6 +17,14 @@ const cleanedIndexData = computed(() => {
     return props.indexData.replace("https://", "");
 });
 
+const searchProjects = (newStatus) => {
+    router.visit(
+        route("dashboard", {
+            selectedSearchProjects: newStatus,
+        })
+    );
+};
+
 const removeTests = (newStatus) => {
     router.visit(
         route("dashboard", {
@@ -84,6 +92,7 @@ function refreshApplications() {
                         @round-type="roundType"
                         @refresh-applications="refreshApplications"
                         @user-rounds-changed="refreshApplications"
+                        @search-projects="searchProjects"
                     />
                 </div>
             </div>

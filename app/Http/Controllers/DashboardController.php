@@ -33,6 +33,7 @@ class DashboardController extends Controller
 
         $applicationsReturn = $roundApplicationController->getApplications($request);
 
+
         if ($request->wantsJson()) {
             return response()->json([
                 'projectsCount' => $projectsCount,
@@ -42,6 +43,7 @@ class DashboardController extends Controller
                 'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
                 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
             ]);
         } else {
             return Inertia::render('Dashboard', [
@@ -53,6 +55,7 @@ class DashboardController extends Controller
                 'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
                 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
             ]);
         }
     }

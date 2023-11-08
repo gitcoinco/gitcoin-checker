@@ -116,7 +116,11 @@ const toggleModal = () => {
                         <i class="fa fa-times-circle-o" aria-hidden="true"></i>
                     </span>
                 </h2>
-                <form @submit.prevent="submitEvaluation" class="mb-4">
+                <form
+                    @submit.prevent="submitEvaluation"
+                    class="mb-4"
+                    v-if="application?.round?.evaluation_questions?.length > 0"
+                >
                     <div v-if="loggedInUserAnswers" class="mb-4">
                         Your answers from
                         {{
@@ -125,7 +129,7 @@ const toggleModal = () => {
                             )
                         }}:
                     </div>
-                    <div v-if="application.round.evaluation_questions">
+                    <div>
                         <div
                             v-for="(question, qIndex) in JSON.parse(
                                 application.round.evaluation_questions.questions
@@ -200,6 +204,7 @@ const toggleModal = () => {
                         </div>
                     </div>
                 </form>
+                <div v-else>No questions specified</div>
 
                 <table
                     class="table-auto w-full"

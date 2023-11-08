@@ -15,7 +15,9 @@ export default {
     },
     computed: {
         applications() {
-            return this.application.project.applications;
+            return this.application?.project?.applications
+                ? this.application.project.applications
+                : [];
         },
     },
     setup() {

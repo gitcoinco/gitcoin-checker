@@ -102,14 +102,14 @@ class IngestData extends Command
                 $this->info("Processing rounds data for chain ID: {$chainId}...");
                 $this->updateRounds($chain);
 
-
                 $rounds = Round::where('chain_id', $chain->id)->get();
                 foreach ($rounds as $round) {
-                    $this->info("Processing application data for chain ID: {$chainId}...");
-                    $this->updateApplications($round);
-
-                    $this->info("Processing project data for chain ID: {$chainId}...");
+                    $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
                     $this->updateProjects($round);
+                }
+                foreach ($rounds as $round) {
+                    $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
+                    $this->updateApplications($round);
                 }
             }
         } else {
@@ -255,7 +255,7 @@ class IngestData extends Command
                     ]);
                 }
 
-                if (!$round->evaluationQuestions) {
+                if (!$round->evaluationQuestions && isset($round->metadata['eligibility']['requirements'])) {
 
                     $questionsMeta = $round->metadata['eligibility']['requirements'];
                     $questions = [];

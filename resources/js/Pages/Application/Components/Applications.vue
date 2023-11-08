@@ -35,6 +35,7 @@ const emit = defineEmits([
     "remove-tests",
     "refresh-applications",
     "user-rounds-changed",
+    "search-projects",
 ]);
 
 // Define the props the component accepts
@@ -53,6 +54,9 @@ const selectedApplicationRoundType = ref(
 );
 const selectedApplicationRemoveTests = ref(
     usePage().props.selectedApplicationRemoveTests.valueOf()
+);
+const selectedSearchProjects = ref(
+    usePage().props.selectedSearchProjects.valueOf()
 );
 
 const roundPrompt = (round) => {
@@ -81,11 +85,14 @@ const updateSelectedRounds = () => {
     emit("user-rounds-changed");
 };
 
+const searchProjects = () => {
+    emit("search-projects", selectedSearchProjects.value);
+};
+
 // New state for loading indicator for each applications
 const loadingStates = ref({});
 
 const handleUserEvaluateApplication = async (application) => {
-    console.log("handleUserEvaluateApplication");
     emit("refresh-applications");
 };
 
@@ -103,12 +110,12 @@ const handleEvaluateApplication = async (application) => {
         );
 
         // Find the application index in the applications array
-        const index = applications.value.data.findIndex(
+        const index = props.applications.data.findIndex(
             (app) => app.id === application.id
         );
 
         // Assuming response.data.project.applications[0].results[0] contains the updated results you want to insert.
-        applications.value.data[index].results.unshift(
+        props.applications.data[index].results.unshift(
             response.data.project.applications[0].results[0]
         );
     } catch (error) {
@@ -168,7 +175,15 @@ const handleRoundPrompt = (round) => {
                                 </template>
                             </Tooltip>
                         </th>
-                        <th>Project</th>
+                        <th>
+                            <input
+                                type="text"
+                                v-model="selectedSearchProjects"
+                                @keyup.enter.prevent="searchProjects()"
+                                class="p-1 mr-1 pr-6"
+                                placeholder="Projects"
+                            />
+                        </th>
                         <th class="whitespace-nowrap">History</th>
                         <th>
                             <select
@@ -254,21 +269,24 @@ const handleRoundPrompt = (round) => {
                             </UserEvaluationResults>
                         </td>
                         <td>
-                            <GptEvaluationButton
-                                :application="application"
-                                :loadingStates="loadingStates"
-                                @evaluate-application="
-                                    handleEvaluateApplication
-                                "
-                                @round-prompt="handleRoundPrompt"
-                                class="mb-2"
-                            ></GptEvaluationButton>
-                            <UserEvaluationButton
-                                :application="application"
-                                @evaluated-application="
-                                    handleUserEvaluateApplication
-                                "
-                            ></UserEvaluationButton>
+                            <div v-if="application.project">
+                                <GptEvaluationButton
+                                    :application="application"
+                                    :loadingStates="loadingStates"
+                                    @evaluate-application="
+                                        handleEvaluateApplication
+                                    "
+                                    @round-prompt="handleRoundPrompt"
+                                    class="mb-2"
+                                ></GptEvaluationButton>
+                                <UserEvaluationButton
+                                    :application="application"
+                                    @evaluated-application="
+                                        handleUserEvaluateApplication
+                                    "
+                                ></UserEvaluationButton>
+                            </div>
+                            <div v-else>No project data available yet</div>
                         </td>
                     </tr>
                 </tbody>

@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RoundApplicationController extends Controller
 {
@@ -25,8 +26,32 @@ class RoundApplicationController extends Controller
 
     public function setFilters(Request $request)
     {
+        if ($request->has('selectedSearchProjects')) {
+            $selectedSearchProjects = $request->input('selectedSearchProjects', '');
+
+            $userPreference = UserPreference::firstOrCreate([
+                'user_id' => $request->user()->id,
+                'key' => 'selectedSearchProjects',
+            ]);
+            if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
+                $userPreference->value = json_encode($selectedSearchProjects);
+                $userPreference->save();
+            } else {
+                $userPreference->delete();
+                $selectedSearchProjects = '';
+            }
+        } else {
+            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedSearchProjects')->first();
+            if ($userPreference) {
+                $selectedSearchProjects = json_decode($userPreference->value);
+            } else {
+                $selectedSearchProjects = '';
+            }
+        }
+
+        //        dd($selectedSearchProjects);
+
         if ($request->has('status')) {
-            // Validate the request if necessary
             $status = $request->input('status', 'all');
 
             $userPreference = UserPreference::firstOrCreate([
@@ -100,6 +125,7 @@ class RoundApplicationController extends Controller
             'selectedApplicationRoundType' => $selectedApplicationRoundType,
             'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
             'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+            'selectedSearchProjects' => $selectedSearchProjects,
         ];
 
         return $filterData;
@@ -114,6 +140,7 @@ class RoundApplicationController extends Controller
 
         $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
         $selectedApplicationRemoveTests = $filterData['selectedApplicationRemoveTests'];
+        $selectedSearchProjects = $filterData['selectedSearchProjects'];
 
 
         $listOfApplicationIdsToExclude = [];
@@ -125,7 +152,11 @@ class RoundApplicationController extends Controller
         $applications = RoundApplication::with([
             'round',
             'round.evaluationQuestions',
-            'project',
+            'project' => function ($query) use ($selectedSearchProjects) {
+                if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
+                    $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
+                }
+            },
             'project.applications',
             'project.applications.round',
             'evaluationAnswers' => function ($query) {
@@ -162,6 +193,7 @@ class RoundApplicationController extends Controller
             'selectedApplicationRoundType' => $selectedApplicationRoundType,
             'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
             'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
+            'selectedSearchProjects' => $selectedSearchProjects,
         ];
         return $data;
     }
@@ -178,6 +210,8 @@ class RoundApplicationController extends Controller
                 'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
                 'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $data['selectedSearchProjects'],
+
             ]);
         } else {
             return Inertia::render('Application/Index', [
@@ -187,6 +221,7 @@ class RoundApplicationController extends Controller
                 'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
                 'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $data['selectedSearchProjects'],
             ]);
         }
     }
@@ -342,7 +377,7 @@ class RoundApplicationController extends Controller
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
         foreach ($round->metadata['eligibility']['requirements'] as $key => $requirement) {
-            $requirements .= ($key + 1) . ' - ' . $requirement . PHP_EOL;
+            $requirements .= ($key + 1) . ' - ' . $requirement['requirement'] . PHP_EOL;
         }
         $replace[] = $requirements;
 
@@ -374,9 +409,11 @@ class RoundApplicationController extends Controller
     {
         $metadata = json_decode($application->metadata, true);
         $answers = '';
-        foreach ($metadata['application']['answers'] as $key => $answer) {
-            if (!$answer['hidden']) {
-                $answers .= $answer['question'] . ': ' . $answer['answer'] . PHP_EOL;
+        if (isset($metadata['application']['answers'])) {
+            foreach ($metadata['application']['answers'] as $answer) {
+                if (!$answer['hidden'] && isset($answer['answer'])) {
+                    $answers .= $answer['question'] . ': ' . $answer['answer'] . PHP_EOL;
+                }
             }
         }
 
