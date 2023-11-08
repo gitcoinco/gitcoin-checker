@@ -341,6 +341,22 @@ class RoundApplicationController extends Controller
         return response()->json(['project' => $project]);
     }
 
+    public static function getProjectHistory(RoundApplication $application)
+    {
+        $project = $application->project;
+
+        $history = $project->applications()->where('id', '!=', $application->id)->with(['round'])->orderBy('created_at', 'desc')->get();
+
+        $return = '';
+        foreach ($history as $item) {
+            $return .= 'Round: ' . $item->round->name . PHP_EOL;
+            $return .= 'Status: ' . $item->status . PHP_EOL;
+            $return .= 'Date: ' . $item->created_at->diffForHumans() . PHP_EOL . PHP_EOL;
+        }
+
+        return $return;
+    }
+
 
 
     // load the prompt for the application
@@ -367,6 +383,9 @@ class RoundApplicationController extends Controller
 
         $search[] = '{{ project.details }}';
         $replace[] = RoundApplicationController::getProjectDetails($application);
+
+        $search[] = '{{ project.historic_applications }}';
+        $replace[] = RoundApplicationController::getProjectHistory($application);
 
         $search[] = '{{ round.eligibility.description }}';
         $replace[] = $round->metadata['eligibility']['description'];
@@ -412,7 +431,14 @@ class RoundApplicationController extends Controller
         if (isset($metadata['application']['answers'])) {
             foreach ($metadata['application']['answers'] as $answer) {
                 if (!$answer['hidden'] && isset($answer['answer'])) {
-                    $answers .= $answer['question'] . ': ' . $answer['answer'] . PHP_EOL;
+                    $answers .= $answer['question'] . ': ';
+
+                    if (is_array($answer['answer'])) {
+                        $answers .= implode(', ', $answer['answer']);
+                    } else {
+                        $answers .= $answer['answer'];
+                    }
+                    $answers .= PHP_EOL;
                 }
             }
         }

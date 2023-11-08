@@ -49,6 +49,10 @@ const addQuestion = (text, type, options) => {
 };
 
 const removeQuestion = (index) => {
+    if (typeof index !== "number") {
+        console.error("Invalid index. Index should be a number.");
+        return;
+    }
     const removedWeighting = questions[index].weighting;
     questions.splice(index, 1);
     const redistributedWeighting = removedWeighting / questions.length;

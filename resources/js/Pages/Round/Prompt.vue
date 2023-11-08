@@ -7,11 +7,11 @@ import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { copyToClipboard, shortenAddress } from "@/utils.js";
 import TextareaInput from "@/Components/TextareaInput.vue";
+import RandomApplicationPrompt from "./Components/GPT/RandomApplicationPrompt.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const prompt = ref(usePage().props.prompt.valueOf());
-// const system_prompt = ref(""); // New reactive property for system prompt
-// const evaluationPrompt = ref(""); // New reactive property for evaluation prompt
+const randomApplication = ref(usePage().props.randomApplication.valueOf());
 
 const form = useForm({
     system_prompt: "",
@@ -30,8 +30,8 @@ const savePrompts = async () => {
         }),
         {
             onSuccess: (response) => {
-                // form.system_prompt.value = response.props.system_prompt;
-                // form.prompt.value = response.props.prompt;
+                randomApplication.value = response.props.randomApplication;
+                prompt.value = response.props.prompt;
             },
             onError: (error) => {},
         }
@@ -191,6 +191,26 @@ const addAccessControl = () => {
                             description, twitter, github (project), github
                             (user).
                         </div>
+                        <div class="mb-2">
+                            <span v-pre class="mr-3">{{
+                                project.historic_applications
+                            }}</span>
+                            <span
+                                @click="
+                                    copyToClipboard(
+                                        '{{ project.historic_applications }}'
+                                    )
+                                "
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            The number of historic applications the project has,
+                            together with their status
+                        </div>
                     </div>
                 </div>
 
@@ -202,6 +222,20 @@ const addAccessControl = () => {
                     >
                     <PrimaryButton @click="savePrompts">Save</PrimaryButton>
                 </div>
+            </div>
+
+            <div
+                class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8"
+                v-if="randomApplication"
+            >
+                <h2 class="text-2xl mb-5">
+                    A random application and the prompt that will be generated
+                    for them
+                </h2>
+                <RandomApplicationPrompt
+                    :application="randomApplication"
+                    class="text-lg"
+                />
             </div>
             <div>
                 <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">

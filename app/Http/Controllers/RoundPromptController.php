@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Round;
+use App\Models\RoundApplication;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,6 +20,18 @@ class RoundPromptController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    private function getRandomApplicationPrompt(Round $round)
+    {
+        $randomApplication = $round->applications()->inRandomOrder()->first();
+        if (!$randomApplication) {
+            return null;
+        }
+
+        $randomApplication->generated_prompt = RoundApplicationController::getPrompt($randomApplication);
+
+        return $randomApplication;
+    }
+
     public function show(Round $round)
     {
         $prompt = $round->prompt;
@@ -28,22 +41,25 @@ class RoundPromptController extends Controller
 
         $prompt = RoundPromptController::ensurePromptExists($round);
 
-
         return Inertia::render('Round/Prompt', [
             'round' => $round,
             'prompt' => $prompt,
+            'randomApplication' => $this->getRandomApplicationPrompt($round),
         ]);
+    }
+
+    public static function promptDefaults()
+    {
+        $data = ['system_prompt' => 'Act as a Gitcoin project evaluator that needs to decide whether a specific project needs to be included in a Gitcoin round based on a set of criteria.' . PHP_EOL . PHP_EOL . 'The round is called {{ round.name }}.' . PHP_EOL . PHP_EOL . 'Eligibility: {{ round.eligibility.description }}.' . PHP_EOL . 'Eligibility requirements:' . PHP_EOL . '{{ round.eligibility.requirements }}', 'prompt' => 'Evaluate the project below based on the following scoring criteria, and give each of the scores a value of 0-100. 100 is the best score, and 0 is the worst score. You can also add comments to each score to explain your reasoning.' . PHP_EOL . PHP_EOL . '{{ project.details }}' . PHP_EOL . PHP_EOL . '{{ application.answers }}' . PHP_EOL . PHP_EOL . 'Historic project applications (if the project was approved in the past, this counts in their favour):' . PHP_EOL . '{{ project.historic_applications }}.'];
+        return $data;
     }
 
     public static function ensurePromptExists(Round $round)
     {
         $prompt = $round->prompt;
         if (!$prompt) {
-            $prompt = $round->prompt()->create([
-                'system_prompt' => 'Act as a Gitcoin project evaluator that needs to decide whether a specific project needs to be included in a Gitcoin round based on a set of criteria.',
-                'prompt' => 'Evaluate the project below based on the following scoring criteria, and give each of the scores a value of 0-100. 100 is the best score, and 0 is the worst score. You can also add comments to each score to explain your reasoning.' . PHP_EOL . PHP_EOL . '1. Be an open-source project with meaningful Github activity in the prior 3 months that has demonstrated work completed towards the project’s mission.' . PHP_EOL . '2. Primarily focused on developing on top of or advancing the broader Ethereum and/or Web3 industry.
-                ',
-            ]);
+            $data = RoundPromptController::promptDefaults();
+            $prompt = $round->prompt()->create($data);
         }
 
         return $prompt;

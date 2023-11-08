@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\RoundController;
+use App\Http\Controllers\RoundPromptController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -248,7 +249,7 @@ class IngestData extends Command
 
                 if (!$round->prompt) {
                     // set a default gpt prompt
-                    $promptData = RoundController::promptDefaults();
+                    $promptData = RoundPromptController::promptDefaults();
                     $round->prompt()->create([
                         'system_prompt' => $promptData['system_prompt'],
                         'prompt' => $promptData['prompt'],
@@ -262,8 +263,14 @@ class IngestData extends Command
                     foreach ($questionsMeta as $key => $q) {
                         if (Str::length($q['requirement']) > 0) {
                             $questions[] = [
-                                'question' => $q['requirement'],
-                                'score' => 0,
+                                'text' => $q['requirement'],
+                                'type' => 'radio',
+                                'options' => [
+                                    'Yes',
+                                    'No',
+                                    'Uncertain',
+                                ],
+                                'weighting' => 0,
                             ];
                         }
                     }
@@ -275,12 +282,12 @@ class IngestData extends Command
                         $remainder = 100 % $totalQuestions;
 
                         foreach ($questions as $key => $q) {
-                            $questions[$key]['score'] = $baseScore;
+                            $questions[$key]['weighting'] = $baseScore;
                         }
 
                         // Distribute the remainder to the first few questions
                         for ($i = 0; $i < $remainder; $i++) {
-                            $questions[$i]['score'] += 1;
+                            $questions[$i]['weighting'] += 1;
                         }
 
                         // set default evaluation questions
