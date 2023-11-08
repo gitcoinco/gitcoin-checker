@@ -5,6 +5,7 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
+import moment from "moment";
 import Bugsnag from "@bugsnag/js";
 import BugsnagPluginVue from "@bugsnag/plugin-vue";
 
@@ -21,23 +22,23 @@ createInertiaApp({
             import.meta.glob("./Pages/**/*.vue")
         ),
     setup({ el, App, props, plugin }) {
+        const app = createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(ZiggyVue);
+
+        // Provide moment globally
+        app.config.globalProperties.$moment = moment;
+
         if (bugsnagApiKey) {
             Bugsnag.start({
                 apiKey: bugsnagApiKey,
                 plugins: [new BugsnagPluginVue.default()],
             });
             const bugsnagVue = Bugsnag.getPlugin("vue");
-            const app = createApp({ render: () => h(App, props) })
-                .use(plugin)
-                .use(ZiggyVue)
-                .use(bugsnagVue)
-                .mount(el);
-        } else {
-            const app = createApp({ render: () => h(App, props) })
-                .use(plugin)
-                .use(ZiggyVue)
-                .mount(el);
+            app.use(bugsnagVue);
         }
+
+        app.mount(el);
 
         return app;
     },
@@ -45,8 +46,3 @@ createInertiaApp({
         color: "#4B5563",
     },
 });
-
-// For testing bugsnag
-// if (bugsnagApiKey) {
-//     Bugsnag.notify(new Error("Test error from Vue"));
-// }

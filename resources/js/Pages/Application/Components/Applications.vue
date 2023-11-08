@@ -18,6 +18,7 @@ import UserEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluati
 import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
 import Evaluation from "./Evaluation.vue";
 import ResultsSummary from "./ResultsSummary.vue";
+import moment from "moment";
 
 import {
     copyToClipboard,
@@ -156,6 +157,10 @@ const handleRoundPrompt = (round) => {
     // Just point it to the correct function here to maintain consistency in naming.
     roundPrompt(round);
 };
+
+const formatDate = (dateString) => {
+    return moment(dateString).fromNow();
+};
 </script>
 
 <template>
@@ -190,7 +195,7 @@ const handleRoundPrompt = (round) => {
 
                             <Tooltip>
                                 <i
-                                    class="fa fa-question-circle-o"
+                                    class="fa fa-question-circle-o text-gray-400"
                                     aria-hidden="true"
                                     title="This is the last application date for the round"
                                 ></i>
@@ -207,9 +212,7 @@ const handleRoundPrompt = (round) => {
                                 class="p-1 mr-1 pr-6"
                                 placeholder="Projects"
                             />
-                        </th>
-                        <th class="whitespace-nowrap">History</th>
-                        <th>
+                            in
                             <select
                                 v-model="selectedApplicationRoundTypeRef"
                                 class="p-1 mr-1 pr-6"
@@ -218,7 +221,13 @@ const handleRoundPrompt = (round) => {
                                 <option value="mine">My Rounds</option>
                             </select>
                         </th>
-                        <th></th>
+                        <th class="text-center">
+                            <i
+                                class="fa fa-clock-o fa-2x text-gray-400"
+                                aria-hidden="true"
+                            ></i>
+                        </th>
+                        <th class="text-center"></th>
                     </tr>
                 </thead>
                 <tbody
@@ -239,47 +248,55 @@ const handleRoundPrompt = (round) => {
                         :key="index"
                     >
                         <td>
-                            <span
-                                v-html="
-                                    applicationStatusIcon(application.status)
-                                "
-                            ></span>
-                            {{ showDateInShortFormat(application.created_at)
-                            }}<br />
-                            {{
-                                new Date(
-                                    application.created_at
-                                ).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })
-                            }}
+                            <div class="flex items-center">
+                                <span
+                                    v-html="
+                                        applicationStatusIcon(
+                                            application.status
+                                        )
+                                    "
+                                    class="mr-1"
+                                ></span>
+                                <span class="text-xs">
+                                    {{ formatDate(application.created_at) }}
+                                </span>
+                            </div>
                         </td>
                         <td>
-                            <Link
-                                v-if="application.project"
-                                :href="
-                                    route('project.show', application.project)
-                                "
-                                class="text-blue-500 hover:underline mr-2"
-                            >
-                                {{ application.project.title }}
-                            </Link>
+                            <div>
+                                <Link
+                                    v-if="application.project"
+                                    :href="
+                                        route(
+                                            'project.show',
+                                            application.project
+                                        )
+                                    "
+                                    class="text-blue-500 hover:underline mr-2"
+                                >
+                                    {{ application.project.title }}
+                                </Link>
 
-                            <ApplicationAnswers :application="application" />
+                                <ApplicationAnswers
+                                    :application="application"
+                                />
+                            </div>
+                            <div>
+                                in
+                                <Link
+                                    :href="
+                                        route('round.show', application.round)
+                                    "
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    {{ application.round.name }}
+                                </Link>
+                            </div>
                         </td>
-                        <td class="whitespace-nowrap">
+                        <td>
                             <PreviousApplicationStatus
                                 :application="application"
                             />
-                        </td>
-                        <td>
-                            <Link
-                                :href="route('round.show', application.round)"
-                                class="text-blue-500 hover:underline"
-                            >
-                                {{ application.round.name }}
-                            </Link>
                         </td>
                         <td>
                             <div v-if="application.project" class="text-center">

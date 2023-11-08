@@ -38,78 +38,84 @@ export default {
 </script>
 <template>
     <span>
-        <span
-            @click="toggleModal"
-            class="pointer text-blue-500 hover:underline"
-        >
-            {{ applications.length }} application<span
-                v-if="applications.length > 1"
-                >s</span
+        <span v-if="applications?.length > 1">
+            <span
+                @click="toggleModal"
+                class="pointer text-blue-500 hover:underline"
             >
-        </span>
+                {{ applications.length }} past application<span
+                    v-if="applications.length > 1"
+                    >s</span
+                >
+            </span>
 
-        <Modal :show="openModal" @close="toggleModal">
-            <div class="modal-content">
-                <h2 class="modal-title flex justify-between">
-                    Application answers for {{ application.project.title }}
-                    <span @click="toggleModal" class="cursor-pointer">
-                        <i class="fa fa-times-circle-o" aria-hidden="true"></i>
-                    </span>
-                </h2>
+            <Modal :show="openModal" @close="toggleModal">
+                <div class="modal-content">
+                    <h2 class="modal-title flex justify-between">
+                        Application answers for {{ application.project.title }}
+                        <span @click="toggleModal" class="cursor-pointer">
+                            <i
+                                class="fa fa-times-circle-o"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </h2>
 
-                <!-- You can add more data to display in the modal here -->
-                <div v-if="applications">
-                    <table class="score-table" v-if="applications">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Round</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(application, index) in applications"
-                                :key="'answers-' + index"
-                            >
-                                <td>
-                                    {{
-                                        showDateInShortFormat(
-                                            application.created_at,
-                                            true
-                                        )
-                                    }}
-                                </td>
-                                <td class="score-value">
-                                    <a
-                                        :href="
-                                            route(
-                                                'round.show',
-                                                application.round
+                    <!-- You can add more data to display in the modal here -->
+                    <div v-if="applications">
+                        <table class="score-table" v-if="applications">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Round</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(application, index) in applications"
+                                    :key="'answers-' + index"
+                                >
+                                    <td>
+                                        {{
+                                            showDateInShortFormat(
+                                                application.created_at,
+                                                true
                                             )
-                                        "
-                                        class="text-blue-500 hover:underline"
-                                    >
-                                        {{ application.round.name }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <span
-                                        v-html="
-                                            applicationStatusIcon(
-                                                application.status
-                                            )
-                                        "
-                                    ></span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                        }}
+                                    </td>
+                                    <td class="score-value">
+                                        <a
+                                            :href="
+                                                route(
+                                                    'round.show',
+                                                    application.round
+                                                )
+                                            "
+                                            class="text-blue-500 hover:underline"
+                                        >
+                                            {{ application.round.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span
+                                            v-html="
+                                                applicationStatusIcon(
+                                                    application.status
+                                                )
+                                            "
+                                        ></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div v-else>No application data available.</div>
                 </div>
-
-                <div v-else>No application data available.</div>
-            </div>
-        </Modal>
+            </Modal>
+        </span>
+        <span v-else>Newby</span>
     </span>
 </template>
 
