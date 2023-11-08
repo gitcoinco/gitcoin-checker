@@ -105,12 +105,63 @@ const addAccessControl = () => {
                             data from the user:
                         </p>
                         <div class="mb-2">
+                            <span v-pre class="mr-3">{{ round.name }}</span>
+                            <span
+                                @click="copyToClipboard('{{ round.name }}')"
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            The name of the round.
+                        </div>
+                        <div class="mb-2">
                             <span v-pre class="mr-3">{{
-                                applicationAnswers
+                                round.eligibility.description
                             }}</span>
                             <span
                                 @click="
-                                    copyToClipboard('{{ applicationAnswers }}')
+                                    copyToClipboard(
+                                        '{{ round.eligibility.description }}'
+                                    )
+                                "
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            The eligibility criteria for the round.
+                        </div>
+                        <div class="mb-2">
+                            <span v-pre class="mr-3">{{
+                                round.eligibility.requirements
+                            }}</span>
+                            <span
+                                @click="
+                                    copyToClipboard(
+                                        '{{ round.eligibility.requirements }}'
+                                    )
+                                "
+                                class="cursor-pointer"
+                            >
+                                <i
+                                    class="fa fa-clone"
+                                    aria-hidden="true"
+                                ></i> </span
+                            ><br />
+                            The eligibility requirements for the round.
+                        </div>
+                        <div class="mb-2">
+                            <span v-pre class="mr-3">{{
+                                application.answers
+                            }}</span>
+                            <span
+                                @click="
+                                    copyToClipboard('{{ application.answers }}')
                                 "
                                 class="cursor-pointer"
                             >
@@ -122,9 +173,13 @@ const addAccessControl = () => {
                             The answers the user gave in their application.
                         </div>
                         <div class="mb-2">
-                            <span v-pre class="mr-3">{{ projectDetails }}</span>
+                            <span v-pre class="mr-3">{{
+                                project.details
+                            }}</span>
                             <span
-                                @click="copyToClipboard('{{ projectDetails }}')"
+                                @click="
+                                    copyToClipboard('{{ project.details }}')
+                                "
                                 class="cursor-pointer"
                             >
                                 <i

@@ -327,14 +327,27 @@ class RoundApplicationController extends Controller
         $search = [];
         $replace = [];
 
-        $search[] = '{{ applicationAnswers }}';
+        $search[] = '{{ application.answers }}';
         $replace[] = RoundApplicationController::getApplicationAnswers($application);
 
-        $search[] = '{{ projectDetails }}';
+        $search[] = '{{ project.details }}';
         $replace[] = RoundApplicationController::getProjectDetails($application);
 
+        $search[] = '{{ round.eligibility.description }}';
+        $replace[] = $round->metadata['eligibility']['description'];
+
+        $search[] = '{{ round.name }}';
+        $replace[] = $round->metadata['name'];
+
+        $search[] = '{{ round.eligibility.requirements }}';
+        $requirements = '';
+        foreach ($round->metadata['eligibility']['requirements'] as $key => $requirement) {
+            $requirements .= ($key + 1) . ' - ' . $requirement . PHP_EOL;
+        }
+        $replace[] = $requirements;
+
         $data = [
-            'system_prompt' => $prompt->system_prompt . PHP_EOL . PHP_EOL . $returnedFormat,
+            'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat,
             'prompt' => str_replace($search, $replace, $prompt->prompt),
         ];
 

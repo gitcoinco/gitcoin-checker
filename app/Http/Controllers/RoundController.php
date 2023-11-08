@@ -17,6 +17,18 @@ class RoundController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public static function promptDefaults()
+    {
+        $data = ['system_prompt' => 'Act as a Gitcoin project evaluator that needs to decide whether a specific project needs to be included in a Gitcoin round based on a set of criteria.
+
+        The round is called {{ round.name }}.
+        Eligibility: {{ round.eligibility.description }}.
+        Eligibility requirements: {{ round.eligibility.requirements }}.', 'prompt' => 'Evaluate the project below based on the following scoring criteria, and give each of the scores a value of 0-100. 100 is the best score, and 0 is the worst score. You can also add comments to each score to explain your reasoning.
+
+        {{ round.eligibility.requirements }}'];
+
+        return $data;
+    }
 
 
     public function index($search = null)

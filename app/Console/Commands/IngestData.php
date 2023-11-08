@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\RoundController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -244,6 +245,50 @@ class IngestData extends Command
                         'metadata' => $roundData['metadata'],
                     ]
                 );
+
+                if (!$round->prompt) {
+                    // set a default gpt prompt
+                    $promptData = RoundController::promptDefaults();
+                    $round->prompt()->create([
+                        'system_prompt' => $promptData['system_prompt'],
+                        'prompt' => $promptData['prompt'],
+                    ]);
+                }
+
+                if (!$round->evaluationQuestions) {
+
+                    $questionsMeta = $round->metadata['eligibility']['requirements'];
+                    $questions = [];
+                    foreach ($questionsMeta as $key => $q) {
+                        if (Str::length($q['requirement']) > 0) {
+                            $questions[] = [
+                                'question' => $q['requirement'],
+                                'score' => 0,
+                            ];
+                        }
+                    }
+
+                    if (count($questions) > 0) {
+                        // Adjust the scoring
+                        $totalQuestions = count($questions);
+                        $baseScore = intdiv(100, $totalQuestions);
+                        $remainder = 100 % $totalQuestions;
+
+                        foreach ($questions as $key => $q) {
+                            $questions[$key]['score'] = $baseScore;
+                        }
+
+                        // Distribute the remainder to the first few questions
+                        for ($i = 0; $i < $remainder; $i++) {
+                            $questions[$i]['score'] += 1;
+                        }
+
+                        // set default evaluation questions
+                        $round->evaluationQuestions()->create([
+                            'questions' => json_encode($questions),
+                        ]);
+                    }
+                }
 
 
 
