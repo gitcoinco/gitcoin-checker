@@ -1,6 +1,7 @@
 <script setup>
 import { ref, defineProps, defineEmits } from "vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
 import { showDateInShortFormat } from "@/utils";
 import { Link } from "@inertiajs/vue3";
@@ -68,6 +69,7 @@ const submitEvaluation = async () => {
         emit("evaluatedApplication");
         await fetchUserData();
         saveStatus.value = "success";
+        showPromptModal.value = false;
     } catch (error) {
         console.error("An error occurred while submitting the form:", error);
         saveStatus.value = "error";
@@ -92,7 +94,9 @@ const toggleModal = () => {
                         ?.length > 0
                 "
             >
-                <div @click="toggleModal">Human Evaluation</div>
+                <SecondaryButton @click="toggleModal">
+                    Your Evaluation
+                </SecondaryButton>
             </div>
             <div v-else>
                 <Link
@@ -209,7 +213,7 @@ const toggleModal = () => {
                 </form>
                 <div v-else>No questions specified</div>
 
-                <table
+                <!-- <table
                     class="table-auto w-full"
                     v-if="userEvaluationAnswers.length > 0"
                 >
@@ -236,7 +240,7 @@ const toggleModal = () => {
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </table> -->
             </div>
         </Modal>
     </div>

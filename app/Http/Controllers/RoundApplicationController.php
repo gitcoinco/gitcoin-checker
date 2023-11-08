@@ -24,6 +24,25 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function show(RoundApplication $application)
+    {
+        $application->load([
+            'round',
+            'round.evaluationQuestions',
+            'project',
+            'project.applications',
+            'project.applications.round',
+            'evaluationAnswers',
+            'evaluationAnswers.user',
+            'latestPrompt',
+            'results'
+        ]);
+
+        return response()->json([
+            'application' => $application,
+        ]);
+    }
+
     public function setFilters(Request $request)
     {
         if ($request->has('selectedSearchProjects')) {
