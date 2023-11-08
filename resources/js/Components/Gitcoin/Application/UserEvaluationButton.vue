@@ -88,8 +88,8 @@ const toggleModal = () => {
         <span class="text-blue-500 hover:underline cursor-pointer">
             <div
                 v-if="
-                    application.round.evaluation_questions &&
-                    application.round.evaluation_questions.questions
+                    application?.round?.evaluation_questions?.questions
+                        ?.length > 0
                 "
             >
                 <div @click="toggleModal">Human Evaluation</div>
@@ -119,7 +119,10 @@ const toggleModal = () => {
                 <form
                     @submit.prevent="submitEvaluation"
                     class="mb-4"
-                    v-if="application?.round?.evaluation_questions?.length > 0"
+                    v-if="
+                        application?.round?.evaluation_questions?.questions
+                            ?.length > 0
+                    "
                 >
                     <div v-if="loggedInUserAnswers" class="mb-4">
                         Your answers from
