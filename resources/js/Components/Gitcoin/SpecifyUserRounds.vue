@@ -98,9 +98,13 @@ onMounted(async () => {
                                     "
                                     class="mr-2"
                                 />
-                                <label :for="`round-${index}`">{{
-                                    round.name
-                                }}</label>
+                                <label :for="`round-${index}`"
+                                    >{{ round.name }}
+                                    <span class="text-xs"
+                                        >(chain_id:
+                                        {{ round.chain.chain_id }})</span
+                                    ></label
+                                >
                             </div>
                         </div>
                     </div>
@@ -121,6 +125,10 @@ onMounted(async () => {
                                             ></i>
                                         </button>
                                         {{ round.name }}
+                                        <span class="text-xs"
+                                            >(chain_id:
+                                            {{ round.chain.chain_id }})</span
+                                        >
                                     </div>
                                 </div>
                             </div>

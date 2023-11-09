@@ -11,7 +11,7 @@ class UserPreferenceController extends Controller
     public function roundsSearch(Request $request)
     {
         if ($request->search) {
-            $rounds = Round::where('name', 'like', '%' . $request->search . '%')->limit(10)->get();
+            $rounds = Round::where('name', 'like', '%' . $request->search . '%')->with('chain')->limit(10)->get();
         } else {
             $rounds = [];
         }
@@ -20,7 +20,7 @@ class UserPreferenceController extends Controller
             ->where('key', 'selectedApplicationRoundUuidList')
             ->first();
         $selectedRoundsUuid = $userPreference ? json_decode($userPreference->value, true) : [];
-        $selectedRounds = Round::whereIn('uuid', $selectedRoundsUuid)->get();
+        $selectedRounds = Round::whereIn('uuid', $selectedRoundsUuid)->with('chain')->get();
 
         return [
             'rounds' => $rounds,
