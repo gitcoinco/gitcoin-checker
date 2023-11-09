@@ -70,7 +70,7 @@ class UserPreferenceController extends Controller
             ->where('key', 'selectedApplicationRoundUuidList')
             ->first();
         $selectedRoundsUuid = $userPreference ? json_decode($userPreference->value, true) : [];
-        $selectedRounds = Round::whereIn('uuid', $selectedRoundsUuid)->get();
+        $selectedRounds = Round::whereIn('uuid', $selectedRoundsUuid)->with('chain')->get();
 
         return [
             'selectedRounds' => $selectedRounds,

@@ -125,7 +125,9 @@ onMounted(async () => {
                                             ></i>
                                         </button>
                                         {{ round.name }}
-                                        <span class="text-xs"
+                                        <span
+                                            class="text-xs"
+                                            v-if="round?.chain?.chain_id"
                                             >(chain_id:
                                             {{ round.chain.chain_id }})</span
                                         >
