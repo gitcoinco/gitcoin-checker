@@ -243,7 +243,9 @@ const formatDate = (dateString) => {
                             <Link
                                 v-if="application.project"
                                 :href="
-                                    route('project.show', application.project)
+                                    route('project.show', {
+                                        project: application.project.slug,
+                                    })
                                 "
                                 class="text-blue-500 hover:underline mr-2 text-2xl"
                             >

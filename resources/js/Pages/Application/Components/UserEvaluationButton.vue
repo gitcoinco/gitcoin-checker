@@ -95,7 +95,7 @@ const toggleModal = () => {
                 "
             >
                 <SecondaryButton @click="toggleModal">
-                    Your Evaluation
+                    My Evaluation
                 </SecondaryButton>
             </div>
             <div v-else>
@@ -115,24 +115,25 @@ const toggleModal = () => {
         <Modal :show="showPromptModal" @close="showPromptModal = false">
             <div class="modal-content">
                 <h2 class="modal-title flex justify-between">
-                    <span>Human Evaluations</span>
+                    <span>My Evaluation</span>
                     <span @click="toggleModal" class="cursor-pointer">
                         <i class="fa fa-times-circle-o" aria-hidden="true"></i>
                     </span>
                 </h2>
                 <form
                     @submit.prevent="submitEvaluation"
-                    class="mb-4"
+                    class="mb-4 text-sm"
                     v-if="
                         application?.round?.evaluation_questions?.questions
                             ?.length > 0
                     "
                 >
                     <div v-if="loggedInUserAnswers" class="mb-4">
-                        Your answers from
+                        Your evaluation from
                         {{
                             showDateInShortFormat(
-                                loggedInUserAnswers.updated_at
+                                loggedInUserAnswers.updated_at,
+                                true
                             )
                         }}:
                     </div>
@@ -142,13 +143,14 @@ const toggleModal = () => {
                                 application.round.evaluation_questions.questions
                             )"
                             :key="qIndex"
+                            class="mb-5"
                         >
                             <p class="mb-2 font-bold">{{ question.text }}</p>
                             <div class="flex flex-wrap">
                                 <div
                                     v-for="(option, cIndex) in question.options"
                                     :key="cIndex"
-                                    class="mb-1 mr-2 flex items-center"
+                                    class="mb-1 mr-2 flex items-center text-xs"
                                 >
                                     <input
                                         type="radio"
