@@ -24,6 +24,14 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function details(RoundApplication $application)
+    {
+        $application->load(['project']);
+        return response()->json([
+            'application' => $application,
+        ]);
+    }
+
     public function show(RoundApplication $application)
     {
         $application->load([
@@ -169,25 +177,41 @@ class RoundApplicationController extends Controller
         }
 
         $applications = RoundApplication::with([
-            'round',
-            'round.chain',
-            'round.evaluationQuestions',
+            'round' => function ($query) {
+                $query->select('id', 'uuid', 'name', 'round_start_time', 'round_end_time', 'round_addr', 'chain_id');
+            },
+            'round.chain' => function ($query) {
+                $query->select('id', 'uuid', 'chain_id');
+            },
+            'round.evaluationQuestions' => function ($query) {
+                $query->select('id', 'uuid', 'round_id', 'questions');
+            },
             'project' => function ($query) use ($selectedSearchProjects) {
                 if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
                     $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
                 }
+                $query->select('id', 'uuid', 'id_addr', 'title', 'created_at', 'updated_at');
             },
-            'project.applications',
-            'project.applications.round',
+            'project.applications' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+                $query->select('id', 'uuid', 'application_id', 'round_id', 'project_addr', 'status', 'created_at');
+            },
+            'project.applications.round' => function ($query) {
+                $query->select('id', 'uuid', 'name');
+            },
             'evaluationAnswers' => function ($query) {
                 $query->orderBy('id', 'desc');
             },
-            'evaluationAnswers.user',
+            'evaluationAnswers.user' => function ($query) {
+                $query->select('id', 'uuid', 'name');
+            },
             'latestPrompt' => function ($query) {
                 $query->orderBy('id', 'desc')->limit(1);
+                $query->select('id', 'uuid');
             },
             'results' => function ($query) {
-                $query->orderBy('id', 'desc');
+                $query->orderBy('id', 'desc')->limit(1);
+                $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
             }
         ])
             ->when($status != 'all', function ($query) use ($status) {
@@ -205,7 +229,8 @@ class RoundApplicationController extends Controller
             })
             ->whereNotIn('id', $listOfApplicationIdsToExclude)
             ->orderBy('id', 'desc')
-            ->paginate();
+            ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
+            ->paginate(10);
 
         $data = [
             'applications' => $applications,

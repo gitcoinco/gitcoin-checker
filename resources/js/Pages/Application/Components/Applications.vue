@@ -258,7 +258,9 @@ const formatDate = (dateString) => {
                                 {{ application.project.title }}
                             </Link>
 
-                            <ApplicationAnswers :application="application" />
+                            <ApplicationAnswers
+                                :applicationUuid="application.uuid"
+                            />
                         </div>
                         <div class="flex items-center">
                             <span

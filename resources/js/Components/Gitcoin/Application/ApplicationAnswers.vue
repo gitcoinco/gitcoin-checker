@@ -1,80 +1,113 @@
-<script>
-import { ref } from "vue";
+<script setup>
+import { ref, computed } from "vue";
+import axios from "axios";
 import Modal from "@/Components/Modal.vue";
 
-export default {
-    components: {
-        Modal,
-    },
-    props: {
-        application: {
-            type: Object,
-            required: true,
-        },
-    },
-    computed: {
-        answers() {
-            const metadata = JSON.parse(this.application.metadata);
-            return metadata.application.answers.filter(
-                (answer) => !answer.hidden
-            );
-        },
-    },
-    setup() {
-        const openModal = ref(false); // Using the Composition API
+const openModal = ref(false);
+const application = ref(false);
+const isLoading = ref(true);
 
-        function toggleModal() {
-            openModal.value = !openModal.value;
-        }
+const props = defineProps({
+    applicationUuid: String,
+});
 
-        return {
-            openModal,
-            toggleModal,
-        };
-    },
+const fetchApplicationAnswers = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.get(
+            route("round.application.details", {
+                application: props.applicationUuid,
+            })
+        );
+
+        application.value = response.data.application;
+        isLoading.value = false;
+    } catch (error) {
+        console.error(error); // Handle any errors that occur during the request
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const answers = computed(() => {
+    const metadata = application.value?.metadata
+        ? JSON.parse(application.value.metadata)
+        : {};
+
+    let answers = metadata?.application?.answers
+        ? metadata.application.answers
+        : [];
+
+    // remove all answers that have answer.hidden = true
+    answers = answers.filter((answer) => {
+        return !answer.hidden;
+    });
+
+    return answers;
+});
+
+const toggleModal = () => {
+    openModal.value = !openModal.value;
+    if (openModal.value) {
+        fetchApplicationAnswers();
+    }
 };
 </script>
+
 <template>
     <span>
         <span @click="toggleModal" :disabled="!application" class="pointer">
             <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+            <span v-if="isLoading" class="loading-indicator"></span>
         </span>
 
         <Modal :show="openModal" @close="toggleModal">
-            <div class="modal-content">
-                <h2 class="modal-title flex justify-between">
-                    Application answers for {{ application.project.title }}
-                    <span @click="toggleModal" class="cursor-pointer">
-                        <i class="fa fa-times-circle-o" aria-hidden="true"></i>
-                    </span>
-                </h2>
+            <div class="modal-content text-xs text-gray-500">
+                <div v-if="!isLoading">
+                    <h2 class="modal-title flex justify-between">
+                        Application answers for {{ application.project.title }}
+                        <span @click="toggleModal" class="cursor-pointer">
+                            <i
+                                class="fa fa-times-circle-o"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </h2>
 
-                <!-- You can add more data to display in the modal here -->
-                <div v-if="answers">
-                    <table class="score-table" v-if="answers">
-                        <thead>
-                            <tr>
-                                <th>Question</th>
-                                <th>Answer</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(answer, index) in answers"
-                                :key="'answers-' + index"
-                            >
-                                <td class="score-value" v-if="answer.question">
-                                    {{ answer.question }}
-                                </td>
-                                <td v-if="answer.answer">
-                                    {{ answer.answer }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div v-if="answers && !isLoading">
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(answer, index) in answers"
+                                    :key="'answers-' + index"
+                                >
+                                    <td
+                                        class="score-value"
+                                        v-if="answer.question"
+                                    >
+                                        {{ answer.question }}
+                                    </td>
+                                    <td v-if="answer.answer">
+                                        {{ answer.answer }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else>loading..</div>
                 </div>
 
-                <div v-else>No application data available.</div>
+                <div v-else-if="!answers && !isLoading">
+                    No application data available.
+                </div>
+
+                <div v-else-if="isLoading">Loading application answers...</div>
             </div>
         </Modal>
     </span>

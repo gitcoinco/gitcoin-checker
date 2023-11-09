@@ -51,7 +51,7 @@ export default {
 
             <Modal :show="openModal" @close="toggleModal">
                 <div class="modal-content">
-                    <h2 class="modal-title flex justify-between">
+                    <h2 class="flex justify-between">
                         Application answers for {{ application.project.title }}
                         <span @click="toggleModal" class="cursor-pointer">
                             <i
@@ -77,12 +77,14 @@ export default {
                                     :key="'answers-' + index"
                                 >
                                     <td>
-                                        {{
-                                            showDateInShortFormat(
-                                                application.created_at,
-                                                true
-                                            )
-                                        }}
+                                        <span class="text-xs text-gray-400">
+                                            {{
+                                                showDateInShortFormat(
+                                                    application.created_at,
+                                                    true
+                                                )
+                                            }}
+                                        </span>
                                     </td>
                                     <td class="score-value">
                                         <a
@@ -97,14 +99,20 @@ export default {
                                             {{ application.round.name }}
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="flex items-center">
                                         <span
                                             v-html="
                                                 applicationStatusIcon(
                                                     application.status
                                                 )
                                             "
+                                            class="mr-1"
                                         ></span>
+                                        <span class="text-xs text-gray-400">
+                                            {{
+                                                application.status.toLowerCase()
+                                            }}
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>
