@@ -10,6 +10,7 @@ use App\Http\Controllers\RoundEvaluationController;
 use App\Http\Controllers\ChainController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
+use App\Http\Controllers\GPTController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 
@@ -64,6 +65,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/gpt/models', [GPTController::class, 'models'])->name('gpt.models');
 
     Route::prefix('application')->group(function () {
         Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');

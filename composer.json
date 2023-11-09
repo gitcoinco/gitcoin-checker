@@ -12,7 +12,6 @@
         "bugsnag/bugsnag-laravel": "^2.26",
         "doctrine/dbal": "^3.7",
         "guzzlehttp/guzzle": "^7.2",
-        "haozi-team/chatgpt-php": "^2.1",
         "hashids/hashids": "^5.0",
         "inertiajs/inertia-laravel": "^0.6.8",
         "kornrunner/keccak": "^1.1",
@@ -22,6 +21,7 @@
         "laravel/telescope": "^4.16",
         "laravel/tinker": "^2.8",
         "league/commonmark": "^2.4",
+        "orhanerday/open-ai": "^4.9",
         "simplito/elliptic-php": "^1.0",
         "symfony/dom-crawler": "^6.3",
         "tightenco/ziggy": "^1.7"

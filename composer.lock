@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68de1168565c0c3be34668570f19833c",
+    "content-hash": "5563afd2684c27b317efce27cbc45b4e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1676,56 +1676,6 @@
                 }
             ],
             "time": "2023-08-27T10:19:19+00:00"
-        },
-        {
-            "name": "haozi-team/chatgpt-php",
-            "version": "2.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/HaoZi-Team/ChatGPT-PHP.git",
-                "reference": "b6ceff8ae51eab93a70dd8c84234f4c079456fed"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/HaoZi-Team/ChatGPT-PHP/zipball/b6ceff8ae51eab93a70dd8c84234f4c079456fed",
-                "reference": "b6ceff8ae51eab93a70dd8c84234f4c079456fed",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^7.2",
-                "php": ">=7.4",
-                "ramsey/uuid": "^4.2"
-            },
-            "require-dev": {
-                "pestphp/pest": "^1.22"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "HaoZiTeam\\ChatGPT\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "耗子",
-                    "email": "i@haozi.net"
-                }
-            ],
-            "description": "Real ChatGPT PHP SDK (Not GPT-3)",
-            "homepage": "https://github.com/HaoZi-Team/ChatGPT-PHP",
-            "keywords": [
-                "ChatGpt",
-                "openai"
-            ],
-            "support": {
-                "issues": "https://github.com/HaoZi-Team/ChatGPT-PHP/issues",
-                "source": "https://github.com/HaoZi-Team/ChatGPT-PHP/tree/2.1.2"
-            },
-            "time": "2023-07-17T13:32:23+00:00"
         },
         {
             "name": "hashids/hashids",
@@ -3721,6 +3671,65 @@
                 }
             ],
             "time": "2023-02-08T01:06:31+00:00"
+        },
+        {
+            "name": "orhanerday/open-ai",
+            "version": "4.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/orhanerday/open-ai.git",
+                "reference": "14ba8185120d6366756fcf7c5b403c63f3efd852"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/orhanerday/open-ai/zipball/14ba8185120d6366756fcf7c5b403c63f3efd852",
+                "reference": "14ba8185120d6366756fcf7c5b403c63f3efd852",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "pestphp/pest": "^1.20",
+                "spatie/ray": "^1.28"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Orhanerday\\OpenAi\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Orhan Erday",
+                    "email": "orhanerday@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OpenAI GPT-3 Api Client in PHP",
+            "homepage": "https://github.com/orhanerday/open-ai",
+            "keywords": [
+                "open-ai",
+                "orhanerday"
+            ],
+            "support": {
+                "issues": "https://github.com/orhanerday/open-ai/issues",
+                "source": "https://github.com/orhanerday/open-ai/tree/4.9"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/orhanerday",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-10-28T17:36:07+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

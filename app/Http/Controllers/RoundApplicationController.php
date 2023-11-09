@@ -10,7 +10,7 @@ use App\Models\RoundPrompt;
 use App\Models\UserPreference;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
+use Orhanerday\OpenAi\OpenAi;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -288,17 +288,63 @@ class RoundApplicationController extends Controller
         $result->prompt_type = 'chatgpt';
 
         $promptData = RoundApplicationController::getPrompt($application);
+        $result->system_prompt = $promptData['system_prompt'];
         $result->prompt_data = $promptData['prompt'];
         $result->save();
 
-        $chatGPT = new ChatGPTV2(env('OPENAI_API_KEY'), 'https://api.openai.com/');
-        $chatGPT->addMessage($promptData['system_prompt'], 'system');
-        $answers = $chatGPT->ask($result->prompt_data, 'user');
+        $open_ai = new OpenAi(env('OPENAI_API_KEY'));
 
-        $answer = null;
-        foreach ($answers as $item) {
-            $answer = $item['answer'];
-        }
+        $gptResponse = $open_ai->chat([
+            'model' => 'gpt-4-1106-preview',
+            'messages' => [
+                [
+                    "role" => "system",
+                    "content" => $promptData['system_prompt'] . PHP_EOL . 'Return an array of json objects as per the gpt_evaluation function.',
+                ],
+                [
+                    "role" => "user",
+                    "content" => $promptData['prompt']
+                ],
+            ],
+            'temperature' => 1.0,
+            'max_tokens' => 4000,
+            'frequency_penalty' => 0,
+            'presence_penalty' => 0,
+
+            // We should really get an array of objects back, however, this is not working yet.
+            // 'functions' => [
+            //     [
+            //         'name'        => 'gpt_evaluation',
+            //         'description' => 'The format in which answers should be returned.',
+            //         'parameters'  => [
+            //             'type'       => 'object',
+            //             'properties' => [
+            //                 'score' => [
+            //                     'type'        => 'number',
+            //                     'description' => 'How high this score is. 0 is the lowest, 100 is the highest.',
+            //                 ],
+            //                 'reason' => [
+            //                     'type'        => 'string',
+            //                     'description' => 'A specific reason for the score.',
+            //                 ],
+            //                 'criteria' => [
+            //                     'type'        => 'string',
+            //                     'description' => 'A specific bit of evaluation criteria.',
+            //                 ],
+            //             ],
+            //             'required'   => ['score', 'reason', 'criteria'],
+            //         ],
+            //     ],
+            // ],
+        ]);
+
+        $gptResponse = json_decode($gptResponse);
+
+        $answer = ($gptResponse->choices[0]->message->content);
+        $search = ['```json', '```'];
+        $replace = ['', ''];
+
+        $answer = str_replace($search, $replace, $answer);
 
         $result->results_data = $answer;
         $result->save();
@@ -366,7 +412,6 @@ class RoundApplicationController extends Controller
             "reason": "A specific reason for the score",
             "criteria": "A specific bit of evaluation criteria"
         }]';
-
 
         $search = [];
         $replace = [];

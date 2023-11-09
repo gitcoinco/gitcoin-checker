@@ -17,6 +17,7 @@ class RoundApplicationPromptResult extends Model
         'project_id',
         'prompt_id',
         'prompt_type',
+        'system_prompt',
         'prompt_data',
         'results_data',
     ];
