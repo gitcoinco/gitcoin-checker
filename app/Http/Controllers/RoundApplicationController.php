@@ -53,107 +53,34 @@ class RoundApplicationController extends Controller
 
     public function setFilters(Request $request)
     {
-        if ($request->has('selectedSearchProjects')) {
-            $selectedSearchProjects = $request->input('selectedSearchProjects', '');
-
-            $userPreference = UserPreference::firstOrCreate([
-                'user_id' => $request->user()->id,
-                'key' => 'selectedSearchProjects',
-            ]);
-            if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
-                $userPreference->value = json_encode($selectedSearchProjects);
-                $userPreference->save();
-            } else {
-                $userPreference->delete();
-                $selectedSearchProjects = '';
-            }
-        } else {
-            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedSearchProjects')->first();
-            if ($userPreference) {
-                $selectedSearchProjects = json_decode($userPreference->value);
-            } else {
-                $selectedSearchProjects = '';
-            }
-        }
-
-        //        dd($selectedSearchProjects);
-
-        if ($request->has('status')) {
-            $status = $request->input('status', 'all');
-
-            $userPreference = UserPreference::firstOrCreate([
-                'user_id' => $request->user()->id,
-                'key' => 'selectedApplicationStatus',
-            ]);
-            $userPreference->value = json_encode($status);
-            $userPreference->save();
-        } else {
-            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationStatus')->first();
-            if ($userPreference) {
-                $status = json_decode($userPreference->value);
-            } else {
-                $status = 'pending';
-            }
-        }
-
-        if ($request->has('selectedApplicationRoundType')) {
-            $selectedApplicationRoundType = $request->input('selectedApplicationRoundType', 'all');
-            $selectedApplicationRoundUuidList = '[]';
-
-            $userPreference = UserPreference::firstOrCreate([
-                'user_id' => $request->user()->id,
-                'key' => 'selectedApplicationRoundType',
-            ]);
-            if (!$userPreference) {
-                $userPreference->value = json_encode($selectedApplicationRoundType);
-                $userPreference->save();
-            }
-
-            $userPreference = UserPreference::firstOrCreate([
-                'user_id' => $request->user()->id,
-                'key' => 'selectedApplicationRoundUuidList',
-            ]);
-            if (!$userPreference) {
-                $userPreference->value = json_encode([]);
-                $userPreference->save();
-            }
-        } else {
-            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationRoundType')->first();
-            if ($userPreference) {
-                $selectedApplicationRoundType = json_decode($userPreference->value);
-            } else {
-                $selectedApplicationRoundType = 'all';
-            }
-
-            $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
-            if ($userPreference) {
-                $selectedApplicationRoundUuidList = json_decode($userPreference->value, true);
-            } else {
-                $selectedApplicationRoundUuidList = '[]';
-            }
-        }
-
-        $userPreference = UserPreference::firstOrCreate([
-            'user_id' => $request->user()->id,
-            'key' => 'selectedApplicationRemoveTests',
-        ], [
-            'value' => json_encode(0)
-        ]);
-        $selectedApplicationRemoveTests = json_decode($userPreference->value);
-        if ($request->has('selectedApplicationRemoveTests')) {
-            $userPreference->value = json_encode($request->input('selectedApplicationRemoveTests'));
-            $userPreference->save();
-            $selectedApplicationRemoveTests = json_decode($userPreference->value);
-        }
-
-
-        $filterData = [
-            'status' => $status,
-            'selectedApplicationRoundType' => $selectedApplicationRoundType,
-            'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
-            'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
-            'selectedSearchProjects' => $selectedSearchProjects,
+        $filterKeys = [
+            'selectedSearchProjects' => '',
+            'status' => 'all',
+            'selectedApplicationRoundType' => 'all',
+            'selectedApplicationRoundUuidList' => '[]',
+            'selectedApplicationRemoveTests' => 0
         ];
+
+        $filterData = [];
+
+        foreach ($filterKeys as $key => $default) {
+            if ($request->has($key)) {
+                $value = $request->input($key, $default);
+
+                $userPreference = UserPreference::updateOrCreate([
+                    'user_id' => $request->user()->id,
+                    'key' => $key,
+                ], [
+                    'value' => json_encode($value)
+                ]);
+
+                $filterData[$key] = is_string($value) && Str::length($value) > 0 ? $value : json_decode($userPreference->value);
+            } else {
+                $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', $key)->first();
+
+                $filterData[$key] = $userPreference ? json_decode($userPreference->value) : $default;
+            }
+        }
 
         return $filterData;
     }
@@ -175,6 +102,14 @@ class RoundApplicationController extends Controller
             $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
             $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
         }
+
+        $listOfApplicationIdsToInclude = [];
+        if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
+            $listOfApplicationIdsToInclude = RoundApplication::whereHas('project', function ($query) use ($selectedSearchProjects) {
+                $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
+            })->pluck('id');
+        }
+
 
         $applications = RoundApplication::with([
             'round' => function ($query) {
@@ -215,6 +150,9 @@ class RoundApplicationController extends Controller
         ])
             ->when($status != 'all', function ($query) use ($status) {
                 $query->where('status', strtolower($status));
+            })
+            ->when(count($listOfApplicationIdsToInclude) > 0, function ($query) use ($listOfApplicationIdsToInclude) {
+                $query->whereIn('id', $listOfApplicationIdsToInclude);
             })
             ->when($selectedApplicationRoundType != 'all', function ($query) {
                 $userPreference = UserPreference::where('user_id', auth()->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
