@@ -58,7 +58,7 @@ onMounted(async () => {
             <div class="p-5">
                 <div class="modal-header">
                     <div class="flex justify-between">
-                        <h2>Select Rounds</h2>
+                        <h2 class="text-2xl">Select Rounds</h2>
                         <button
                             class="close text-4xl"
                             @click="showRounds = false"
@@ -77,50 +77,55 @@ onMounted(async () => {
 
                     <!-- Display selected rounds -->
 
-                    <div
-                        v-for="(round, index) in rounds"
-                        :key="index"
-                        class="mb-2 flex items-center"
-                    >
-                        <div>
-                            <input
-                                type="checkbox"
-                                :id="`round-${index}`"
-                                :value="round.uuid"
-                                @change="toggleRound(round)"
-                                :checked="
-                                    selectedRounds.some(
-                                        (selectedRound) =>
-                                            selectedRound.uuid === round.uuid
-                                    )
-                                "
-                                class="mr-2"
-                            />
-                            <label :for="`round-${index}`">{{
-                                round.name
-                            }}</label>
+                    <div class="flex flex-wrap -mx-2 mb-5">
+                        <div
+                            v-for="(round, index) in rounds"
+                            :key="index"
+                            class="mb-2 flex items-center w-1/2 px-2"
+                        >
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    :id="`round-${index}`"
+                                    :value="round.uuid"
+                                    @change="toggleRound(round)"
+                                    :checked="
+                                        selectedRounds.some(
+                                            (selectedRound) =>
+                                                selectedRound.uuid ===
+                                                round.uuid
+                                        )
+                                    "
+                                    class="mr-2"
+                                />
+                                <label :for="`round-${index}`">{{
+                                    round.name
+                                }}</label>
+                            </div>
                         </div>
                     </div>
 
                     <div v-if="selectedRounds.length > 0">
-                        <ul>
-                            <li
+                        <div class="flex flex-wrap -mx-2">
+                            <div
                                 v-for="(round, index) in selectedRounds"
                                 :key="index"
+                                class="w-1/2"
                             >
-                                {{ round.name }}
-                                <button @click="toggleRound(round)">
-                                    <i
-                                        class="fa fa-trash"
-                                        aria-hidden="true"
-                                    ></i>
-                                </button>
-                            </li>
-                        </ul>
+                                <div class="flex items-center">
+                                    <div class="flex-grow">
+                                        <button @click="toggleRound(round)">
+                                            <i
+                                                class="fa fa-trash"
+                                                aria-hidden="true"
+                                            ></i>
+                                        </button>
+                                        {{ round.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="showRounds = false">Close</button>
                 </div>
             </div>
         </Modal>

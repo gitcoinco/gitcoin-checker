@@ -20,10 +20,31 @@ const showModal = ref(false);
 const showGPTResultsModal = ref(false);
 
 const busyDoingGPTEvaluation = ref(false);
+const evaluationProgress = ref(0);
 
 const doGPTEvaluation = async () => {
     busyDoingGPTEvaluation.value = true;
+    evaluationProgress.value = 0; // Reset progress
+    const interval = 45; // Total time for the progress bar in seconds
+    const step = 1000; // Update every second
+
+    // Update the progress every second
+    const intervalId = setInterval(() => {
+        if (evaluationProgress.value < 100) {
+            evaluationProgress.value++;
+        } else {
+            clearInterval(intervalId);
+            busyDoingGPTEvaluation.value = false;
+        }
+    }, interval * 10); // interval * 10 because 100% / 30 seconds = 3.33% per second
+
     emit("perform-gpt-evaluation", props.application);
+    // Simulate a 30 second task
+    setTimeout(() => {
+        clearInterval(intervalId);
+        busyDoingGPTEvaluation.value = false;
+        evaluationProgress.value = 100;
+    }, interval * 1000);
 };
 
 const handleUserEvaluateApplication = () => {
@@ -115,16 +136,29 @@ const getGPTScore = (results) => {
 
                             GPT
                         </td>
-                        <td>
+                        <td class="align-middle">
                             <SecondaryButton
                                 @click="doGPTEvaluation"
                                 :disabled="busyDoingGPTEvaluation"
+                                v-if="!busyDoingGPTEvaluation"
                             >
-                                <span v-if="busyDoingGPTEvaluation"
-                                    >Busy...</span
-                                >
-                                <span v-else>GPT evaluation</span>
+                                Run GPT evaluation
                             </SecondaryButton>
+                            <span v-else>
+                                <span v-if="evaluationProgress < 100">
+                                    <div
+                                        class="overflow-hidden h-2 text-xs flex rounded bg-pink-200 items-center"
+                                    >
+                                        <div
+                                            :style="{
+                                                width: evaluationProgress + '%',
+                                            }"
+                                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-pink-500"
+                                        ></div>
+                                    </div>
+                                </span>
+                                <span v-else>...a bit longer</span>
+                            </span>
                         </td>
                         <td>Evaluation not done yet</td>
                     </tr>

@@ -17,10 +17,10 @@ const totalEvaluationAverage = () => {
 
         total += gptEvaluationAverage();
 
-        return total / (props.application.evaluation_answers.length + 1) + "%";
+        return total / (props.application.evaluation_answers.length + 1);
     } else {
         const gptAverage = gptEvaluationAverage();
-        return gptAverage ? gptAverage + "%" : null;
+        return gptAverage ? gptAverage : null;
     }
 };
 
@@ -44,5 +44,15 @@ const gptEvaluationAverage = () => {
 };
 </script>
 <template>
-    <div>{{ totalEvaluationAverage() }}</div>
+    <div
+        class="h-12 w-12 rounded-full flex items-center justify-center text-white text-sm"
+        :class="{
+            'bg-red-500': totalEvaluationAverage() < 40,
+            'bg-orange-500':
+                totalEvaluationAverage() >= 40 && totalEvaluationAverage() < 70,
+            'bg-green-500': totalEvaluationAverage() >= 70,
+        }"
+    >
+        {{ totalEvaluationAverage() }}%
+    </div>
 </template>

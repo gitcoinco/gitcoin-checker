@@ -164,171 +164,152 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
-    <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-end mb-3">
-                <CheckBox
-                    v-model="selectedApplicationRemoveTestsRef"
-                    :checked="selectedApplicationRemoveTestsRef == 1"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-                <label
-                    for="remove-test-projects"
-                    class="ml-2 block text-sm text-gray-900"
-                >
-                    Remove "test" rounds
-                </label>
-            </div>
-            <table class="">
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th class="whitespace-nowrap">
-                            <select
-                                v-model="selectedApplicationStatusRef"
-                                class="p-1 mr-1 pr-6"
-                            >
-                                <option value="all">All</option>
-                                <option value="approved">Approved</option>
-                                <option value="pending">Pending</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-
-                            <Tooltip>
-                                <i
-                                    class="fa fa-question-circle-o text-gray-400"
-                                    aria-hidden="true"
-                                    title="This is the last application date for the round"
-                                ></i>
-                                <template #content>
-                                    The status of the application.
-                                </template>
-                            </Tooltip>
-                        </th>
-                        <th>
-                            <input
-                                type="text"
-                                v-model="selectedSearchProjects"
-                                @keyup.enter.prevent="searchProjects()"
-                                class="p-1 mr-1 pr-6"
-                                placeholder="Projects"
-                            />
-                            in
-                            <select
-                                v-model="selectedApplicationRoundTypeRef"
-                                class="p-1 mr-1 pr-6"
-                            >
-                                <option value="all">All</option>
-                                <option value="mine">My Rounds</option>
-                            </select>
-                        </th>
-                        <th class="text-center">
-                            <i
-                                class="fa fa-clock-o fa-2x text-gray-400"
-                                aria-hidden="true"
-                            ></i>
-                        </th>
-                        <th class="text-center">
-                            <div
-                                v-if="selectedApplicationRoundTypeRef == 'mine'"
-                            >
-                                <SpecifyUserRounds
-                                    @selected-rounds-changed="
-                                        updateSelectedRounds
-                                    "
-                                />
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody
-                    v-if="
-                        props.applications && props.applications.data.length > 0
-                    "
-                >
-                    <tr
-                        v-for="(application, index) in applications.data"
-                        :key="index"
+    <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-end mb-3">
+            <CheckBox
+                v-model="selectedApplicationRemoveTestsRef"
+                :checked="selectedApplicationRemoveTestsRef == 1"
+                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+            <label
+                for="remove-test-projects"
+                class="ml-2 block text-sm text-gray-900"
+            >
+                Remove "test" rounds
+            </label>
+        </div>
+        <div class="flex flex-col">
+            <div class="bg-gray-200 flex p-2">
+                <div class="p-1 mr-5 pr-5 border-r border-gray-300">
+                    Show
+                    <select
+                        v-model="selectedApplicationStatusRef"
+                        class="p-1 mr-1 pr-6"
                     >
-                        <td class="border-l-0">
-                            <div class="flex items-center">
-                                <span
-                                    v-html="
-                                        applicationStatusIcon(
-                                            application.status
-                                        )
-                                    "
-                                    class="mr-1"
-                                ></span>
-                                <span class="text-xs">
-                                    {{ formatDate(application.created_at) }}
-                                </span>
-                            </div>
-                        </td>
-                        <td>
-                            <div>
-                                <Link
-                                    v-if="application.project"
-                                    :href="
-                                        route(
-                                            'project.show',
-                                            application.project
-                                        )
-                                    "
-                                    class="text-blue-500 hover:underline mr-2"
-                                >
-                                    {{ application.project.title }}
-                                </Link>
+                        <option value="all">All</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    applications
 
-                                <ApplicationAnswers
-                                    :application="application"
-                                />
-                            </div>
-                            <div>
-                                in
-                                <Link
-                                    :href="
-                                        route('round.show', application.round)
-                                    "
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{ application.round.name }}
-                                </Link>
-                            </div>
-                        </td>
-                        <td>
-                            <PreviousApplicationStatus
+                    <Tooltip>
+                        <i
+                            class="fa fa-question-circle-o text-gray-400"
+                            aria-hidden="true"
+                            title="This is the last application date for the round"
+                        ></i>
+                        <template #content>
+                            The status of the application.
+                        </template>
+                    </Tooltip>
+                </div>
+                <div
+                    class="flex items-center mr-5 pr-5 border-r border-gray-300"
+                >
+                    <TextInput
+                        v-model="selectedSearchProjects"
+                        @keyup.enter.prevent="searchProjects"
+                        placeholder="Search Projects"
+                        class="flex-grow p-1 mr-1"
+                    />
+                    <select
+                        v-model="selectedApplicationRoundTypeRef"
+                        class="flex-grow p-1 mr-1 pr-6"
+                    >
+                        <option value="all">All</option>
+                        <option value="mine">My Rounds</option>
+                    </select>
+                </div>
+                <!-- <div class="p-1 text-center">
+                    <i
+                        class="fa fa-clock-o fa-2x text-gray-400"
+                        aria-hidden="true"
+                    ></i>
+                </div> -->
+                <div
+                    class="flex items-center"
+                    v-if="selectedApplicationRoundTypeRef == 'mine'"
+                >
+                    <SpecifyUserRounds
+                        @selected-rounds-changed="updateSelectedRounds"
+                    />
+                </div>
+            </div>
+
+            <div
+                v-if="props.applications && props.applications.data.length > 0"
+                class="pt-10"
+            >
+                <div
+                    v-for="(application, index) in applications.data"
+                    :key="index"
+                    class="flex border-b mb-10"
+                >
+                    <div class="p-2 flex-grow">
+                        <div class="mb-3">
+                            <Link
+                                v-if="application.project"
+                                :href="
+                                    route('project.show', application.project)
+                                "
+                                class="text-blue-500 hover:underline mr-2 text-2xl"
+                            >
+                                {{ application.project.title }}
+                            </Link>
+
+                            <ApplicationAnswers :application="application" />
+                        </div>
+                        <div class="flex items-center">
+                            <span
+                                v-html="
+                                    applicationStatusIcon(application.status)
+                                "
+                                class="mr-1"
+                            ></span>
+                            <span>
+                                {{ formatDate(application.created_at) }}
+                            </span>
+                        </div>
+
+                        <div>
+                            in
+                            <Link
+                                :href="route('round.show', application.round)"
+                                class="text-blue-500 hover:underline"
+                            >
+                                {{ application.round.name }}
+                            </Link>
+                        </div>
+                        <PreviousApplicationStatus :application="application" />
+                    </div>
+                    <div class="p-2 text-center">
+                        <div v-if="application.project">
+                            <Evaluation
                                 :application="application"
+                                @perform-gpt-evaluation="
+                                    handleEvaluateApplication
+                                "
+                                @user-evaluation-updated="refreshApplication"
                             />
-                        </td>
-                        <td class="border-r-0">
-                            <div v-if="application.project" class="text-center">
-                                <Evaluation
-                                    :application="application"
-                                    @perform-gpt-evaluation="
-                                        handleEvaluateApplication
-                                    "
-                                    @user-evaluation-updated="
-                                        refreshApplication
-                                    "
-                                />
+                            <div class="mt-2 flex justify-center">
                                 <ResultsSummary :application="application" />
                             </div>
-                            <div v-else>No project data available yet</div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tbody v-else-if="selectedApplicationRoundTypeRef == 'mine'">
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            <SpecifyUserRounds
-                                @selected-rounds-changed="updateSelectedRounds"
-                            />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <Pagination :links="applications.links" />
+                        </div>
+                        <div v-else>No project data available yet</div>
+                    </div>
+                </div>
+            </div>
+            <div
+                v-else-if="selectedApplicationRoundTypeRef == 'mine'"
+                class="text-center p-2"
+            >
+                <SpecifyUserRounds
+                    @selected-rounds-changed="updateSelectedRounds"
+                />
+            </div>
         </div>
+
+        <Pagination :links="applications.links" />
     </div>
 </template>
