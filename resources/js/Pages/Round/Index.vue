@@ -100,7 +100,7 @@ const flagRound = async (round) => {
                                 />
                             </th>
                             <th>
-                                Date
+                                Last application date
                                 <Tooltip>
                                     <i
                                         class="fa fa-question-circle-o"
