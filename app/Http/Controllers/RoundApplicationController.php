@@ -170,6 +170,7 @@ class RoundApplicationController extends Controller
             ->whereNotIn('id', $listOfApplicationIdsToExclude)
             ->orderBy('id', 'desc')
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
+            ->whereHas('project')
             ->paginate(10);
 
         $averageGPTEvaluationTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
