@@ -6,19 +6,15 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import CheckBox from "@/Components/Checkbox.vue";
 import PreviousApplicationStatus from "@/Components/Gitcoin/Application/PreviousApplicationStatus.vue";
-import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
-import Applications from "@/Pages/Application/Components/Applications.vue";
+import { usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
-import GptEvaluationButton from "@/Components/Gitcoin/Application/GPTEvaluationButton.vue";
-import UserEvaluationButton from "@/Pages/Application/Components/UserEvaluationButton.vue";
-import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
-import UserEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
 import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
 import Evaluation from "./Evaluation.vue";
 import ResultsSummary from "./ResultsSummary.vue";
 import moment from "moment";
+import ReviewedBy from "./ReviewedBy.vue";
 
 import {
     copyToClipboard,
@@ -61,6 +57,8 @@ const selectedApplicationRemoveTests = ref(
 const selectedSearchProjects = ref(
     usePage().props.selectedSearchProjects.valueOf()
 );
+
+const averageGPTEvaluationTime = usePage().props.averageGPTEvaluationTime;
 
 const roundPrompt = (round) => {
     router.visit(route("round.prompt.show", { round: round }));
@@ -221,12 +219,6 @@ const formatDate = (dateString) => {
                         <option value="mine">My Rounds</option>
                     </select>
                 </div>
-                <!-- <div class="p-1 text-center">
-                    <i
-                        class="fa fa-clock-o fa-2x text-gray-400"
-                        aria-hidden="true"
-                    ></i>
-                </div> -->
                 <div
                     class="flex items-center"
                     v-if="selectedApplicationRoundTypeRef == 'mine'"
@@ -247,7 +239,7 @@ const formatDate = (dateString) => {
                     class="flex border-b mb-10"
                 >
                     <div class="p-2 flex-grow">
-                        <div class="mb-3">
+                        <div>
                             <Link
                                 v-if="application.project"
                                 :href="
@@ -262,19 +254,7 @@ const formatDate = (dateString) => {
                                 :applicationUuid="application.uuid"
                             />
                         </div>
-                        <div class="flex items-center">
-                            <span
-                                v-html="
-                                    applicationStatusIcon(application.status)
-                                "
-                                class="mr-1"
-                            ></span>
-                            <span>
-                                {{ formatDate(application.created_at) }}
-                            </span>
-                        </div>
-
-                        <div>
+                        <div class="mb-3">
                             in
                             <Link
                                 :href="route('round.show', application.round)"
@@ -289,6 +269,17 @@ const formatDate = (dateString) => {
                                 {{ application.round.chain.chain_id }})</span
                             >
                         </div>
+                        <div class="flex items-center text-sm">
+                            <span
+                                v-html="
+                                    applicationStatusIcon(application.status)
+                                "
+                                class="mr-1"
+                            ></span>
+                            <span>
+                                {{ formatDate(application.created_at) }}
+                            </span>
+                        </div>
                         <PreviousApplicationStatus :application="application" />
                     </div>
                     <div class="p-2 text-center">
@@ -299,10 +290,14 @@ const formatDate = (dateString) => {
                                     handleEvaluateApplication
                                 "
                                 @user-evaluation-updated="refreshApplication"
+                                :loading-bar-in-seconds="
+                                    averageGPTEvaluationTime
+                                "
                             />
                             <div class="mt-2 flex justify-center">
                                 <ResultsSummary :application="application" />
                             </div>
+                            <ReviewedBy :application="application" />
                         </div>
                         <div v-else>No project data available yet</div>
                     </div>

@@ -210,7 +210,6 @@ class RoundApplicationController extends Controller
                 $query->select('id', 'uuid');
             },
             'results' => function ($query) {
-                $query->orderBy('id', 'desc')->limit(1);
                 $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
             }
         ])
@@ -232,6 +231,12 @@ class RoundApplicationController extends Controller
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->paginate(10);
 
+        $averageGPTEvaluationTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
+            ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))
+            ->first()
+            ->average_time);
+        $averageGPTEvaluationTime = min($averageGPTEvaluationTime, 300);
+
         $data = [
             'applications' => $applications,
             'status' => $status,
@@ -239,6 +244,7 @@ class RoundApplicationController extends Controller
             'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
             'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             'selectedSearchProjects' => $selectedSearchProjects,
+            'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
         ];
         return $data;
     }

@@ -13,6 +13,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    loadingBarInSeconds: {
+        type: Number,
+        default: 30,
+    },
 });
 
 const showModal = ref(false);
@@ -25,7 +29,7 @@ const evaluationProgress = ref(0);
 const doGPTEvaluation = async () => {
     busyDoingGPTEvaluation.value = true;
     evaluationProgress.value = 0; // Reset progress
-    const interval = 45; // Total time for the progress bar in seconds
+    const interval = props.loadingBarInSeconds; // Total time for the progress bar in seconds
     const step = 1000; // Update every second
 
     // Update the progress every second
@@ -145,11 +149,12 @@ const getGPTScore = (results) => {
                                 Run GPT evaluation
                             </SecondaryButton>
                             <span v-else>
-                                <span v-if="evaluationProgress < 100">
+                                <span v-if="evaluationProgress < 90">
                                     <div
                                         class="overflow-hidden h-2 text-xs flex rounded bg-pink-200 items-center"
                                     >
                                         <div
+                                            style="height: 20px"
                                             :style="{
                                                 width: evaluationProgress + '%',
                                             }"

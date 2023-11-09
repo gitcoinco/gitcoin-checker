@@ -41,7 +41,7 @@ export default {
         <span v-if="applications?.length > 1">
             <span
                 @click="toggleModal"
-                class="pointer text-blue-500 hover:underline"
+                class="pointer text-blue-500 hover:underline text-sm"
             >
                 {{ applications.length }} past application<span
                     v-if="applications.length > 1"
@@ -123,7 +123,7 @@ export default {
                 </div>
             </Modal>
         </span>
-        <span v-else>Newby</span>
+        <span v-else class="text-sm">First application</span>
     </span>
 </template>
 

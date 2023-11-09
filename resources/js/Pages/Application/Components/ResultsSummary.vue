@@ -8,6 +8,25 @@ const props = defineProps({
     },
 });
 
+const gptEvaluationAverage = () => {
+    if (props.application?.results?.length === 0) {
+        return null;
+    }
+
+    try {
+        let results = JSON.parse(props.application?.results[0].results_data);
+        let total = 0;
+        for (let i = 0; i < results.length; i++) {
+            total += parseInt(results[i].score);
+        }
+
+        return parseInt(total / results.length);
+    } catch (error) {
+        console.error("Error parsing JSON: ", error);
+        return null;
+    }
+};
+
 const totalEvaluationAverage = () => {
     if (props.application?.evaluation_answers?.length > 0) {
         let total = props.application.evaluation_answers.reduce(
@@ -21,25 +40,6 @@ const totalEvaluationAverage = () => {
     } else {
         const gptAverage = gptEvaluationAverage();
         return gptAverage ? gptAverage : null;
-    }
-};
-
-const gptEvaluationAverage = () => {
-    if (props.application?.results?.length > 0) {
-        try {
-            let results = JSON.parse(
-                props.application?.results[0].results_data
-            );
-            let total = 0;
-            for (let i = 0; i < results.length; i++) {
-                total += parseInt(results[i].score);
-            }
-
-            return parseInt(total / results.length);
-        } catch (error) {
-            console.error("Error parsing JSON: ", error);
-            return null;
-        }
     }
 };
 </script>

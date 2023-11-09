@@ -75,30 +75,22 @@ const toggleModal = () => {
                     </h2>
 
                     <div v-if="answers && !isLoading">
-                        <table class="score-table">
-                            <thead>
-                                <tr>
-                                    <th>Question</th>
-                                    <th>Answer</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="(answer, index) in answers"
-                                    :key="'answers-' + index"
-                                >
-                                    <td
-                                        class="score-value"
-                                        v-if="answer.question"
-                                    >
-                                        {{ answer.question }}
-                                    </td>
-                                    <td v-if="answer.answer">
-                                        {{ answer.answer }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div
+                            v-for="(answer, index) in answers"
+                            :key="'answers-' + index"
+                        >
+                            <div
+                                class="mb-5"
+                                v-if="answer.question && answer.answer"
+                            >
+                                <div class="font-bold">
+                                    {{ answer.question }}
+                                </div>
+                                <div>
+                                    {{ answer.answer }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div v-else>loading..</div>
                 </div>
