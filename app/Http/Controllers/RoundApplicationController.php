@@ -170,6 +170,7 @@ class RoundApplicationController extends Controller
 
         $applications = RoundApplication::with([
             'round',
+            'round.chain',
             'round.evaluationQuestions',
             'project' => function ($query) use ($selectedSearchProjects) {
                 if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {

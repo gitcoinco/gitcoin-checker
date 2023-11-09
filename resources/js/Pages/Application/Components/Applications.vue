@@ -280,6 +280,12 @@ const formatDate = (dateString) => {
                             >
                                 {{ application.round.name }}
                             </Link>
+                            <span
+                                class="text-xs"
+                                v-if="application?.round?.chain?.chain_id"
+                                >(chain_id:
+                                {{ application.round.chain.chain_id }})</span
+                            >
                         </div>
                         <PreviousApplicationStatus :application="application" />
                     </div>
