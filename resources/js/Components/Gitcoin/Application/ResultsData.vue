@@ -1,5 +1,5 @@
 <template>
-    <table class="score-table" v-if="result">
+    <table class="score-table text-xs" v-if="result">
         <thead>
             <tr>
                 <th>Score</th>

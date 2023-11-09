@@ -38,7 +38,7 @@ const doGPTEvaluation = async () => {
             evaluationProgress.value++;
         } else {
             clearInterval(intervalId);
-            busyDoingGPTEvaluation.value = false;
+            //            busyDoingGPTEvaluation.value = false;
         }
     }, interval * 10); // interval * 10 because 100% / 30 seconds = 3.33% per second
 
@@ -46,7 +46,7 @@ const doGPTEvaluation = async () => {
     // Simulate a 30 second task
     setTimeout(() => {
         clearInterval(intervalId);
-        busyDoingGPTEvaluation.value = false;
+        //        busyDoingGPTEvaluation.value = false;
         evaluationProgress.value = 100;
     }, interval * 1000);
 };
@@ -165,7 +165,12 @@ const getGPTScore = (results) => {
                                 <span v-else>...a bit longer</span>
                             </span>
                         </td>
-                        <td>Evaluation not done yet</td>
+                        <td>
+                            <span v-if="busyDoingGPTEvaluation">
+                                Evaluation in progress.
+                            </span>
+                            <span v-else> Evaluation not done yet </span>
+                        </td>
                     </tr>
                     <tr
                         v-for="(
