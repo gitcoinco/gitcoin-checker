@@ -54,6 +54,7 @@ const selectedApplicationRoundType = ref(
 const selectedApplicationRemoveTests = ref(
     usePage().props.selectedApplicationRemoveTests.valueOf()
 );
+
 const selectedSearchProjects = ref(
     usePage().props.selectedSearchProjects.valueOf()
 );
@@ -229,10 +230,7 @@ const formatDate = (dateString) => {
                 </div>
             </div>
 
-            <div
-                v-if="props.applications && props.applications.data.length > 0"
-                class="pt-10"
-            >
+            <div v-if="props?.applications?.data?.length > 0" class="pt-10">
                 <div
                     v-for="(application, index) in applications.data"
                     :key="index"

@@ -66,6 +66,9 @@ class RoundApplicationController extends Controller
         foreach ($filterKeys as $key => $default) {
             if ($request->has($key)) {
                 $value = $request->input($key, $default);
+                if (!is_string($value)) {
+                    $value = '';
+                }
 
                 $userPreference = UserPreference::updateOrCreate([
                     'user_id' => $request->user()->id,
@@ -184,6 +187,7 @@ class RoundApplicationController extends Controller
             'selectedSearchProjects' => $selectedSearchProjects,
             'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
         ];
+
         return $data;
     }
 
