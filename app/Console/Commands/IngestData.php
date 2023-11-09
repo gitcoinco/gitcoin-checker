@@ -409,6 +409,12 @@ class IngestData extends Command
                     'rejected_at' => $rejectedAt ? date('Y-m-d H:i:s', $rejectedAt) : null,
                     'approved_at' => $approvedAt ? date('Y-m-d H:i:s', $approvedAt) : null,
                 ]);
+
+                // Potentially update round.last_application_at
+                if ($round->last_application_at == null || $round->last_application_at < $createdAt) {
+                    $round->last_application_at = $createdAt ? date('Y-m-d H:i:s', $createdAt) : $round->last_application_at;
+                    $round->save();
+                }
             }
         }
     }
