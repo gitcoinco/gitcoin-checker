@@ -37,10 +37,10 @@ const gptNrYes = () => {
 };
 
 const totalEvaluationAverage = () => {
-    if (props.application?.evaluation_answers?.length > 0) {
-        let nrYesAnswers = 0;
-        let totalNrAnswers = 0;
+    let nrYesAnswers = 0;
+    let totalNrAnswers = 0;
 
+    if (props.application?.evaluation_answers?.length > 0) {
         // Get the number of yes answers from users
         for (let i = 0; i < props.application.evaluation_answers.length; i++) {
             let answers = JSON.parse(
@@ -53,18 +53,15 @@ const totalEvaluationAverage = () => {
                 }
             }
         }
-
-        const gpt = gptNrYes();
-        if (gpt) {
-            nrYesAnswers += gpt.nrYes;
-            totalNrAnswers += gpt.totalNrAnswers;
-        }
-
-        return parseInt((nrYesAnswers / totalNrAnswers) * 100);
-    } else {
-        const gptAverage = gptNrYes();
-        return gptAverage ? gptAverage : null;
     }
+
+    const gpt = gptNrYes();
+    if (gpt) {
+        nrYesAnswers += gpt.nrYes;
+        totalNrAnswers += gpt.totalNrAnswers;
+    }
+
+    return parseInt((nrYesAnswers / totalNrAnswers) * 100);
 };
 </script>
 <template>
