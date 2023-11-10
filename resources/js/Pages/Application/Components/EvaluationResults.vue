@@ -71,7 +71,10 @@ const getGptAnswer = (question) => {
             return gptAnswers()[i];
         }
     }
-    return null;
+    return {
+        score: "N/A",
+        reason: "N/A",
+    };
 };
 
 const questions = () => {
@@ -98,7 +101,7 @@ const questions = () => {
                 </td>
                 <td v-if="gptAnswers().length > 0">
                     <span @click="openModal(index2)" class="pointer">
-                        {{ getGptAnswer(question.text).score }}
+                        {{ getGptAnswer(question.text)?.score }}
                     </span>
                     <Modal
                         :show="isModalOpen(index2)"
