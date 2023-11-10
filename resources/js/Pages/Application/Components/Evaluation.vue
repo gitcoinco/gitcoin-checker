@@ -55,15 +55,41 @@ const handleUserEvaluateApplication = () => {
     emit("user-evaluation-updated", props.application);
 };
 
-// GPT score calculation as percentage
-const getGPTScore = (results) => {
-    let score = 0;
-    const data = JSON.parse(results.results_data);
-    for (let i = 0; i < data.length; i++) {
-        score += parseInt(data[i].score);
+const gptNrYes = () => {
+    if (props.application?.results?.length === 0) {
+        return null;
     }
-    score = parseInt(score / data.length);
-    return score;
+
+    let ret = {
+        nrYes: 0,
+        totalNrAnswers: 0,
+    };
+
+    try {
+        let results = JSON.parse(props.application?.results[0].results_data);
+        let total = 0;
+        for (let i = 0; i < results.length; i++) {
+            ret.totalNrAnswers += 1;
+
+            if (results[i].score === "Yes") {
+                ret.nrYes += 1;
+            }
+        }
+
+        return ret;
+    } catch (error) {
+        console.error("Error parsing JSON: ", error);
+        return null;
+    }
+};
+
+const gptNrPercentage = (result) => {
+    const gpt = gptNrYes();
+    if (gpt) {
+        return parseInt((gpt.nrYes / gpt.totalNrAnswers) * 100);
+    } else {
+        return null;
+    }
 };
 </script>
 <template>
@@ -129,7 +155,11 @@ const getGPTScore = (results) => {
                                 class="text-blue-500 hover:underline"
                                 @click="showGPTResultsModal = true"
                             >
-                                {{ getGPTScore(props.application.results[0]) }}%
+                                {{
+                                    gptNrPercentage(
+                                        props.application.results[0]
+                                    )
+                                }}%
                             </a>
                         </td>
                     </tr>

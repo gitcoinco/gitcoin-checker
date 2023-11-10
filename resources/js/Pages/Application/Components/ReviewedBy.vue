@@ -1,4 +1,6 @@
 <script setup>
+import { getShortenedName } from "@/utils.js";
+
 const props = defineProps({
     application: Object,
 });
@@ -11,11 +13,10 @@ const reviewedBy = () => {
 
     if (props.application?.evaluation_answers?.length > 0) {
         for (let i = 0; i < props.application.evaluation_answers.length; i++) {
-            let name = props.application.evaluation_answers[i].user.name;
-            if (name.includes(" ")) {
-                let splitName = name.split(" ");
-                name = `${splitName[0]} ${splitName[1].charAt(0)}`;
-            }
+            let name = getShortenedName(
+                props.application.evaluation_answers[i].user.name
+            );
+
             list.push(name);
         }
     }

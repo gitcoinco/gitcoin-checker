@@ -138,3 +138,13 @@ export function showDateInShortFormat(date, includeHours = false) {
 
     return ret;
 }
+
+// Return the first name and initial of the last name
+export function getShortenedName(name) {
+    if (name.includes(" ")) {
+        let splitName = name.split(" ");
+        name = `${splitName[0]} ${splitName[1].charAt(0)}`;
+    }
+
+    return name;
+}

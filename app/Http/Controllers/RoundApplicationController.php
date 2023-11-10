@@ -291,22 +291,39 @@ class RoundApplicationController extends Controller
         $promptData = RoundApplicationController::getPrompt($application);
         $result->system_prompt = $promptData['system_prompt'];
         $result->prompt_data = $promptData['prompt'];
+        $result->results_data = '[]';
         $result->save();
 
         $open_ai = new OpenAi(env('OPENAI_API_KEY'));
 
+        $evaluationQuestions = $application->round->evaluationQuestions;
+        $questions = json_decode($evaluationQuestions->questions, true);
+
+        $messages = [
+            [
+                "role" => "system",
+                "content" => $promptData['system_prompt'] . PHP_EOL . 'Respond to each question with criteria, score, and reason format.',
+            ],
+            [
+                "role" => "user",
+                "content" => $promptData['prompt']
+            ],
+        ];
+
+        // Append each question as a new user message with specific format instructions
+        foreach ($questions as $question) {
+            $formattedQuestion = "Eligibility requirement: " . $question['text'] . PHP_EOL . "Provide a response in the format: " . PHP_EOL . "1) Criteria: [Full eligibility requirement]" . PHP_EOL . "2) Score: [Yes/No/Uncertain]" . PHP_EOL . "3) Reason: [Explanation].";
+            $messages[] = [
+                "role" => "user",
+                "content" => $formattedQuestion
+            ];
+        }
+
+        // dd($messages);
+
         $gptResponse = $open_ai->chat([
             'model' => 'gpt-4-1106-preview',
-            'messages' => [
-                [
-                    "role" => "system",
-                    "content" => $promptData['system_prompt'] . PHP_EOL . 'Return an array of json objects as per the gpt_evaluation function.',
-                ],
-                [
-                    "role" => "user",
-                    "content" => $promptData['prompt']
-                ],
-            ],
+            'messages' => $messages,
             'temperature' => 1.0,
             'max_tokens' => 4000,
             'frequency_penalty' => 0,
@@ -320,17 +337,17 @@ class RoundApplicationController extends Controller
             //         'parameters'  => [
             //             'type'       => 'object',
             //             'properties' => [
+            //                 'criteria' => [
+            //                     'type'        => 'string',
+            //                     'description' => 'A specific bit of evaluation criteria.',
+            //                 ],
             //                 'score' => [
-            //                     'type'        => 'number',
-            //                     'description' => 'How high this score is. 0 is the lowest, 100 is the highest.',
+            //                     'type'        => 'string',
+            //                     'description' => 'The score can be "Yes", "No", or "Uncertain".',
             //                 ],
             //                 'reason' => [
             //                     'type'        => 'string',
             //                     'description' => 'A specific reason for the score.',
-            //                 ],
-            //                 'criteria' => [
-            //                     'type'        => 'string',
-            //                     'description' => 'A specific bit of evaluation criteria.',
             //                 ],
             //             ],
             //             'required'   => ['score', 'reason', 'criteria'],
@@ -346,6 +363,7 @@ class RoundApplicationController extends Controller
         $replace = ['', ''];
 
         $answer = str_replace($search, $replace, $answer);
+        $answer = json_decode($answer, true);
 
         $result->results_data = $answer;
         $result->save();
@@ -408,10 +426,10 @@ class RoundApplicationController extends Controller
 
         $project = $application->project;
 
-        $returnedFormat = 'Your response should only contain an array of comma separated objects for the evaluation criteria and returned in json format with each score being between 0 and 100:' . PHP_EOL . PHP_EOL . '[{
-            "score": 15,
+        $returnedFormat = 'Your response should only contain an array of comma separated objects for each and every bit of evaluation criteria and returned in json format:' . PHP_EOL . PHP_EOL . '[{
+            "criteria": "The full specific eligibility requirement that this score relates to. It needs to be an exact match to the eligibility requirement as its used for string matching."
+            "score": "Yes, No or Uncertain",
             "reason": "A specific reason for the score",
-            "criteria": "A specific bit of evaluation criteria"
         }]';
 
         $search = [];
@@ -440,7 +458,7 @@ class RoundApplicationController extends Controller
         $replace[] = $requirements;
 
         $data = [
-            'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat,
+            'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat . PHP_EOL,
             'prompt' => str_replace($search, $replace, $prompt->prompt),
         ];
 

@@ -8,19 +8,28 @@ const props = defineProps({
     },
 });
 
-const gptEvaluationAverage = () => {
+const gptNrYes = () => {
     if (props.application?.results?.length === 0) {
         return null;
     }
+
+    let ret = {
+        nrYes: 0,
+        totalNrAnswers: 0,
+    };
 
     try {
         let results = JSON.parse(props.application?.results[0].results_data);
         let total = 0;
         for (let i = 0; i < results.length; i++) {
-            total += parseInt(results[i].score);
+            ret.totalNrAnswers += 1;
+
+            if (results[i].score === "Yes") {
+                ret.nrYes += 1;
+            }
         }
 
-        return parseInt(total / results.length);
+        return ret;
     } catch (error) {
         console.error("Error parsing JSON: ", error);
         return null;
@@ -29,16 +38,31 @@ const gptEvaluationAverage = () => {
 
 const totalEvaluationAverage = () => {
     if (props.application?.evaluation_answers?.length > 0) {
-        let total = props.application.evaluation_answers.reduce(
-            (acc, curr) => acc + curr.score,
-            0
-        );
+        let nrYesAnswers = 0;
+        let totalNrAnswers = 0;
 
-        total += gptEvaluationAverage();
+        // Get the number of yes answers from users
+        for (let i = 0; i < props.application.evaluation_answers.length; i++) {
+            let answers = JSON.parse(
+                props.application.evaluation_answers[i].answers
+            );
+            for (let j = 0; j < answers.length; j++) {
+                totalNrAnswers += 1;
+                if (answers[j] == "Yes") {
+                    nrYesAnswers += 1;
+                }
+            }
+        }
 
-        return total / (props.application.evaluation_answers.length + 1);
+        const gpt = gptNrYes();
+        if (gpt) {
+            nrYesAnswers += gpt.nrYes;
+            totalNrAnswers += gpt.totalNrAnswers;
+        }
+
+        return parseInt((nrYesAnswers / totalNrAnswers) * 100);
     } else {
-        const gptAverage = gptEvaluationAverage();
+        const gptAverage = gptNrYes();
         return gptAverage ? gptAverage : null;
     }
 };
