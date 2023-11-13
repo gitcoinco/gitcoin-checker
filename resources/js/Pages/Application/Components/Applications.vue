@@ -5,17 +5,13 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import CheckBox from "@/Components/Checkbox.vue";
-import PreviousApplicationStatus from "@/Components/Gitcoin/Application/PreviousApplicationStatus.vue";
 import { usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import SpecifyUserRounds from "@/Components/Gitcoin/SpecifyUserRounds.vue";
-import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
-import Evaluation from "./Evaluation.vue";
-import ResultsSummary from "./ResultsSummary.vue";
-import moment from "moment";
 import ReviewedBy from "./ReviewedBy.vue";
 import EvaluationResults from "./EvaluationResults.vue";
+import Application from "./Application.vue";
 
 import {
     copyToClipboard,
@@ -157,10 +153,6 @@ const handleRoundPrompt = (round) => {
     // Just point it to the correct function here to maintain consistency in naming.
     roundPrompt(round);
 };
-
-const formatDate = (dateString) => {
-    return moment(dateString).fromNow();
-};
 </script>
 
 <template>
@@ -237,85 +229,13 @@ const formatDate = (dateString) => {
                     :key="index"
                     class="border-b mb-10"
                 >
-                    <div class="p-2 flex w-full justify-between">
-                        <div>
-                            <div>
-                                <Link
-                                    v-if="application.project"
-                                    :href="
-                                        route('project.show', {
-                                            project: application.project.slug,
-                                        })
-                                    "
-                                    class="text-blue-500 hover:underline mr-2 text-2xl"
-                                >
-                                    {{ application.project.title }}
-                                </Link>
+                    <Application
+                        :application="application"
+                        :averageGPTEvaluationTime="averageGPTEvaluationTime"
+                        @perform-gpt-evaluation="handleEvaluateApplication"
+                        @user-evaluation-updated="refreshApplication"
+                    />
 
-                                <ApplicationAnswers
-                                    :applicationUuid="application.uuid"
-                                />
-                            </div>
-                            <div class="mb-3">
-                                in
-                                <Link
-                                    :href="
-                                        route('round.show', application.round)
-                                    "
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{ application.round.name }}
-                                </Link>
-                                <span
-                                    class="text-xs"
-                                    v-if="application?.round?.chain?.chain_id"
-                                    >(chain_id:
-                                    {{
-                                        application.round.chain.chain_id
-                                    }})</span
-                                >
-                            </div>
-                            <div class="flex items-center text-sm">
-                                <span
-                                    v-html="
-                                        applicationStatusIcon(
-                                            application.status
-                                        )
-                                    "
-                                    class="mr-1"
-                                ></span>
-                                <span>
-                                    {{ formatDate(application.created_at) }}
-                                </span>
-                            </div>
-                            <PreviousApplicationStatus
-                                :application="application"
-                            />
-                        </div>
-                        <div class="p-2 text-center">
-                            <div v-if="application.project">
-                                <Evaluation
-                                    :application="application"
-                                    @perform-gpt-evaluation="
-                                        handleEvaluateApplication
-                                    "
-                                    @user-evaluation-updated="
-                                        refreshApplication
-                                    "
-                                    :loading-bar-in-seconds="
-                                        averageGPTEvaluationTime
-                                    "
-                                />
-                                <div class="mt-2 flex justify-center">
-                                    <ResultsSummary
-                                        :application="application"
-                                    />
-                                </div>
-                                <!-- <ReviewedBy :application="application" /> -->
-                            </div>
-                            <div v-else>No project data available yet</div>
-                        </div>
-                    </div>
                     <div>
                         <EvaluationResults :application="application" />
                     </div>

@@ -128,7 +128,7 @@ class RoundApplicationController extends Controller
                 if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
                     $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
                 }
-                $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'created_at', 'updated_at');
+                $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
             },
             'project.applications' => function ($query) {
                 $query->orderBy('created_at', 'desc');
@@ -171,7 +171,7 @@ class RoundApplicationController extends Controller
             ->orderBy('id', 'desc')
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->whereHas('project')
-            ->paginate(10);
+            ->paginate(5);
 
         $averageGPTEvaluationTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
             ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))

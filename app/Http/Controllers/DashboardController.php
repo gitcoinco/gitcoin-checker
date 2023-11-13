@@ -44,6 +44,7 @@ class DashboardController extends Controller
                 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
                 'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
             ]);
         } else {
             return Inertia::render('Dashboard', [
@@ -56,6 +57,7 @@ class DashboardController extends Controller
                 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
                 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
                 'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
             ]);
         }
     }
