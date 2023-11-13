@@ -111,6 +111,9 @@ class RoundApplicationController extends Controller
             $listOfApplicationIdsToInclude = RoundApplication::whereHas('project', function ($query) use ($selectedSearchProjects) {
                 $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
             })->pluck('id');
+            if (count($listOfApplicationIdsToInclude) == 0) {
+                $listOfApplicationIdsToInclude = [-1];
+            }
         }
 
 
