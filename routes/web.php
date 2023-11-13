@@ -95,6 +95,7 @@ Route::middleware([
         Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');
         Route::get('/evaluation/gpt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
         Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
+        Route::get('/evaluation/gpt/reset/{round}', [RoundPromptController::class, 'reset'])->name('round.prompt.reset');
 
         Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');

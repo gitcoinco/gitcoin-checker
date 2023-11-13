@@ -157,6 +157,21 @@ const refreshApplication = (application) => {
                 <div class="mt-2 flex justify-center">
                     <ResultsSummary :application="application" />
                 </div>
+
+                <a
+                    :href="
+                        'https://manager.gitcoin.co/#/round/' +
+                        application.round.round_addr +
+                        '/application/' +
+                        application.round.round_addr +
+                        '-' +
+                        application.application_id
+                    "
+                    target="_blank"
+                    class="text-blue-500 underline"
+                >
+                    Manager link
+                </a>
                 <!-- <ReviewedBy :application="application" /> -->
             </div>
             <div v-else>No project data available yet</div>

@@ -23,6 +23,23 @@ if (prompt.value) {
     form.prompt = prompt.value.prompt;
 }
 
+const resetToDefaultPrompt = () => {
+    if (confirm("Are you sure you want to reset to the default prompt?")) {
+        form.get(
+            route("round.prompt.reset", {
+                round: round.value.uuid,
+            }),
+            {
+                onSuccess: (response) => {
+                    randomApplication.value = response.props.randomApplication;
+                    prompt.value = response.props.prompt;
+                },
+                onError: (error) => {},
+            }
+        );
+    }
+};
+
 const savePrompts = async () => {
     form.post(
         route("round.prompt.upsert", {
@@ -71,7 +88,12 @@ const addAccessControl = () => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <h2 class="mb-5">Evaluation Criteria</h2>
+                <div class="flex justify-between items-center mb-5">
+                    <h2>Evaluation Criteria</h2>
+                    <PrimaryButton @click="resetToDefaultPrompt"
+                        >Reset to Default Prompt</PrimaryButton
+                    >
+                </div>
 
                 <div class="flex">
                     <div class="w-5/6">

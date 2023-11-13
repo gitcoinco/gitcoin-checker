@@ -171,8 +171,8 @@ const handleRoundPrompt = (round) => {
             </label>
         </div>
         <div class="flex flex-col">
-            <div class="bg-gray-200 flex p-2">
-                <div class="p-1 mr-5 pr-5 border-r border-gray-300">
+            <div class="bg-gray-200 flex p-2 rounded">
+                <div class="p-1 mr-5 pr-5 border-r border-gray-300 rounded">
                     Show
                     <select
                         v-model="selectedApplicationStatusRef"
