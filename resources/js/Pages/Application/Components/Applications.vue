@@ -241,14 +241,7 @@ const handleRoundPrompt = (round) => {
                     </div>
                 </div>
             </div>
-            <div
-                v-else-if="selectedApplicationRoundTypeRef == 'mine'"
-                class="text-center p-2"
-            >
-                <SpecifyUserRounds
-                    @selected-rounds-changed="updateSelectedRounds"
-                />
-            </div>
+            <div v-else class="pt-5">No results for your selected filter.</div>
         </div>
 
         <Pagination :links="applications.links" />
