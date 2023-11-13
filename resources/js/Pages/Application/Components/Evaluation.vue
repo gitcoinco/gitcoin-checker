@@ -91,6 +91,19 @@ const gptNrPercentage = (result) => {
         return null;
     }
 };
+
+const clearResult = async () => {
+    try {
+        await axios.delete(
+            route("round.application.evaluation.results.destroy", {
+                application: props.application.uuid,
+            })
+        );
+        emit("user-evaluation-updated", props.application);
+    } catch (error) {
+        console.error("Error deleting result: ", error);
+    }
+};
 </script>
 <template>
     <div>
@@ -127,7 +140,7 @@ const gptNrPercentage = (result) => {
                             <i class="fa fa-server mr-1" aria-hidden="true"></i>
                             GPT
                         </td>
-                        <td colspan="2">
+                        <td>
                             <Modal :show="showGPTResultsModal">
                                 <div class="bg-white p-5 w-full">
                                     <h2
@@ -161,6 +174,11 @@ const gptNrPercentage = (result) => {
                                     )
                                 }}%
                             </a>
+                        </td>
+                        <td>
+                            <SecondaryButton @click="clearResult">
+                                Clear</SecondaryButton
+                            >
                         </td>
                     </tr>
                     <tr v-else>

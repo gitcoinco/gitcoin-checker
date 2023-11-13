@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ShortUniqueUuidTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RoundApplicationPromptResult extends Model
 {
-    use HasFactory, ShortUniqueUuidTrait;
+    use HasFactory, ShortUniqueUuidTrait, SoftDeletes;
 
     protected $fillable = [
         'uuid',

@@ -24,6 +24,22 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function deleteGPTResult(RoundApplication $application)
+    {
+        $this->authorize('update', AccessControl::class);
+
+        $results = $application->results()->where('prompt_type', 'chatgpt')->get();
+        foreach ($results as $result) {
+            $result->delete();
+        }
+
+        return response()->json([
+            'message' => 'GPT results deleted successfully',
+            'application' => $application->id
+        ]);
+    }
+
+
     public function details(RoundApplication $application)
     {
         $application->load(['project']);
