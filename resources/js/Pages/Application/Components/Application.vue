@@ -170,6 +170,7 @@ const refreshApplication = (application) => {
                     target="_blank"
                     class="text-blue-500 underline"
                 >
+                    <i class="fa fa-external-link" aria-hidden="true"></i>
                     Manager link
                 </a>
                 <!-- <ReviewedBy :application="application" /> -->
