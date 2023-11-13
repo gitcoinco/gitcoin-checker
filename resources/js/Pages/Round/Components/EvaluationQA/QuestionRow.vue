@@ -1,7 +1,8 @@
 <template>
     <tr>
-        <td class="py-2 px-4">
+        <td class="py-2 px-4 w-full">
             <input
+                class="w-full"
                 v-model="question.text"
                 @input="updateQuestion('text', $event.target.value)"
             />
@@ -22,6 +23,7 @@
         </td>
         <td class="py-2 px-4">
             <input
+                class="w-20"
                 type="number"
                 v-model="question.weighting"
                 @input="updateWeighting($event.target.value)"
