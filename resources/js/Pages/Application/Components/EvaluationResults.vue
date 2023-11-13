@@ -67,7 +67,10 @@ const answerForIndex = (index, answers) => {
 
 const getGptAnswer = (question) => {
     for (let i = 0; i < gptAnswers().length; i++) {
-        if (gptAnswers()[i].criteria == question) {
+        if (
+            gptAnswers()[i].criteria.trim().toLowerCase() ==
+            question.trim().toLowerCase()
+        ) {
             return gptAnswers()[i];
         }
     }
