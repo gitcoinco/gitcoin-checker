@@ -86,7 +86,7 @@ const refreshApplication = (application) => {
             </div>
             <div class="mb-3 text-sm">
                 <div class="flex items-center space-x-4">
-                    <div v-if="application.project.website">
+                    <div v-if="application.project?.website">
                         <i class="fa fa-globe mr-2" aria-hidden="true"></i>
                         <a
                             :href="application.project.website"
@@ -96,7 +96,7 @@ const refreshApplication = (application) => {
                             {{ application.project.website }}
                         </a>
                     </div>
-                    <div v-if="application.project.projectTwitter">
+                    <div v-if="application.project?.projectTwitter">
                         <i
                             class="fa fa-twitter text-blue-500 mr-2"
                             aria-hidden="true"
@@ -114,7 +114,7 @@ const refreshApplication = (application) => {
                     </div>
                 </div>
                 <div class="flex space-x-4">
-                    <div v-if="application.project.projectGithub">
+                    <div v-if="application.project?.projectGithub">
                         <i class="fa fa-github mr-2" aria-hidden="true"></i>
                         <a
                             :href="
@@ -128,7 +128,7 @@ const refreshApplication = (application) => {
                             (Project)
                         </a>
                     </div>
-                    <div v-if="application.project.userGithub">
+                    <div v-if="application.project?.userGithub">
                         <i class="fa fa-github mr-2" aria-hidden="true"></i>
                         <a
                             :href="
