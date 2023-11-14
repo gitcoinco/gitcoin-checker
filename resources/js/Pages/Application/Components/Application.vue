@@ -78,9 +78,8 @@ const refreshApplication = (application) => {
                 <div>
                     <span
                         class="text-xs italic"
-                        v-if="application?.round?.chain?.chain_id"
-                        >(chain_id:
-                        {{ application.round.chain.chain_id }})</span
+                        v-if="application?.round?.chain?.name"
+                        >{{ application.round.chain.name }}</span
                     >
                 </div>
             </div>

@@ -3,6 +3,7 @@ import { ref, onMounted, defineEmits } from "vue";
 import TextInput from "@/Components/TextInput.vue";
 import Modal from "@/Components/Modal.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
+import { showDateInShortFormat } from "@/utils.js";
 
 const emit = defineEmits(["selected-rounds-changed"]);
 
@@ -72,7 +73,7 @@ onMounted(async () => {
                         v-model="search"
                         @keyup.enter="searchRounds"
                         placeholder="Search for rounds"
-                        class="mb-3"
+                        class="mb-3 w-full"
                     />
 
                     <!-- Display selected rounds -->
@@ -81,7 +82,7 @@ onMounted(async () => {
                         <div
                             v-for="(round, index) in rounds"
                             :key="index"
-                            class="mb-2 flex items-center w-1/2 px-2"
+                            class="mb-3 flex items-center w-1/2 px-2"
                         >
                             <div>
                                 <input
@@ -96,13 +97,18 @@ onMounted(async () => {
                                                 round.uuid
                                         )
                                     "
-                                    class="mr-2"
+                                    class="mr-1"
                                 />
-                                <label :for="`round-${index}`"
-                                    >{{ round.name }}
-                                    <span class="text-xs"
-                                        >(chain_id:
-                                        {{ round.chain.chain_id }})</span
+                                <label :for="`round-${index}`" class="text-xs"
+                                    >{{ round.name }}<br />
+
+                                    <span class="text-xs italic"
+                                        >({{
+                                            showDateInShortFormat(
+                                                round.round_start_time
+                                            )
+                                        }}
+                                        - {{ round.chain.name }})</span
                                     ></label
                                 >
                             </div>
@@ -124,12 +130,16 @@ onMounted(async () => {
                                                 aria-hidden="true"
                                             ></i>
                                         </button>
-                                        {{ round.name }}
+                                        {{ round.name }}<br />
                                         <span
-                                            class="text-xs"
+                                            class="text-xs italic"
                                             v-if="round?.chain?.chain_id"
-                                            >(chain_id:
-                                            {{ round.chain.chain_id }})</span
+                                            >({{
+                                                showDateInShortFormat(
+                                                    round.round_start_time
+                                                )
+                                            }}
+                                            {{ round.chain.name }})</span
                                         >
                                     </div>
                                 </div>

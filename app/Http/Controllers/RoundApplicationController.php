@@ -155,7 +155,7 @@ class RoundApplicationController extends Controller
                 $query->select('id', 'uuid', 'name', 'round_start_time', 'round_end_time', 'round_addr', 'chain_id');
             },
             'round.chain' => function ($query) {
-                $query->select('id', 'uuid', 'chain_id');
+                $query->select('id', 'uuid', 'name', 'chain_id');
             },
             'round.evaluationQuestions' => function ($query) {
                 $query->select('id', 'uuid', 'round_id', 'questions');
