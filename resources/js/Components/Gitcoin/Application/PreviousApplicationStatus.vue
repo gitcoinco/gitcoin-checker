@@ -41,7 +41,7 @@ export default {
         <span v-if="applications?.length > 1">
             <span
                 @click="toggleModal"
-                class="pointer text-blue-500 hover:underline text-sm"
+                class="pointer text-blue-500 hover:underline"
             >
                 {{ applications.length }} past application<span
                     v-if="applications.length > 1"
@@ -63,7 +63,7 @@ export default {
 
                     <!-- You can add more data to display in the modal here -->
                     <div v-if="applications">
-                        <table class="score-table" v-if="applications">
+                        <table class="score-table text-xs" v-if="applications">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -77,7 +77,7 @@ export default {
                                     :key="'answers-' + index"
                                 >
                                     <td>
-                                        <span class="text-xs text-gray-400">
+                                        <span class="text-gray-400">
                                             {{
                                                 showDateInShortFormat(
                                                     application.created_at,
@@ -86,7 +86,7 @@ export default {
                                             }}
                                         </span>
                                     </td>
-                                    <td class="score-value">
+                                    <td>
                                         <a
                                             :href="
                                                 route(
@@ -99,20 +99,22 @@ export default {
                                             {{ application.round.name }}
                                         </a>
                                     </td>
-                                    <td class="flex items-center">
-                                        <span
-                                            v-html="
-                                                applicationStatusIcon(
-                                                    application.status
-                                                )
-                                            "
-                                            class="mr-1"
-                                        ></span>
-                                        <span class="text-xs text-gray-400">
-                                            {{
-                                                application.status.toLowerCase()
-                                            }}
-                                        </span>
+                                    <td>
+                                        <div>
+                                            <span
+                                                v-html="
+                                                    applicationStatusIcon(
+                                                        application.status
+                                                    )
+                                                "
+                                                class="mr-1"
+                                            ></span>
+                                            <span class="text-gray-400">
+                                                {{
+                                                    application.status.toLowerCase()
+                                                }}
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -123,7 +125,7 @@ export default {
                 </div>
             </Modal>
         </span>
-        <span v-else class="text-sm">First application</span>
+        <span v-else>First application</span>
     </span>
 </template>
 

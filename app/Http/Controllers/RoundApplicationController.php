@@ -164,7 +164,7 @@ class RoundApplicationController extends Controller
                 if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
                     $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
                 }
-                $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
+                $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
             },
             'project.applications' => function ($query) {
                 $query->orderBy('created_at', 'desc');

@@ -348,6 +348,8 @@ class IngestData extends Command
                             'projectGithub' => isset($projectData['projectGithub']) ? $projectData['projectGithub'] : null,
                             'projectTwitter' => isset($projectData['projectTwitter']) ? $projectData['projectTwitter'] : null,
                             'metadata' => $projectData,
+                            'logoImg' => isset($projectData['logoImg']) ? $projectData['logoImg'] : null,
+                            'bannerImg' => isset($projectData['bannerImg']) ? $projectData['bannerImg'] : null,
                         ]
                     );
                 }

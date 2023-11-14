@@ -18,6 +18,8 @@ class Project extends Model
         'title',
         'description',
         'website',
+        'logoImg',
+        'bannerImg',
         'userGithub',
         'projectGithub',
         'projectTwitter',
