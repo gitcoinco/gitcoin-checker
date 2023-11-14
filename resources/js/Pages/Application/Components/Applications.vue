@@ -44,6 +44,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    busyLoadingApplications: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const selectedApplicationStatus = ref(
@@ -229,27 +233,37 @@ const handleRoundPrompt = (round) => {
         </div>
 
         <div class="flex flex-col">
-            <div v-if="props?.applications?.data?.length > 0" class="pt-10">
-                <div
-                    v-for="(application, index) in applications.data"
-                    :key="index"
-                    class="border-b mb-10"
-                >
-                    <Application
-                        :application="application"
-                        :averageGPTEvaluationTime="averageGPTEvaluationTime"
-                        @perform-gpt-evaluation="handleEvaluateApplication"
-                        @user-evaluation-updated="refreshApplication"
-                    />
+            <div v-if="!busyLoadingApplications">
+                <div v-if="props?.applications?.data?.length > 0" class="pt-10">
+                    <div
+                        v-for="(application, index) in applications.data"
+                        :key="index"
+                        class="border-b mb-10"
+                    >
+                        <Application
+                            :application="application"
+                            :averageGPTEvaluationTime="averageGPTEvaluationTime"
+                            @perform-gpt-evaluation="handleEvaluateApplication"
+                            @user-evaluation-updated="refreshApplication"
+                        />
 
-                    <div>
-                        <EvaluationResults :application="application" />
+                        <div>
+                            <EvaluationResults :application="application" />
+                        </div>
                     </div>
+                    <Pagination :links="applications.links" />
+                </div>
+                <div v-else class="pt-5">
+                    No results for your selected filter.
                 </div>
             </div>
-            <div v-else class="pt-5">No results for your selected filter.</div>
+            <div v-else>
+                <div class="flex justify-center items-center">
+                    <span class="mt-10 py-10 text-4xl">
+                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </div>
         </div>
-
-        <Pagination :links="applications.links" />
     </div>
 </template>

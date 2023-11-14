@@ -8,6 +8,7 @@ import { usePage, router } from "@inertiajs/vue3";
 import { defineProps, computed, ref } from "vue";
 
 const applications = ref(usePage().props.applications.valueOf());
+const busyLoadingApplications = ref(false);
 
 const props = defineProps({
     indexData: String,
@@ -18,11 +19,22 @@ const cleanedIndexData = computed(() => {
 });
 
 const searchProjects = (newStatus) => {
-    router.visit(
-        route("dashboard", {
-            selectedSearchProjects: newStatus,
+    busyLoadingApplications.value = true;
+    axios
+        .get(
+            route("dashboard", {
+                selectedSearchProjects: newStatus,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            applications.value = response.data.applications;
         })
-    );
+        .finally(() => {
+            busyLoadingApplications.value = false;
+        });
 };
 
 const removeTests = (newStatus) => {
@@ -34,15 +46,26 @@ const removeTests = (newStatus) => {
 };
 
 const statusChanged = (newStatus) => {
-    router.visit(
-        route("dashboard", {
-            status: newStatus,
+    busyLoadingApplications.value = true;
+    axios
+        .get(
+            route("dashboard", {
+                status: newStatus,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            applications.value = response.data.applications;
         })
-    );
+        .finally(() => {
+            busyLoadingApplications.value = false;
+        });
 };
 
 const roundType = (newStatus) => {
-    // Refresh applications using ajax
+    busyLoadingApplications.value = true;
     axios
         .get(
             route("user-preferences.rounds.selectedApplicationRoundType", {
@@ -54,16 +77,23 @@ const roundType = (newStatus) => {
         )
         .then((response) => {
             refreshApplications();
+        })
+        .finally(() => {
+            busyLoadingApplications.value = false;
         });
 };
 
 function refreshApplications() {
+    busyLoadingApplications.value = true;
     axios
         .get(route("dashboard", {}), {
             responseType: "json",
         })
         .then((response) => {
             applications.value = response.data.applications;
+        })
+        .finally(() => {
+            busyLoadingApplications.value = false;
         });
 }
 </script>
@@ -86,6 +116,7 @@ function refreshApplications() {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <Applications
+                        :busyLoadingApplications="busyLoadingApplications"
                         :applications="applications"
                         @status-changed="statusChanged"
                         @remove-tests="removeTests"
