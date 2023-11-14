@@ -38,6 +38,8 @@ class ProjectController extends Controller
             }
         ])->paginate();
 
+
+
         return Inertia::render('Project/Show', [
             'project' => $project,
             'applications' => $applications

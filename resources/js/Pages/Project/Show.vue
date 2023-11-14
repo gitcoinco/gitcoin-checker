@@ -8,6 +8,8 @@ import Pagination from "@/Components/Pagination.vue";
 import GptEvaluationResults from "@/Components/Gitcoin/Application/GptEvaluationResults.vue";
 import HumanEvaluationResults from "@/Components/Gitcoin/Application/UserEvaluationResults.vue";
 
+const pinataUrl = import.meta.env.VITE_PINATA_CLOUDFRONT_URL;
+
 import {
     formatDate,
     shortenAddress,
@@ -42,6 +44,33 @@ const applications = ref(usePage().props.applications.valueOf());
 
         <div>
             <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
+                <div
+                    v-if="project.logoImg"
+                    class="mb-5 p-5 bg-gray-300"
+                    :style="{
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundImage:
+                            'url(' +
+                            pinataUrl +
+                            '/' +
+                            project.bannerImg +
+                            '?img-width=1000' +
+                            ')',
+                    }"
+                >
+                    <img
+                        :src="
+                            pinataUrl +
+                            '/' +
+                            project.logoImg +
+                            '?img-height=150'
+                        "
+                        class="mx-auto rounded-full"
+                        style="height: 150px; height: 150px; object-fit: cover"
+                    />
+                </div>
+
                 <div>
                     <div v-if="project.website">
                         <i class="fa fa-globe mr-2" aria-hidden="true"></i>
@@ -97,7 +126,7 @@ const applications = ref(usePage().props.applications.valueOf());
                     </div>
                     <div
                         v-if="project.metadata.description"
-                        class="text-xs mt-5"
+                        class="text-xs mt-5 markdown"
                         v-html="markdown.render(project.metadata.description)"
                     ></div>
                 </div>
@@ -109,9 +138,9 @@ const applications = ref(usePage().props.applications.valueOf());
                 class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8"
                 v-if="applications && applications.data.length > 0"
             >
-                <h2 class="text-xl">Applications</h2>
+                <h2 class="text-xl">All Applications</h2>
 
-                <table>
+                <table class="text-sm">
                     <thead>
                         <tr>
                             <th>Status</th>
@@ -137,7 +166,7 @@ const applications = ref(usePage().props.applications.valueOf());
                             </th>
                             <th>Eligibility</th>
                             <th>Prompt</th>
-                            <th>Evaluation</th>
+                            <!-- <th>Evaluation</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -235,7 +264,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     </template>
                                 </Tooltip>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <GptEvaluationResults
                                     :application="application"
                                     class="mb-2"
@@ -245,7 +274,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     :application="application"
                                 >
                                 </HumanEvaluationResults>
-                            </td>
+                            </td> -->
                         </tr>
                     </tbody>
                 </table>

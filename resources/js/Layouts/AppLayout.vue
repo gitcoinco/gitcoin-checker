@@ -511,7 +511,7 @@ const logout = () => {
             </div>
 
             <!-- Page Content -->
-            <main>
+            <main style="max-width: 1000px; margin: 0 auto">
                 <slot />
             </main>
         </div>

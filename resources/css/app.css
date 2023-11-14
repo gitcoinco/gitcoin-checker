@@ -65,3 +65,10 @@ a[disabled] {
     color: #f59e0b; /* This is the default color value for text-yellow-500 in Tailwind's default palette. */
 }
 
+.markdown p {
+    margin-bottom: 1rem;
+}
+.markdown img {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
