@@ -1,6 +1,6 @@
 <script setup>
 import { ref, defineProps } from "vue";
-import { getShortenedName } from "@/utils.js";
+import { getShortenedName, matchProbability } from "@/utils.js";
 import Modal from "@/Components/Modal.vue";
 
 const props = defineProps({
@@ -65,11 +65,20 @@ const answerForIndex = (index, answers) => {
     }
 };
 
+// There's not always a 100% match between the GPT response and the question, so let's work with a probability.
 const getGptAnswer = (question) => {
     for (let i = 0; i < gptAnswers().length; i++) {
-        if (
-            gptAnswers()[i].criteria.trim().toLowerCase() ==
+        let probability = matchProbability(
+            gptAnswers()[i].criteria.trim().toLowerCase(),
             question.trim().toLowerCase()
+        );
+
+        if (
+            probability > 0.9 ||
+            gptAnswers()
+                [i].criteria.trim()
+                .toLowerCase()
+                .includes(question.trim().toLowerCase())
         ) {
             return gptAnswers()[i];
         }

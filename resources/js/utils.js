@@ -148,3 +148,11 @@ export function getShortenedName(name) {
 
     return name;
 }
+
+// Return the probability of two strings matching
+export function matchProbability(str1, str2) {
+    let words1 = new Set(str1.split(/\s+/));
+    let words2 = new Set(str2.split(/\s+/));
+    let intersection = new Set([...words1].filter((word) => words2.has(word)));
+    return intersection.size / new Set([...words1, ...words2]).size;
+}
