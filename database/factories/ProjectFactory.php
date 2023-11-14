@@ -19,7 +19,7 @@ class ProjectFactory extends Factory
         return [
             'uuid' => $this->faker->uuid(),
             'slug' => $this->faker->slug(),
-            'id_addr' => $this->faker->slug(),
+            'id_addr' => '0x' . $this->faker->hexColor(),
             'title' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'website' => $this->faker->url(),
