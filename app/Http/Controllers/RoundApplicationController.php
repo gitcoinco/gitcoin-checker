@@ -104,7 +104,7 @@ class RoundApplicationController extends Controller
         return $filterData;
     }
 
-    public function getApplications(Request $request, $applyFilters = true)
+    public function getApplications(Request $request, Round $round = null, $applyFilters = true)
     {
         if ($applyFilters) {
 
@@ -141,7 +141,12 @@ class RoundApplicationController extends Controller
             $selectedSearchProjects = '';
 
             $listOfApplicationIdsToExclude = [];
-            $listOfApplicationIdsToInclude = [];
+            if ($round) {
+
+                $listOfApplicationIdsToInclude = RoundApplication::where('round_id', $round->id)->pluck('id');
+            } else {
+                $listOfApplicationIdsToInclude = [];
+            }
         }
 
 
