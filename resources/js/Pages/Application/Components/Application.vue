@@ -161,11 +161,11 @@ const refreshApplication = (application) => {
                 <a
                     :href="
                         'https://manager.gitcoin.co/#/round/' +
-                        application.round.round_addr +
+                        application.round.round_addr.toLowerCase() +
                         '/application/' +
-                        application.round.round_addr +
+                        application.round.round_addr.toLowerCase() +
                         '-' +
-                        application.application_id
+                        application.application_id.toLowerCase()
                     "
                     target="_blank"
                     class="text-blue-500 underline"
