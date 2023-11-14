@@ -104,32 +104,44 @@ class RoundApplicationController extends Controller
         return $filterData;
     }
 
-    public function getApplications(Request $request)
+    public function getApplications(Request $request, $applyFilters = true)
     {
-        $filterData = $this->setFilters($request);
+        if ($applyFilters) {
 
-        $status = $filterData['status'];
-        $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
+            $filterData = $this->setFilters($request);
 
-        $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
-        $selectedApplicationRemoveTests = $filterData['selectedApplicationRemoveTests'];
-        $selectedSearchProjects = $filterData['selectedSearchProjects'];
+            $status = $filterData['status'];
+            $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
+
+            $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
+            $selectedApplicationRemoveTests = $filterData['selectedApplicationRemoveTests'];
+            $selectedSearchProjects = $filterData['selectedSearchProjects'];
 
 
-        $listOfApplicationIdsToExclude = [];
-        if ($selectedApplicationRemoveTests) {
-            $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
-            $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
-        }
-
-        $listOfApplicationIdsToInclude = [];
-        if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
-            $listOfApplicationIdsToInclude = RoundApplication::whereHas('project', function ($query) use ($selectedSearchProjects) {
-                $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
-            })->pluck('id');
-            if (count($listOfApplicationIdsToInclude) == 0) {
-                $listOfApplicationIdsToInclude = [-1];
+            $listOfApplicationIdsToExclude = [];
+            if ($selectedApplicationRemoveTests) {
+                $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
+                $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
             }
+
+            $listOfApplicationIdsToInclude = [];
+            if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
+                $listOfApplicationIdsToInclude = RoundApplication::whereHas('project', function ($query) use ($selectedSearchProjects) {
+                    $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
+                })->pluck('id');
+                if (count($listOfApplicationIdsToInclude) == 0) {
+                    $listOfApplicationIdsToInclude = [-1];
+                }
+            }
+        } else {
+            $status = 'all';
+            $selectedApplicationRoundType = 'all';
+            $selectedApplicationRoundUuidList = '[]';
+            $selectedApplicationRemoveTests = 0;
+            $selectedSearchProjects = '';
+
+            $listOfApplicationIdsToExclude = [];
+            $listOfApplicationIdsToInclude = [];
         }
 
 

@@ -15,9 +15,10 @@ import {
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
 import Tooltip from "@/Components/Tooltip.vue";
+import Applications from "@/Pages/Application/Components/Applications.vue";
 
 const round = ref(usePage().props.round.valueOf());
-const projects = ref(usePage().props.projects.valueOf());
+const applications = ref(usePage().props.applications.valueOf());
 const latestPrompt = ref(
     usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
 );
@@ -71,6 +72,59 @@ async function evaluateApplication(event, application) {
             delete loadingStates.value[application.id];
         });
 }
+
+const searchProjects = (newStatus) => {
+    router.visit(
+        route("round.show", {
+            round: round.uuid,
+            selectedSearchProjects: newStatus,
+        })
+    );
+};
+
+const removeTests = (newStatus) => {
+    router.visit(
+        route("round.show", {
+            round: round.uuid,
+            selectedApplicationRemoveTests: newStatus,
+        })
+    );
+};
+
+const statusChanged = (newStatus) => {
+    router.visit(
+        route("round.show", {
+            round: round.uuid,
+            status: newStatus,
+        })
+    );
+};
+
+const roundType = (newStatus) => {
+    // Refresh applications using ajax
+    axios
+        .get(
+            route("user-preferences.rounds.selectedApplicationRoundType", {
+                selectedApplicationRoundType: newStatus,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            refreshApplications();
+        });
+};
+
+function refreshApplications() {
+    axios
+        .get(route("round.show", {}), {
+            responseType: "json",
+        })
+        .then((response) => {
+            applications.value = response.data.applications;
+        });
+}
 </script>
 
 <template>
@@ -98,366 +152,23 @@ async function evaluateApplication(event, application) {
                     :href="route('round.evaluation.show', round)"
                     class="text-blue-500 hover:underline"
                 >
-                    Round Evaluation
+                    Round Evaluation Criteria
                 </Link>
             </div>
         </template>
 
         <div>
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl">Round applications</h2>
-                    <Link
-                        :href="route('round.evaluate.all.show', round)"
-                        class="text-blue-500 hover:underline"
-                    >
-                        Evaluate Entire Round
-                    </Link>
-                </div>
-
-                <table v-if="projects && projects.data.length > 0">
-                    <thead>
-                        <tr>
-                            <th>
-                                Date
-                                <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="This is the last application date for the round"
-                                    ></i>
-                                    <template #content>
-                                        Last application date for the project.
-                                    </template>
-                                </Tooltip>
-                            </th>
-                            <th>Title</th>
-                            <th>Website</th>
-                            <th class="nowrap">Twitter</th>
-                            <th class="nowrap">Github</th>
-                            <th class="nowrap">Score</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(project, index) in projects.data"
-                            :key="index"
-                        >
-                            <td>
-                                {{
-                                    new Date(
-                                        project.applications[0].created_at
-                                    ).toLocaleDateString()
-                                }}<br />
-                                <!-- hours -->
-                                {{
-                                    new Date(
-                                        project.applications[0].created_at
-                                    ).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })
-                                }}
-                            </td>
-                            <td>
-                                <Link
-                                    :href="route('project.show', project)"
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{ project.title }}
-                                </Link>
-                            </td>
-                            <td>
-                                <a
-                                    :href="project.website"
-                                    _target="_blank"
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{
-                                        shortenURL(
-                                            project.website.replace(
-                                                "https://",
-                                                ""
-                                            ),
-                                            20
-                                        )
-                                    }}
-                                </a>
-                            </td>
-                            <td class="nowrap">
-                                <a
-                                    :href="
-                                        'https://twitter.com/' +
-                                        project.projectTwitter
-                                    "
-                                    target="_blank"
-                                >
-                                    <i
-                                        class="fa fa-twitter text-blue-500"
-                                        aria-hidden="true"
-                                    ></i>
-                                    {{ project.projectTwitter }}
-                                </a>
-                            </td>
-                            <td class="nowrap">
-                                <a
-                                    :href="
-                                        'https://github.com/' +
-                                        project.projectGithub
-                                    "
-                                    target="_blank"
-                                    v-if="project.projectGithub"
-                                >
-                                    <i
-                                        class="fa fa-github"
-                                        aria-hidden="true"
-                                    ></i>
-                                    {{ project.projectGithub }}
-
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-question-circle-o"
-                                            aria-hidden="true"
-                                            title="This is the last application date for the round"
-                                        ></i>
-                                        <template #content>
-                                            Project Github repository.
-                                        </template>
-                                    </Tooltip>
-                                    <br />
-                                </a>
-                                <a
-                                    :href="
-                                        'https://github.com/' +
-                                        project.userGithub
-                                    "
-                                    target="_blank"
-                                    v-if="project.userGithub"
-                                >
-                                    <i
-                                        class="fa fa-github"
-                                        aria-hidden="true"
-                                    ></i>
-                                    {{ project.userGithub }}
-
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-question-circle-o"
-                                            aria-hidden="true"
-                                            title="This is the last application date for the round"
-                                        ></i>
-                                        <template #content>
-                                            User Github repository.
-                                        </template>
-                                    </Tooltip>
-                                </a>
-                            </td>
-                            <td class="nowrap">
-                                <span
-                                    v-if="
-                                        loadingStates[
-                                            project.applications[0].id
-                                        ]
-                                    "
-                                    class="ml-2"
-                                >
-                                    <i class="fa fa-spinner fa-spin"></i>
-                                </span>
-                                <span v-else>
-                                    <span>
-                                        <span>
-                                            <a
-                                                href="#"
-                                                class="text-blue-500 hover:underline"
-                                                @click="toggleModal(project.id)"
-                                            >
-                                                <span>
-                                                    {{
-                                                        scoreTotal(
-                                                            project
-                                                                .applications[0]
-                                                                .results
-                                                        )
-                                                    }}
-                                                    <Tooltip
-                                                        v-if="
-                                                            project
-                                                                .applications[0]
-                                                                .results &&
-                                                            project
-                                                                .applications[0]
-                                                                .results
-                                                                .length > 0 &&
-                                                            latestPrompt &&
-                                                            project
-                                                                .applications[0]
-                                                                .results[0]
-                                                                .prompt_id !==
-                                                                latestPrompt.id
-                                                        "
-                                                    >
-                                                        <i
-                                                            class="fa fa-exclamation-circle text-red-500"
-                                                            aria-hidden="true"
-                                                        ></i>
-                                                        <template #content>
-                                                            This score was
-                                                            calculated using an
-                                                            older version of the
-                                                            scoring criteria.
-                                                        </template>
-                                                    </Tooltip>
-                                                </span>
-                                            </a>
-                                        </span>
-                                        <Modal
-                                            :show="openModalId === project.id"
-                                            @close="toggleModal(project.id)"
-                                        >
-                                            <div class="modal-content">
-                                                <h2
-                                                    class="modal-title flex justify-between"
-                                                >
-                                                    Score Details for
-                                                    {{ project.title }}
-                                                    <span
-                                                        @click="
-                                                            toggleModal(
-                                                                project.id
-                                                            )
-                                                        "
-                                                        class="cursor-pointer"
-                                                    >
-                                                        <i
-                                                            class="fa fa-times-circle-o"
-                                                            aria-hidden="true"
-                                                        ></i>
-                                                    </span>
-                                                </h2>
-
-                                                <table class="score-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Score</th>
-                                                            <th>Criteria</th>
-                                                            <th>Reason</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr
-                                                            v-for="(
-                                                                result, index
-                                                            ) in JSON.parse(
-                                                                project
-                                                                    .applications[0]
-                                                                    .results[0]
-                                                                    .results_data
-                                                            )"
-                                                            :key="
-                                                                'modal' +
-                                                                project.id +
-                                                                '-' +
-                                                                index
-                                                            "
-                                                        >
-                                                            <td
-                                                                class="score-value"
-                                                            >
-                                                                {{
-                                                                    result.score
-                                                                }}
-                                                            </td>
-                                                            <td>
-                                                                {{
-                                                                    result.criteria
-                                                                }}
-                                                            </td>
-                                                            <td>
-                                                                {{
-                                                                    result.reason
-                                                                }}
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </Modal>
-                                    </span>
-                                </span>
-                            </td>
-                            <td>
-                                <template v-if="latestPrompt">
-                                    <span
-                                        v-if="
-                                            (project.applications[0].results &&
-                                                project.applications[0].results
-                                                    .length === 0) ||
-                                            (project.applications[0].results
-                                                .length > 0 &&
-                                                project.applications[0]
-                                                    .results[0].prompt_id !==
-                                                    latestPrompt.id)
-                                        "
-                                    >
-                                        <a
-                                            @click="
-                                                evaluateApplication(
-                                                    $event,
-                                                    project.applications[0]
-                                                )
-                                            "
-                                            href="#"
-                                            class="text-blue-500 hover:underline"
-                                            :disabled="
-                                                loadingStates[
-                                                    project.applications[0].id
-                                                ]
-                                            "
-                                        >
-                                            Evaluate
-                                        </a>
-                                    </span>
-                                    <!--
-                                    {{ project.applications[0].results[0].id }}
-                                    - {{ latestPrompt.id }}
-                                    <span
-                                        v-if="
-                                            project.applications[0].results
-                                                .length === 0 ||
-                                            (project.applications[0].results
-                                                .length > 0 &&
-                                                project.applications[0]
-                                                    .results[0].id !==
-                                                    latestPrompt.id)
-                                        "
-                                    >
-                                    </span> -->
-                                </template>
-                                <template v-else>
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-exclamation-circle text-red-500"
-                                            aria-hidden="true"
-                                        ></i>
-                                        <template #content>
-                                            Cannot evaluate if a prompt is not
-                                            set for this round.<br /><br />
-                                            <SecondaryButton
-                                                @click="roundPrompt"
-                                                class="text-blue-500 hover:underline"
-                                            >
-                                                Set Evaluation Criteria
-                                            </SecondaryButton>
-                                        </template>
-                                    </Tooltip>
-                                </template>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <Pagination :links="projects.links" />
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <Applications
+                    :displayFilter="false"
+                    :applications="applications"
+                    @status-changed="statusChanged"
+                    @remove-tests="removeTests"
+                    @round-type="roundType"
+                    @refresh-applications="refreshApplications"
+                    @user-rounds-changed="refreshApplications"
+                    @search-projects="searchProjects"
+                />
             </div>
         </div>
     </AppLayout>

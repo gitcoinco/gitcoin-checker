@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Round;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Cache;
 
 class RoundController extends Controller
 {
@@ -42,27 +44,69 @@ class RoundController extends Controller
         return $rounds;
     }
 
-    public function show(Round $round)
+    public function show(Request $request, Round $round)
     {
-        $projects = $round->projects()
-            ->with([
-                'applications' => function ($query) use ($round) {
-                    $query->where('round_id', $round->id);
-                },
-                'applications.results' => function ($query) {
-                    $query->orderBy('id', 'desc');
-                }
-            ])
-            ->orderByRaw('(SELECT MAX(round_applications.id) FROM round_applications WHERE round_applications.project_addr = projects.id_addr) DESC')
-            ->paginate();
+        $projectsCount = Cache::remember('projectsCount', 60, function () {
+            return Project::where('title', 'not like', '%test%')->count();
+        });
+        $roundsCount = Cache::remember('roundsCount', 60, function () {
+            return Round::where('name', 'not like', '%test%')->count();
+        });
 
-        $latestPrompt = $round->prompt()->orderBy('id', 'desc')->first();
+        $roundApplicationController = new RoundApplicationController($this->notificationService);
 
-        return Inertia::render('Round/Show', [
-            'round' => $round,
-            'projects' => $projects,
-            'latestPrompt' => $latestPrompt,
-        ]);
+        $applicationsReturn = $roundApplicationController->getApplications($request);
+
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'round' => $round,
+                'projectsCount' => $projectsCount,
+                'roundsCount' => $roundsCount,
+                'applications' => $applicationsReturn['applications'],
+                'selectedApplicationStatus' => $applicationsReturn['status'],
+                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
+            ]);
+        } else {
+            return Inertia::render('Round/Show', [
+                'round' => $round,
+                'indexData' => env('INDEXER_URL'),
+                'projectsCount' => $projectsCount,
+                'roundsCount' => $roundsCount,
+                'applications' => $applicationsReturn['applications'],
+                'selectedApplicationStatus' => $applicationsReturn['status'],
+                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
+            ]);
+        }
+
+
+        // $projects = $round->projects()
+        //     ->with([
+        //         'applications' => function ($query) use ($round) {
+        //             $query->where('round_id', $round->id);
+        //         },
+        //         'applications.results' => function ($query) {
+        //             $query->orderBy('id', 'desc');
+        //         }
+        //     ])
+        //     ->orderByRaw('(SELECT MAX(round_applications.id) FROM round_applications WHERE round_applications.project_addr = projects.id_addr) DESC')
+        //     ->paginate();
+
+        // $latestPrompt = $round->prompt()->orderBy('id', 'desc')->first();
+
+        // return Inertia::render('Round/Show', [
+        //     'round' => $round,
+        //     'projects' => $projects,
+        //     'latestPrompt' => $latestPrompt,
+        // ]);
     }
 
 

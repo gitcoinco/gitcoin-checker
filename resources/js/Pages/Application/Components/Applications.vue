@@ -40,6 +40,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    displayFilter: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const selectedApplicationStatus = ref(
@@ -157,20 +161,20 @@ const handleRoundPrompt = (round) => {
 
 <template>
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-end mb-3">
-            <CheckBox
-                v-model="selectedApplicationRemoveTestsRef"
-                :checked="selectedApplicationRemoveTestsRef == 1"
-                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            />
-            <label
-                for="remove-test-projects"
-                class="ml-2 block text-sm text-gray-900"
-            >
-                Remove "test" rounds
-            </label>
-        </div>
-        <div class="flex flex-col">
+        <div v-if="displayFilter">
+            <div class="flex items-center justify-end mb-3">
+                <CheckBox
+                    v-model="selectedApplicationRemoveTestsRef"
+                    :checked="selectedApplicationRemoveTestsRef == 1"
+                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+                <label
+                    for="remove-test-projects"
+                    class="ml-2 block text-sm text-gray-900"
+                >
+                    Remove "test" rounds
+                </label>
+            </div>
             <div class="bg-gray-200 flex p-2 rounded">
                 <div class="p-1 mr-5 pr-5 border-r border-gray-300 rounded">
                     Show
@@ -222,7 +226,9 @@ const handleRoundPrompt = (round) => {
                     />
                 </div>
             </div>
+        </div>
 
+        <div class="flex flex-col">
             <div v-if="props?.applications?.data?.length > 0" class="pt-10">
                 <div
                     v-for="(application, index) in applications.data"
