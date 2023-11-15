@@ -129,8 +129,11 @@ const moveQuestion = (index, direction) => {
                         class="font-semibold text-xl text-gray-800 leading-tight"
                     >
                         {{ round.name }}
-                        <span class="text-sm">
+                        <span class="text-sm">on {{ round.chain.name }}</span>
+                        <span class="ml-2 text-sm">
+                            (
                             {{ shortenAddress(round.round_addr) }}
+                            )
                             <span
                                 @click="copyToClipboard(round.round_addr)"
                                 class="cursor-pointer"
