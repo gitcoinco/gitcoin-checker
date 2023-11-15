@@ -1,0 +1,10 @@
+Evaluate the project "{{ project.name }}" for Gitcoin round eligibility. Assess each of the following criteria, providing a score and a brief reasoning:
+
+{{ round.eligibility.requirements }}
+
+{{ project.details }}
+
+Provide your evaluation in a structured format for each criterion.
+
+Github:
+{{ github.recent_activity.summary }}

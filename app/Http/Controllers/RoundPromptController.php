@@ -68,7 +68,7 @@ class RoundPromptController extends Controller
 
     public static function promptDefaults()
     {
-        $data = ['system_prompt' => 'Act as a Gitcoin project evaluator that needs to decide whether a specific project needs to be included in a Gitcoin round based on a set of criteria.' . PHP_EOL . PHP_EOL . 'The round is called {{ round.name }}.' . PHP_EOL . PHP_EOL . 'Eligibility: {{ round.eligibility.description }}.' . PHP_EOL . 'Eligibility requirements:' . PHP_EOL . '{{ round.eligibility.requirements }}', 'prompt' => 'Evaluate the project below based on the eligibility criteria. Add comments to each of the eligibility criteria to explain your reasoning.' . PHP_EOL . PHP_EOL . '{{ project.details }}' . PHP_EOL . PHP_EOL . '{{ application.answers }}' . PHP_EOL . PHP_EOL . 'Historic project applications (if the project was approved in the past, this counts in their favour):' . PHP_EOL . '{{ project.historic_applications }}.'];
+        $data = ['system_prompt' => file_get_contents(config_path('prompts/system.txt')), 'prompt' => file_get_contents(config_path('prompts/user.txt'))];
         return $data;
     }
 
