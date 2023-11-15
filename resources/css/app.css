@@ -72,3 +72,8 @@ a[disabled] {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
+
+.markdown ol {
+    list-style-type: decimal;
+    margin-left: 2rem;
+}

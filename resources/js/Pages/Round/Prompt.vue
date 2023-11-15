@@ -121,8 +121,7 @@ const addAccessControl = () => {
                                 />
                             </div>
                         </div>
-                        <div class="w-1/2 p-5">
-                            <h2 class="mb-5">Variables</h2>
+                        <div class="w-1/2 p-5 text-sm">
                             <p class="mb-5">
                                 You can use the variables below to pull in
                                 dynamic data from the user:
@@ -196,6 +195,23 @@ const addAccessControl = () => {
                                     ></i> </span
                                 ><br />
                                 The answers the user gave in their application.
+                            </div>
+                            <div class="mb-2">
+                                <span v-pre class="mr-3">{{
+                                    project.name
+                                }}</span>
+                                <span
+                                    @click="
+                                        copyToClipboard('{{ project.name }}')
+                                    "
+                                    class="cursor-pointer"
+                                >
+                                    <i
+                                        class="fa fa-clone"
+                                        aria-hidden="true"
+                                    ></i> </span
+                                ><br />
+                                Name of the project.
                             </div>
                             <div class="mb-2">
                                 <span v-pre class="mr-3">{{
