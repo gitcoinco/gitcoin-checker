@@ -143,50 +143,58 @@ const moveQuestion = (index, direction) => {
             </div>
         </template>
 
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            <!-- Display questions in a table -->
-            <QuestionInput :addQuestionMethod="addQuestion" class="mb-10" />
-            <div v-if="questions.length > 0">
-                <QuestionTable
-                    :questions="questions"
-                    :updateQuestionMethod="updateQuestion"
-                    :removeQuestionMethod="removeQuestion"
-                    :updateWeightingMethod="updateWeighting"
-                    :moveQuestionMethod="moveQuestion"
-                />
+        <div class="py-6">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-6">
+                    <!-- Display questions in a table -->
+                    <QuestionInput
+                        :addQuestionMethod="addQuestion"
+                        class="mb-10"
+                    />
+                    <div v-if="questions.length > 0">
+                        <QuestionTable
+                            :questions="questions"
+                            :updateQuestionMethod="updateQuestion"
+                            :removeQuestionMethod="removeQuestion"
+                            :updateWeightingMethod="updateWeighting"
+                            :moveQuestionMethod="moveQuestion"
+                        />
 
-                <div class="mt-4 flex justify-end items-center">
-                    <span v-if="hasChanges" class="mr-3">
-                        <i
-                            class="fa fa-exclamation-circle text-red-500"
-                            aria-hidden="true"
-                        ></i>
-                        Remember to save your changes!
-                    </span>
-                    <PrimaryButton
-                        @click="postQuestions"
-                        :disabled="!hasChanges"
-                        class="text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
-                        :class="{
-                            'bg-blue-600 hover:bg-blue-700 focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-800':
-                                hasChanges,
-                            'bg-gray-400 cursor-not-allowed': !hasChanges,
-                        }"
-                    >
-                        Save
-                    </PrimaryButton>
-                </div>
-            </div>
-            <div>
-                <div class="max-w-7xl mx-auto py-10">
-                    <div class="mb-10"></div>
+                        <div class="mt-4 flex justify-end items-center">
+                            <span v-if="hasChanges" class="mr-3">
+                                <i
+                                    class="fa fa-exclamation-circle text-red-500"
+                                    aria-hidden="true"
+                                ></i>
+                                Remember to save your changes!
+                            </span>
+                            <PrimaryButton
+                                @click="postQuestions"
+                                :disabled="!hasChanges"
+                                class="text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
+                                :class="{
+                                    'bg-blue-600 hover:bg-blue-700 focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-800':
+                                        hasChanges,
+                                    'bg-gray-400 cursor-not-allowed':
+                                        !hasChanges,
+                                }"
+                            >
+                                Save
+                            </PrimaryButton>
+                        </div>
+                    </div>
                     <div>
-                        <Link
-                            :href="route('round.prompt.show', round)"
-                            class="text-blue-500 hover:underline"
-                        >
-                            ChatGPT Evaluation Criteria
-                        </Link>
+                        <div class="max-w-7xl mx-auto py-10">
+                            <div class="mb-10"></div>
+                            <div>
+                                <Link
+                                    :href="route('round.prompt.show', round)"
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    ChatGPT Evaluation Criteria
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

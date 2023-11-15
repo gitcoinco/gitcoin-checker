@@ -42,229 +42,261 @@ const applications = ref(usePage().props.applications.valueOf());
             </h2>
         </template>
 
-        <div>
-            <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
-                <div
-                    v-if="project.logoImg"
-                    class="mb-5 p-5 bg-gray-300"
-                    :style="{
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundImage:
-                            'url(' +
-                            pinataUrl +
-                            '/' +
-                            project.bannerImg +
-                            '?img-width=1000' +
-                            ')',
-                    }"
-                >
-                    <img
-                        :src="
-                            pinataUrl +
-                            '/' +
-                            project.logoImg +
-                            '?img-height=150'
-                        "
-                        class="mx-auto rounded-full"
-                        style="height: 150px; height: 150px; object-fit: cover"
-                    />
+        <div class="py-6">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div>
+                    <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
+                        <div
+                            v-if="project.logoImg"
+                            class="mb-5 p-5 bg-gray-300"
+                            :style="{
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundImage:
+                                    'url(' +
+                                    pinataUrl +
+                                    '/' +
+                                    project.bannerImg +
+                                    '?img-width=1000' +
+                                    ')',
+                            }"
+                        >
+                            <img
+                                :src="
+                                    pinataUrl +
+                                    '/' +
+                                    project.logoImg +
+                                    '?img-height=150'
+                                "
+                                class="mx-auto rounded-full"
+                                style="
+                                    height: 150px;
+                                    height: 150px;
+                                    object-fit: cover;
+                                "
+                            />
+                        </div>
+
+                        <div>
+                            <div v-if="project.website">
+                                <i
+                                    class="fa fa-globe mr-2"
+                                    aria-hidden="true"
+                                ></i>
+                                <a
+                                    :href="project.website"
+                                    target="_blank"
+                                    class="text-blue-500"
+                                >
+                                    {{ project.website }}
+                                </a>
+                            </div>
+                            <div v-if="project.metadata.projectTwitter">
+                                <i
+                                    class="fa fa-twitter text-blue-500 mr-2"
+                                    aria-hidden="true"
+                                ></i>
+                                <a
+                                    :href="
+                                        'https://twitter.com/' +
+                                        project.metadata.projectTwitter
+                                    "
+                                    target="_blank"
+                                    class="text-blue-500"
+                                >
+                                    {{ project.metadata.projectTwitter }}
+                                </a>
+                            </div>
+                            <div v-if="project.metadata.projectGithub">
+                                <i
+                                    class="fa fa-github mr-2"
+                                    aria-hidden="true"
+                                ></i>
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.metadata.projectGithub
+                                    "
+                                    target="_blank"
+                                    class="text-blue-500"
+                                >
+                                    {{
+                                        project.metadata.projectGithub
+                                    }}
+                                    (Project)
+                                </a>
+                            </div>
+                            <div v-if="project.metadata.userGithub">
+                                <i
+                                    class="fa fa-github mr-2"
+                                    aria-hidden="true"
+                                ></i>
+                                <a
+                                    :href="
+                                        'https://github.com/' +
+                                        project.metadata.userGithub
+                                    "
+                                    target="_blank"
+                                    class="text-blue-500"
+                                >
+                                    {{ project.metadata.userGithub }} (User)
+                                </a>
+                            </div>
+                            <div
+                                v-if="project.metadata.description"
+                                class="text-xs mt-5 markdown"
+                                v-html="
+                                    markdown.render(
+                                        project.metadata.description
+                                    )
+                                "
+                            ></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div>
-                    <div v-if="project.website">
-                        <i class="fa fa-globe mr-2" aria-hidden="true"></i>
-                        <a
-                            :href="project.website"
-                            target="_blank"
-                            class="text-blue-500"
-                        >
-                            {{ project.website }}
-                        </a>
-                    </div>
-                    <div v-if="project.metadata.projectTwitter">
-                        <i
-                            class="fa fa-twitter text-blue-500 mr-2"
-                            aria-hidden="true"
-                        ></i>
-                        <a
-                            :href="
-                                'https://twitter.com/' +
-                                project.metadata.projectTwitter
-                            "
-                            target="_blank"
-                            class="text-blue-500"
-                        >
-                            {{ project.metadata.projectTwitter }}
-                        </a>
-                    </div>
-                    <div v-if="project.metadata.projectGithub">
-                        <i class="fa fa-github mr-2" aria-hidden="true"></i>
-                        <a
-                            :href="
-                                'https://github.com/' +
-                                project.metadata.projectGithub
-                            "
-                            target="_blank"
-                            class="text-blue-500"
-                        >
-                            {{ project.metadata.projectGithub }} (Project)
-                        </a>
-                    </div>
-                    <div v-if="project.metadata.userGithub">
-                        <i class="fa fa-github mr-2" aria-hidden="true"></i>
-                        <a
-                            :href="
-                                'https://github.com/' +
-                                project.metadata.userGithub
-                            "
-                            target="_blank"
-                            class="text-blue-500"
-                        >
-                            {{ project.metadata.userGithub }} (User)
-                        </a>
-                    </div>
                     <div
-                        v-if="project.metadata.description"
-                        class="text-xs mt-5 markdown"
-                        v-html="markdown.render(project.metadata.description)"
-                    ></div>
-                </div>
-            </div>
-        </div>
+                        class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8"
+                        v-if="applications && applications.data.length > 0"
+                    >
+                        <h2 class="text-xl">All Applications</h2>
 
-        <div>
-            <div
-                class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8"
-                v-if="applications && applications.data.length > 0"
-            >
-                <h2 class="text-xl">All Applications</h2>
+                        <table class="text-sm">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>
+                                        Date
 
-                <table class="text-sm">
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>
-                                Date
+                                        <Tooltip>
+                                            <i
+                                                class="fa fa-question-circle-o"
+                                                aria-hidden="true"
+                                                title="This is the last application date for the round"
+                                            ></i>
+                                            <template #content>
+                                                Date the application was
+                                                received.
+                                            </template>
+                                        </Tooltip>
+                                    </th>
 
-                                <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="This is the last application date for the round"
-                                    ></i>
-                                    <template #content>
-                                        Date the application was received.
-                                    </template>
-                                </Tooltip>
-                            </th>
-
-                            <th>
-                                Round<span v-if="applications.data.length > 1"
-                                    >s</span
+                                    <th>
+                                        Round<span
+                                            v-if="applications.data.length > 1"
+                                            >s</span
+                                        >
+                                    </th>
+                                    <th>Eligibility</th>
+                                    <th>Prompt</th>
+                                    <!-- <th>Evaluation</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(
+                                        application, index
+                                    ) in applications.data"
+                                    :key="index"
                                 >
-                            </th>
-                            <th>Eligibility</th>
-                            <th>Prompt</th>
-                            <!-- <th>Evaluation</th> -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(application, index) in applications.data"
-                            :key="index"
-                        >
-                            <td>
-                                <span
-                                    v-html="
-                                        applicationStatusIcon(
-                                            application.status
-                                        )
-                                    "
-                                ></span>
-                            </td>
-                            <td>
-                                {{
-                                    new Date(
-                                        application.created_at
-                                    ).toLocaleDateString()
-                                }}<br />
-                                {{
-                                    new Date(
-                                        application.created_at
-                                    ).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })
-                                }}
-                            </td>
-                            <td>
-                                <Link
-                                    :href="
-                                        route('round.show', application.round)
-                                    "
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{ application.round.name }}
-                                </Link>
-                            </td>
-                            <td>
-                                <div
-                                    class="mb-2"
-                                    v-if="
-                                        application.round.metadata.eligibility
-                                    "
-                                >
-                                    <strong>Description:</strong><br />
-
-                                    <div class="text-xs">
+                                    <td>
+                                        <span
+                                            v-html="
+                                                applicationStatusIcon(
+                                                    application.status
+                                                )
+                                            "
+                                        ></span>
+                                    </td>
+                                    <td>
                                         {{
-                                            application.round.metadata
-                                                .eligibility.description
+                                            new Date(
+                                                application.created_at
+                                            ).toLocaleDateString()
+                                        }}<br />
+                                        {{
+                                            new Date(
+                                                application.created_at
+                                            ).toLocaleTimeString([], {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })
                                         }}
-                                    </div>
-                                </div>
-                                <div
-                                    v-if="
-                                        application.round.metadata.requirements
-                                    "
-                                >
-                                    <strong>Requirements:</strong><br />
-                                    <div
-                                        v-for="requirement in application.round
-                                            .metadata.eligibility.requirements"
-                                        :key="requirement"
-                                        class="text-xs"
-                                    >
-                                        {{ requirement.requirement }}
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <Link
-                                    :href="
-                                        route(
-                                            'round.application.evaluate',
-                                            application.uuid
-                                        )
-                                    "
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    Generated Prompt
-                                </Link>
-                                <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="This is the last application date for the round"
-                                    ></i>
-                                    <template #content>
-                                        The criteria that will be passed on to
-                                        ChatGPT for an evaluation.
-                                    </template>
-                                </Tooltip>
-                            </td>
-                            <!-- <td>
+                                    </td>
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route(
+                                                    'round.show',
+                                                    application.round
+                                                )
+                                            "
+                                            class="text-blue-500 hover:underline"
+                                        >
+                                            {{ application.round.name }}
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        <div
+                                            class="mb-2"
+                                            v-if="
+                                                application.round.metadata
+                                                    .eligibility
+                                            "
+                                        >
+                                            <strong>Description:</strong><br />
+
+                                            <div class="text-xs">
+                                                {{
+                                                    application.round.metadata
+                                                        .eligibility.description
+                                                }}
+                                            </div>
+                                        </div>
+                                        <div
+                                            v-if="
+                                                application.round.metadata
+                                                    .requirements
+                                            "
+                                        >
+                                            <strong>Requirements:</strong><br />
+                                            <div
+                                                v-for="requirement in application
+                                                    .round.metadata.eligibility
+                                                    .requirements"
+                                                :key="requirement"
+                                                class="text-xs"
+                                            >
+                                                {{ requirement.requirement }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route(
+                                                    'round.application.evaluate',
+                                                    application.uuid
+                                                )
+                                            "
+                                            class="text-blue-500 hover:underline"
+                                        >
+                                            Generated Prompt
+                                        </Link>
+                                        <Tooltip>
+                                            <i
+                                                class="fa fa-question-circle-o"
+                                                aria-hidden="true"
+                                                title="This is the last application date for the round"
+                                            ></i>
+                                            <template #content>
+                                                The criteria that will be passed
+                                                on to ChatGPT for an evaluation.
+                                            </template>
+                                        </Tooltip>
+                                    </td>
+                                    <!-- <td>
                                 <GptEvaluationResults
                                     :application="application"
                                     class="mb-2"
@@ -275,9 +307,11 @@ const applications = ref(usePage().props.applications.valueOf());
                                 >
                                 </HumanEvaluationResults>
                             </td> -->
-                        </tr>
-                    </tbody>
-                </table>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>

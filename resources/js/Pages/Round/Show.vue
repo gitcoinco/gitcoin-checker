@@ -157,18 +157,20 @@ function refreshApplications() {
             </div>
         </template>
 
-        <div>
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <Applications
-                    :displayFilter="false"
-                    :applications="applications"
-                    @status-changed="statusChanged"
-                    @remove-tests="removeTests"
-                    @round-type="roundType"
-                    @refresh-applications="refreshApplications"
-                    @user-rounds-changed="refreshApplications"
-                    @search-projects="searchProjects"
-                />
+        <div class="py-6">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <Applications
+                        :displayFilter="false"
+                        :applications="applications"
+                        @status-changed="statusChanged"
+                        @remove-tests="removeTests"
+                        @round-type="roundType"
+                        @refresh-applications="refreshApplications"
+                        @user-rounds-changed="refreshApplications"
+                        @search-projects="searchProjects"
+                    />
+                </div>
             </div>
         </div>
     </AppLayout>

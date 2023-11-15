@@ -58,138 +58,144 @@ if (urlParams.has("search")) {
             </h2>
         </template>
 
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            <div v-if="projects && projects.data.length > 0">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>
-                                <TextInput
-                                    v-model="searchTerm"
-                                    placeholder="Search..."
-                                    @keyup="onKeyup"
-                                />
-                            </th>
-                            <th>Website</th>
-                            <th>Twitter</th>
-                            <th>Github</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(project, index) in projects.data"
-                            :key="index"
+        <div class="py-6">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                    <div v-if="projects && projects.data.length > 0">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <TextInput
+                                            v-model="searchTerm"
+                                            placeholder="Search..."
+                                            @keyup="onKeyup"
+                                        />
+                                    </th>
+                                    <th>Website</th>
+                                    <th>Twitter</th>
+                                    <th>Github</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(project, index) in projects.data"
+                                    :key="index"
+                                >
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route('project.show', project)
+                                            "
+                                            class="text-blue-500 hover:underline"
+                                        >
+                                            {{ project.title }}
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        <a
+                                            :href="project.website"
+                                            _target="_blank"
+                                            class="text-blue-500 hover:underline"
+                                        >
+                                            {{
+                                                shortenURL(
+                                                    project.website.replace(
+                                                        "https://",
+                                                        ""
+                                                    ),
+                                                    20
+                                                )
+                                            }}
+                                        </a>
+                                    </td>
+                                    <td class="nowrap">
+                                        <span v-if="project.projectTwitter">
+                                            <a
+                                                :href="
+                                                    'https://twitter.com/' +
+                                                    project.projectTwitter
+                                                "
+                                                target="_blank"
+                                            >
+                                                <i
+                                                    class="fa fa-twitter text-blue-500"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                {{ project.projectTwitter }}
+                                            </a>
+                                        </span>
+                                    </td>
+                                    <td class="nowrap">
+                                        <a
+                                            :href="
+                                                'https://github.com/' +
+                                                project.projectGithub
+                                            "
+                                            target="_blank"
+                                            v-if="project.projectGithub"
+                                        >
+                                            <i
+                                                class="fa fa-github"
+                                                aria-hidden="true"
+                                            ></i>
+                                            {{ project.projectGithub }}
+
+                                            <Tooltip>
+                                                <i
+                                                    class="fa fa-question-circle-o"
+                                                    aria-hidden="true"
+                                                    title="This is the last application date for the round"
+                                                ></i>
+                                                <template #content>
+                                                    Project Github repository.
+                                                </template>
+                                            </Tooltip>
+                                            <br />
+                                        </a>
+                                        <a
+                                            :href="
+                                                'https://github.com/' +
+                                                project.userGithub
+                                            "
+                                            target="_blank"
+                                            v-if="project.userGithub"
+                                        >
+                                            <i
+                                                class="fa fa-github"
+                                                aria-hidden="true"
+                                            ></i>
+                                            {{ project.userGithub }}
+
+                                            <Tooltip>
+                                                <i
+                                                    class="fa fa-question-circle-o"
+                                                    aria-hidden="true"
+                                                    title="This is the last application date for the round"
+                                                ></i>
+                                                <template #content>
+                                                    User Github repository.
+                                                </template>
+                                            </Tooltip>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <Pagination :links="projects.links" />
+                    </div>
+                    <div v-else-if="searchTerm">
+                        <p>No results found for "{{ searchTerm }}"</p>
+
+                        <Link
+                            :href="route('project.index')"
+                            class="text-blue-500 hover:underline"
                         >
-                            <td>
-                                <Link
-                                    :href="route('project.show', project)"
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{ project.title }}
-                                </Link>
-                            </td>
-                            <td>
-                                <a
-                                    :href="project.website"
-                                    _target="_blank"
-                                    class="text-blue-500 hover:underline"
-                                >
-                                    {{
-                                        shortenURL(
-                                            project.website.replace(
-                                                "https://",
-                                                ""
-                                            ),
-                                            20
-                                        )
-                                    }}
-                                </a>
-                            </td>
-                            <td class="nowrap">
-                                <span v-if="project.projectTwitter">
-                                    <a
-                                        :href="
-                                            'https://twitter.com/' +
-                                            project.projectTwitter
-                                        "
-                                        target="_blank"
-                                    >
-                                        <i
-                                            class="fa fa-twitter text-blue-500"
-                                            aria-hidden="true"
-                                        ></i>
-                                        {{ project.projectTwitter }}
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="nowrap">
-                                <a
-                                    :href="
-                                        'https://github.com/' +
-                                        project.projectGithub
-                                    "
-                                    target="_blank"
-                                    v-if="project.projectGithub"
-                                >
-                                    <i
-                                        class="fa fa-github"
-                                        aria-hidden="true"
-                                    ></i>
-                                    {{ project.projectGithub }}
-
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-question-circle-o"
-                                            aria-hidden="true"
-                                            title="This is the last application date for the round"
-                                        ></i>
-                                        <template #content>
-                                            Project Github repository.
-                                        </template>
-                                    </Tooltip>
-                                    <br />
-                                </a>
-                                <a
-                                    :href="
-                                        'https://github.com/' +
-                                        project.userGithub
-                                    "
-                                    target="_blank"
-                                    v-if="project.userGithub"
-                                >
-                                    <i
-                                        class="fa fa-github"
-                                        aria-hidden="true"
-                                    ></i>
-                                    {{ project.userGithub }}
-
-                                    <Tooltip>
-                                        <i
-                                            class="fa fa-question-circle-o"
-                                            aria-hidden="true"
-                                            title="This is the last application date for the round"
-                                        ></i>
-                                        <template #content>
-                                            User Github repository.
-                                        </template>
-                                    </Tooltip>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <Pagination :links="projects.links" />
-            </div>
-            <div v-else-if="searchTerm">
-                <p>No results found for "{{ searchTerm }}"</p>
-
-                <Link
-                    :href="route('project.index')"
-                    class="text-blue-500 hover:underline"
-                >
-                    Clear Search
-                </Link>
+                            Clear Search
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
