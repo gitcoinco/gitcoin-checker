@@ -1,5 +1,8 @@
 <script setup>
 import { ref, toRefs } from "vue";
+import MarkdownIt from "markdown-it";
+const markdown = new MarkdownIt();
+
 let props = defineProps({
     application: Object,
 });
@@ -12,17 +15,21 @@ let { application } = toRefs(props);
             <h2 class="bg-gray-300 text-gray-500 pl-3 py-1 rounded mb-3">
                 System prompt:
             </h2>
-            <div class="text-sm">
-                {{ application.generated_prompt.system_prompt }}
-            </div>
+            <div
+                class="text-sm markdown"
+                v-html="
+                    markdown.render(application.generated_prompt.system_prompt)
+                "
+            ></div>
         </div>
         <div :style="{ 'white-space': 'pre-line' }" class="mb-5">
             <h2 class="bg-gray-300 text-gray-500 pl-3 py-1 rounded mb-3">
                 Prompt
             </h2>
-            <div class="text-sm">
-                {{ application.generated_prompt.prompt }}
-            </div>
+            <div
+                class="text-sm markdown"
+                v-html="markdown.render(application.generated_prompt.prompt)"
+            ></div>
         </div>
     </div>
 </template>
