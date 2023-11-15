@@ -1,7 +1,7 @@
 <script setup>
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
-import { defineProps, defineEmits, ref } from "vue";
+import { defineProps, defineEmits, ref, watch } from "vue";
 import ResultsData from "@/Components/Gitcoin/Application/ResultsData.vue";
 import UserEvaluationButton from "./UserEvaluationButton.vue";
 import { showDateInShortFormat } from "@/utils";
@@ -25,6 +25,14 @@ const showGPTResultsModal = ref(false);
 
 const busyDoingGPTEvaluation = ref(false);
 const evaluationProgress = ref(0);
+
+watch(
+    () => props.application,
+    (newVal, oldVal) => {
+        busyDoingGPTEvaluation.value = false;
+        evaluationProgress.value = 0;
+    }
+);
 
 const doGPTEvaluation = async () => {
     busyDoingGPTEvaluation.value = true;
