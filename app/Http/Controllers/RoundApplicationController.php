@@ -499,6 +499,7 @@ class RoundApplicationController extends Controller
         $githubController = new GithubController();
 
         $githubActivity = [];
+        $githubResults = '';
         if ($project->userGithub || $project->projectGithub) {
 
             if ($project->userGithub) {
@@ -507,9 +508,13 @@ class RoundApplicationController extends Controller
             if ($project->projectGithub) {
                 $githubActivity = array_merge($githubActivity, $githubController->checkGitHubActivity($project->projectGithub, true));
             }
+
+            foreach ($githubActivity as $key => $activity) {
+                $githubResults .= $key . ': ' . $activity . ' commits in the past 3 months' . PHP_EOL;
+            }
         }
         $search[] = '{{ github.recent_activity.summary }}';
-        $replace[] = implode(PHP_EOL, $githubActivity);
+        $replace[] = $githubResults;
 
         $data = [
             'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat . PHP_EOL,

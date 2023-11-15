@@ -38,10 +38,11 @@ class GithubController extends Controller
                         $commits = json_decode($commitsResponse, true);
                         foreach ($commits as $commit) {
                             if (isset($commit['commit']['committer']['date']) && strtotime($commit['commit']['committer']['date']) > $threeMonthsAgo) {
-                                curl_close($ch);
                                 $title = 'On Github.com, project ' . $identifier . ', repository ' . $repoName . ' has recent activity (within the last 3 months)';
-                                if (!in_array($title, $return)) {
-                                    $return[] = $title;
+                                if (!array_key_exists($title, $return)) {
+                                    $return[$title] = 1;
+                                } else {
+                                    $return[$title]++;
                                 }
                             }
                         }
@@ -58,10 +59,11 @@ class GithubController extends Controller
                 $events = json_decode($response, true);
                 foreach ($events as $event) {
                     if (isset($event['created_at']) && strtotime($event['created_at']) > $threeMonthsAgo) {
-                        curl_close($ch);
                         $title = 'On Github.com, user ' . $identifier . ' has recent activity (within the last 3 months)';
-                        if (!in_array($title, $return)) {
-                            $return[] = $title;
+                        if (!array_key_exists($title, $return)) {
+                            $return[$title] = 1;
+                        } else {
+                            $return[$title]++;
                         }
                     }
                 }
@@ -69,15 +71,16 @@ class GithubController extends Controller
         }
 
         curl_close($ch);
+
         if (count($return) > 0) {
             return $return;
         } else {
             if ($isProject) {
                 $title = 'On Github.com, project ' . $identifier . ' has no recent activity (within the last 3 months)';
-                $return[] = $title;
+                $return[$title] = 0;
             } else {
                 $title = 'On Github.com, user ' . $identifier . ' has no recent activity (within the last 3 months)';
-                $return[] = $title;
+                $return[$title] = 0;
             }
             return $return;
         }
