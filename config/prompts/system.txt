@@ -6,4 +6,4 @@ The "{{ round.name }}" round has an overarching set of evaluation criteria of:
 Specific eligibility criteria are:
 {{ round.eligibility.requirements }}
 
-Provide evaluations in JSON format, with each criterion scored as "Yes," "No," or "Uncertain," and include a brief reason for each score.
+Provide evaluations strictly in a JSON format, with each criteria scored as "Yes," "No," or "Uncertain," and include a brief reason for each score.  Any notes for any of the bits of criteria should be added to the "reason" field in the json.  It is very important that an array of json objects is returned with no other text.
