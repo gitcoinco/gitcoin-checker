@@ -474,6 +474,9 @@ class RoundApplicationController extends Controller
         $search[] = '{{ application.answers }}';
         $replace[] = RoundApplicationController::getApplicationAnswers($application);
 
+        $search[] = '{{ project.name }}';
+        $replace[] = $project->title;
+
         $search[] = '{{ project.details }}';
         $replace[] = RoundApplicationController::getProjectDetails($application);
 
@@ -489,9 +492,24 @@ class RoundApplicationController extends Controller
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
         foreach ($round->metadata['eligibility']['requirements'] as $key => $requirement) {
-            $requirements .= ($key + 1) . ' - ' . $requirement['requirement'] . PHP_EOL;
+            $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
         }
         $replace[] = $requirements;
+
+        $githubController = new GithubController();
+
+        $githubActivity = [];
+        if ($project->userGithub || $project->projectGithub) {
+
+            if ($project->userGithub) {
+                $githubActivity = array_merge($githubActivity, $githubController->checkGitHubActivity($project->userGithub));
+            }
+            if ($project->projectGithub) {
+                $githubActivity = array_merge($githubActivity, $githubController->checkGitHubActivity($project->projectGithub, true));
+            }
+        }
+        $search[] = '{{ github.recent_activity.summary }}';
+        $replace[] = implode(PHP_EOL, $githubActivity);
 
         $data = [
             'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat . PHP_EOL,

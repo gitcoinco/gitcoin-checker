@@ -252,6 +252,25 @@ const addAccessControl = () => {
                                 The number of historic applications the project
                                 has, together with their status
                             </div>
+                            <div class="mb-2">
+                                <span v-pre class="mr-3">{{
+                                    github.recent_activity.summary
+                                }}</span>
+                                <span
+                                    @click="
+                                        copyToClipboard(
+                                            '{{ github.recent_activity.summary }}'
+                                        )
+                                    "
+                                    class="cursor-pointer"
+                                >
+                                    <i
+                                        class="fa fa-clone"
+                                        aria-hidden="true"
+                                    ></i> </span
+                                ><br />
+                                Recent (past 3 months) Github activity.
+                            </div>
                         </div>
                     </div>
 
