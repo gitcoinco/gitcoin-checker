@@ -52,6 +52,7 @@ const refreshApplication = (application) => {
                             '?img-width=100'
                         "
                         style="width: 100px; max-width: inherit"
+                        class="mx-auto rounded-full"
                     />
                 </div>
                 <div>
