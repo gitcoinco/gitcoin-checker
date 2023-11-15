@@ -21,6 +21,8 @@ class RoundEvaluationController extends Controller
 
     public function show(Round $round)
     {
+        $round->load(['chain']);
+
         return Inertia::render('Round/Evaluation', [
             'round' => $round,
         ]);
@@ -33,7 +35,7 @@ class RoundEvaluationController extends Controller
             $questions->save();
         }
 
-        $round->load('evaluationQuestions');
+        $round->load(['evaluationQuestions', 'chain']);
 
         return Inertia::render('Round/EvaluationQA', [
             'round' => $round,

@@ -26,9 +26,14 @@ const round = ref(usePage().props.round.valueOf());
                         class="font-semibold text-xl text-gray-800 leading-tight"
                     >
                         {{ round.name }}
-                        <span class="text-sm">
-                            {{ shortenAddress(round.round_addr) }}
+                        <span class="text-sm" v-if="round?.chain?.name"
+                            >on {{ round.chain.name }}</span
+                        >
 
+                        <span class="ml-2 text-sm">
+                            (
+                            {{ shortenAddress(round.round_addr) }}
+                            )
                             <span
                                 @click="copyToClipboard(round.round_addr)"
                                 class="cursor-pointer"

@@ -59,6 +59,8 @@ class RoundPromptController extends Controller
 
         $prompt = RoundPromptController::ensurePromptExists($round);
 
+        $round->load('chain');
+
         return Inertia::render('Round/Prompt', [
             'round' => $round,
             'prompt' => $prompt,
