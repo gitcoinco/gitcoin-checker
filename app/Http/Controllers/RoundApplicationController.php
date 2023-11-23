@@ -498,19 +498,14 @@ class RoundApplicationController extends Controller
 
         $githubController = new GithubController();
 
-        $githubActivity = [];
         $githubResults = '';
         if ($project->userGithub || $project->projectGithub) {
 
             if ($project->userGithub) {
-                $githubActivity = array_merge($githubActivity, $githubController->checkGitHubActivity($project->userGithub));
+                $githubResults .= 'User Github: ' . json_encode($githubController->checkGitHubActivity($project->userGithub)) . PHP_EOL;
             }
             if ($project->projectGithub) {
-                $githubActivity = array_merge($githubActivity, $githubController->checkGitHubActivity($project->projectGithub, true));
-            }
-
-            foreach ($githubActivity as $key => $activity) {
-                $githubResults .= $key . ': ' . $activity . ' commits in the past 3 months' . PHP_EOL;
+                $githubResults .= 'Project Github: ' . json_encode($githubController->checkGitHubActivity($project->projectGithub, true)) . PHP_EOL;
             }
         }
         $search[] = '{{ github.recent_activity.summary }}';

@@ -171,22 +171,7 @@ const flagRound = async (round) => {
                             </td>
                             <td>${{ round.amount_usd }}</td>
                             <td>
-                                {{ round.chain.chain_id }}
-                                <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="Flagged rounds are rounds that have been flagged by the community as potentially fraudulent. Flagged rounds are not included in the calculation of the total amount of funding available."
-                                    ></i>
-                                    <template #content>
-                                        <div v-if="round.chain.name">
-                                            {{ round.chain.name }}
-                                        </div>
-                                        <div v-else>
-                                            Chain name has not been set
-                                        </div>
-                                    </template>
-                                </Tooltip>
+                                {{ round.chain.name }}
                             </td>
                             <td class="nowrap">
                                 <Link

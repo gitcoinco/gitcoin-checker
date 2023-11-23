@@ -205,7 +205,7 @@ const clearResult = async () => {
                                 Run GPT evaluation
                             </SecondaryButton>
                             <span v-else>
-                                <span v-if="evaluationProgress < 90">
+                                <span v-if="evaluationProgress < 100">
                                     <div
                                         class="overflow-hidden h-2 text-xs flex rounded bg-pink-200 items-center"
                                     >
