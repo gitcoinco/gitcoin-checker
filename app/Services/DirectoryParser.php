@@ -16,9 +16,7 @@ class DirectoryParser
     {
         $crawler = new Crawler($html);
 
-
-
-        $directories = $crawler->filter('#files > li:not(.header) > a')->each(function (Crawler $node) {
+        $directories = $crawler->filter('#files > li:not(.header) > a.icon-directory')->each(function (Crawler $node) {
             $name = $node->filter('.name')->text();
             $size = $node->filter('.size')->text();
             $date = $node->filter('.date')->text();
