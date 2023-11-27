@@ -174,60 +174,83 @@ const handleRoundPrompt = (round) => {
                 />
                 <label
                     for="remove-test-projects"
-                    class="ml-2 block text-sm text-gray-900"
+                    class="ml-2 block text-xs text-gray-900"
                 >
                     Remove "test" rounds
                 </label>
             </div>
-            <div class="bg-gray-200 flex p-2 rounded">
-                <div class="p-1 mr-5 pr-5 border-r border-gray-300 rounded">
-                    Show
-                    <select
-                        v-model="selectedApplicationStatusRef"
-                        class="p-1 mr-1 pr-6"
-                    >
-                        <option value="all">All</option>
-                        <option value="approved">Approved</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                    applications
-
-                    <Tooltip>
-                        <i
-                            class="fa fa-question-circle-o text-gray-400"
-                            aria-hidden="true"
-                            title="This is the last application date for the round"
-                        ></i>
-                        <template #content>
-                            The status of the application.
-                        </template>
-                    </Tooltip>
+            <div
+                class="border border-black flex justify-between border-t-0 border-l-0 border-r-0"
+            >
+                <div class="border-black mr-5 rounded">
+                    <div class="flex">
+                        <button
+                            class="p-1 mr-1 pl-3 pr-3 text-center"
+                            :class="{
+                                'bg-blue-200':
+                                    selectedApplicationStatusRef === 'pending',
+                            }"
+                            @click="selectedApplicationStatusRef = 'pending'"
+                        >
+                            Pending
+                        </button>
+                        <button
+                            class="p-1 mr-1 pl-3 pr-3 text-center"
+                            :class="{
+                                'bg-blue-200':
+                                    selectedApplicationStatusRef === 'approved',
+                            }"
+                            @click="selectedApplicationStatusRef = 'approved'"
+                        >
+                            Accepted
+                        </button>
+                        <button
+                            class="p-1 mr-1 pl-3 pr-3 text-center"
+                            :class="{
+                                'bg-blue-200':
+                                    selectedApplicationStatusRef === 'rejected',
+                            }"
+                            @click="selectedApplicationStatusRef = 'rejected'"
+                        >
+                            Rejected
+                        </button>
+                        <button
+                            class="p-1 mr-1 pl-3 pr-3 text-center"
+                            :class="{
+                                'bg-blue-200':
+                                    selectedApplicationStatusRef === 'all',
+                            }"
+                            @click="selectedApplicationStatusRef = 'all'"
+                        >
+                            All
+                        </button>
+                    </div>
                 </div>
-                <div
-                    class="flex items-center mr-5 pr-5 border-r border-gray-300"
-                >
-                    <TextInput
-                        v-model="selectedSearchProjects"
-                        @keyup.enter.prevent="searchProjects"
-                        placeholder="Search Projects"
-                        class="flex-grow p-1 mr-1"
-                    />
-                    <select
-                        v-model="selectedApplicationRoundTypeRef"
-                        class="flex-grow p-1 mr-1 pr-6"
-                    >
-                        <option value="all">All</option>
-                        <option value="mine">My Rounds</option>
-                    </select>
-                </div>
-                <div
-                    class="flex items-center"
-                    v-if="selectedApplicationRoundTypeRef == 'mine'"
-                >
-                    <SpecifyUserRounds
-                        @selected-rounds-changed="updateSelectedRounds"
-                    />
+                <div>
+                    <div class="flex items-center p-1 pl-2 pr-2 bg-gray-200">
+                        <i class="fa fa-search mr-1" aria-hidden="true"></i>
+                        <TextInput
+                            v-model="selectedSearchProjects"
+                            @keyup.enter.prevent="searchProjects"
+                            placeholder="Search projects"
+                            class="p-0 mr-1 text-sm"
+                        />
+                        <select
+                            v-model="selectedApplicationRoundTypeRef"
+                            class="flex-grow p-0 mr-1 pr-7 text-sm"
+                        >
+                            <option value="all">All</option>
+                            <option value="mine">My Rounds</option>
+                        </select>
+                        <div
+                            class="flex items-center"
+                            v-if="selectedApplicationRoundTypeRef == 'mine'"
+                        >
+                            <SpecifyUserRounds
+                                @selected-rounds-changed="updateSelectedRounds"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

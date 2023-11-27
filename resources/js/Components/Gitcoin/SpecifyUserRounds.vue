@@ -49,7 +49,6 @@ onMounted(async () => {
     <div>
         <button @click="showRounds = true" v-if="!showRounds">
             <i class="fa fa-filter mr-1" aria-hidden="true"></i>
-            Rounds Filter
         </button>
         <button @click="showRounds = false" v-if="showRounds">
             <i class="fa fa-minus-circle mr-1" aria-hidden="true"></i>Hide
