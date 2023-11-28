@@ -227,7 +227,10 @@ const handleRoundPrompt = (round) => {
                     </div>
                 </div>
                 <div>
-                    <div class="flex items-center p-1 pl-2 pr-2 bg-gray-200">
+                    <div
+                        class="flex items-center p-1 pl-2 pr-2 bg-gray-200"
+                        style="min-height: 32px"
+                    >
                         <i class="fa fa-search mr-1" aria-hidden="true"></i>
                         <TextInput
                             v-model="selectedSearchProjects"
