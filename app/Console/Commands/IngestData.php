@@ -84,37 +84,25 @@ class IngestData extends Command
     {
         $this->info('Fetching directory list...');
 
-        $directories = Cache::remember($this->cacheName . '-directories', now()->addMinutes(10), function () use ($directoryParser) {
-            $response = Http::timeout(120)->get($this->indexerUrl);
-            $json = $directoryParser->parse($response->body());
+        // Chains are hardcoded for now but should be fetched from a dynamic source
+        $chainList = [1, 10, 137, 250, 42161, 421613, 424, 5, 58008, 80001];
 
-            return json_decode($json, true);
-        });
+        foreach ($chainList as $key => $chainId) {
+            $this->info("Processing data for chain ID: {$chainId}...");
+            $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
 
-        $directories = $directories['directories'];
+            $this->info("Processing rounds data for chain ID: {$chainId}...");
+            $this->updateRounds($chain);
 
-        if ($directories) {
-            foreach ($directories as $directory) {
-                $chainId = $directory['name'];  // Assuming 'name' contains the chain ID
-
-                $this->info("Processing data for chain ID: {$chainId}...");
-                $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
-
-                $this->info("Processing rounds data for chain ID: {$chainId}...");
-                $this->updateRounds($chain);
-
-                $rounds = Round::where('chain_id', $chain->id)->get();
-                foreach ($rounds as $round) {
-                    $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
-                    $this->updateProjects($round);
-                }
-                foreach ($rounds as $round) {
-                    $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
-                    $this->updateApplications($round);
-                }
+            $rounds = Round::where('chain_id', $chain->id)->get();
+            foreach ($rounds as $round) {
+                $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
+                $this->updateProjects($round);
             }
-        } else {
-            $this->info("No directories available");
+            foreach ($rounds as $round) {
+                $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
+                $this->updateApplications($round);
+            }
         }
     }
 
