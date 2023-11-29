@@ -17,7 +17,8 @@ use App\Services\DirectoryParser;
 use Exception;
 use \PsychoB\Ethereum\AddressValidator;
 use Illuminate\Support\Str;
-use kornrunner\Keccak;
+use App\Services\AddressService;
+use App\Services\DateService;
 
 class IngestData extends Command
 {
@@ -33,7 +34,7 @@ class IngestData extends Command
      *
      * @var string
      */
-    protected $description = 'Ingest data from the specified URL and populate the database';
+    protected $description = 'Ingest data from the specified indexer URL and populate the database';
 
     protected $cacheName = 'ingest-cache';
 
@@ -138,7 +139,7 @@ class IngestData extends Command
 
         if ($donationsData && count($donationsData) > 0) {
             foreach ($donationsData as $key => $donation) {
-                $projectId = $this->getAddress($donation['projectId']);
+                $projectId = AddressService::getAddress($donation['projectId']);
                 $project = Project::where('id_addr', $projectId)->first();
 
                 if ($project) {
@@ -148,8 +149,8 @@ class IngestData extends Command
                             'application_id' => $donation['applicationId'],
                             'round_id' => $round->id,
                             'amount_usd' => $donation['amountUSD'],
-                            'voter_addr' => $this->getAddress($donation['voter']),
-                            'grant_addr' => $this->getAddress($donation['grantAddress']),
+                            'voter_addr' => AddressService::getAddress($donation['voter']),
+                            'grant_addr' => AddressService::getAddress($donation['grantAddress']),
                             'block_number' => $donation['blockNumber'],
                         ]
                     );
@@ -179,14 +180,14 @@ class IngestData extends Command
 
         if ($projectData && count($projectData) > 0) {
             foreach ($projectData as $key => $data) {
-                $projectAddress = $this->getAddress($data['id']);
+                $projectAddress = AddressService::getAddress($data['id']);
                 $owners = $data['owners'];
                 $project = Project::where('id_addr', $projectAddress)->first();
 
                 if ($project && count($owners)) {
                     // Loop through and add all the owners
                     foreach ($owners as $ownerAddress) {
-                        $ownerAddress = $this->getAddress($ownerAddress);
+                        $ownerAddress = AddressService::getAddress($ownerAddress);
                         $project->owners()->updateOrCreate(
                             ['eth_addr' => $ownerAddress, 'project_id' => $project->id],
                         );
@@ -196,21 +197,7 @@ class IngestData extends Command
         }
     }
 
-    // Some dates appear to be in seconds while others are in milliseconds.  Deal with it.
-    private function dateTimeConverter($datetime)
-    {
-        try {
-            if (strlen($datetime) == 10) {
-                return date('Y-m-d H:i:s.v', $datetime);
-            } else {
-                // slice the last 3 zeros off
-                $datetime = substr($datetime, 0, -3);
-                return date('Y-m-d H:i:s.v', $datetime);
-            }
-        } catch (\Throwable $th) {
-            return null;
-        }
-    }
+
 
     private function updateRounds($chain)
     {
@@ -236,7 +223,7 @@ class IngestData extends Command
                 $this->info($roundData['applicationsStartTime']);
 
                 $round = Round::updateOrCreate(
-                    ['round_addr' => $this->getAddress($roundData['id']), 'chain_id' => $chain->id],
+                    ['round_addr' => AddressService::getAddress($roundData['id']), 'chain_id' => $chain->id],
                     [
                         'amount_usd' => $roundData['amountUSD'],
                         'votes' => $roundData['votes'],
@@ -244,10 +231,10 @@ class IngestData extends Command
                         'match_amount' => $roundData['matchAmount'],
                         'match_amount_usd' => $roundData['matchAmountUSD'],
                         'unique_contributors' => $roundData['uniqueContributors'],
-                        'applications_start_time' => $this->dateTimeConverter($roundData['applicationsStartTime']),
-                        'applications_end_time' => $this->dateTimeConverter($roundData['applicationsEndTime']),
-                        'round_start_time' => $this->dateTimeConverter($roundData['roundStartTime']),
-                        'round_end_time' => $this->dateTimeConverter($roundData['roundEndTime']),
+                        'applications_start_time' => DateService::dateTimeConverter($roundData['applicationsStartTime']),
+                        'applications_end_time' => DateService::dateTimeConverter($roundData['applicationsEndTime']),
+                        'round_start_time' => DateService::dateTimeConverter($roundData['roundStartTime']),
+                        'round_end_time' => DateService::dateTimeConverter($roundData['roundEndTime']),
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
                         'metadata' => $roundData['metadata'],
@@ -351,7 +338,7 @@ class IngestData extends Command
                     }
 
                     $project = Project::updateOrCreate(
-                        ['id_addr' => $this->getAddress($data['projectId'])],
+                        ['id_addr' => AddressService::getAddress($data['projectId'])],
                         [
                             'created_at' => $createdAt,
                             'title' => isset($projectData['title']) ? $projectData['title'] : null,
@@ -418,7 +405,7 @@ class IngestData extends Command
                 }
 
                 $roundApplication = RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => $this->getAddress($data['projectId'])]
+                    ['round_id' => $round->id, 'project_addr' => AddressService::getAddress($data['projectId'])]
                 );
 
                 $roundApplication->update([
@@ -439,42 +426,5 @@ class IngestData extends Command
                 }
             }
         }
-    }
-
-
-    function getAddress($address)
-    {
-        if (Str::length($address) !== 42) {
-            return $address;
-        }
-
-        // Remove any leading '0x'
-        if (strpos($address, '0x') === 0) {
-            $address = substr($address, 2);
-        }
-
-        // Ensure the address is 40 characters long (20 bytes)
-        if (strlen($address) !== 40) {
-            throw new Exception("Invalid address length");
-        }
-
-        // Convert the address to lowercase
-        $address = strtolower($address);
-
-        // Calculate the keccak256 hash of the address
-        $hash = Keccak::hash($address, 256);
-
-        // Initialize an empty checksum address
-        $checksumAddress = '0x';
-
-        // Iterate over each character in the original address
-        for ($i = 0; $i < 40; $i++) {
-            // If the ith bit of the hash is 1, uppercase the ith character, otherwise leave it as is
-            $checksumAddress .= (hexdec($hash[$i]) >= 8)
-                ? strtoupper($address[$i])
-                : $address[$i];
-        }
-
-        return $checksumAddress;
     }
 }
