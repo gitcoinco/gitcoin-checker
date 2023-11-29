@@ -128,10 +128,15 @@ class IngestData extends Command
             $url = "{$this->indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/votes.json";
 
             $response = Http::timeout(120)->get($url);
+            if ($response->status() === 404) {
+                $this->error("404 Not Found for URL: $url");
+                return;
+            }
+
             return json_decode($response->body(), true);
         });
 
-        if (count($donationsData) > 0) {
+        if ($donationsData && count($donationsData) > 0) {
             foreach ($donationsData as $key => $donation) {
                 $projectId = $this->getAddress($donation['projectId']);
                 $project = Project::where('id_addr', $projectId)->first();
@@ -161,7 +166,14 @@ class IngestData extends Command
         $indexerUrl = $this->indexerUrl;
 
         $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/projects.json");
+            $url = "{$this->indexerUrl}/{$chain->chain_id}/projects.json";
+            $response = Http::timeout(120)->get($url);
+
+            if ($response->status() === 404) {
+                $this->error("404 Not Found for URL: $url");
+                return;
+            }
+
             return json_decode($response->body(), true);
         });
 
@@ -205,7 +217,14 @@ class IngestData extends Command
 
         $indexerUrl = $this->indexerUrl;
         $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/rounds.json");
+            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds.json";
+            $response = Http::timeout(120)->get($url);
+
+            if ($response->status() === 404) {
+                $this->error("404 Not Found for URL: $url");
+                return;
+            }
+
             return json_decode($response->body(), true);
         });
 
@@ -304,6 +323,12 @@ class IngestData extends Command
         $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($chain, $round) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
             $response = Http::timeout(120)->get($url);
+
+            if ($response->status() === 404) {
+                $this->error("404 Not Found for URL: $url");
+                return;
+            }
+
             return json_decode($response->body(), true);
         });
 
@@ -350,7 +375,14 @@ class IngestData extends Command
         $chain = $round->chain;
 
         $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
-            $response = Http::timeout(120)->get("{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json");
+            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
+            $response = Http::timeout(120)->get($url);
+
+            if ($response->status() === 404) {
+                $this->error("404 Not Found for URL: $url");
+                return;
+            }
+
             return json_decode($response->body(), true);
         });
 
