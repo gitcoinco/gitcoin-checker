@@ -20,6 +20,10 @@ use Illuminate\Support\Str;
 use App\Services\AddressService;
 use App\Services\DateService;
 use App\Services\HashService;
+use Web3\Web3;
+use Web3\Contract;
+
+
 
 class IngestData extends Command
 {
@@ -64,6 +68,12 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
+        // $rounds = Round::all();
+        // foreach ($rounds as $round) {
+        //     $this->updateMatchFunding($round);
+        // }
+
+        // die('done');
 
         $startTime = microtime(true);
 
@@ -90,7 +100,7 @@ class IngestData extends Command
         $this->info('Fetching directory list...');
 
         // Chains are hardcoded for now but should be fetched from a dynamic source
-        $chainList = [1, 10, 137, 250, 42161, 421613, 424, 58008, 80001];
+        $chainList = [1, 10, 137, 250, 42161, 424];
 
         foreach ($chainList as $key => $chainId) {
             $this->info("Processing data for chain ID: {$chainId}...");
@@ -127,6 +137,14 @@ class IngestData extends Command
         }
     }
 
+
+
+    // private function updateMatchFunding(Round $round)
+    // {
+    //     dd(AddressService::getContractMatchAmount('0x8de918F0163b2021839A8D84954dD7E8e151326D'));
+
+    //     dd(AddressService::getContractABI($round->round_addr));
+    // }
 
     private function updateDonations(Round $round)
     {
