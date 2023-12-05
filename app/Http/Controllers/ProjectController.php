@@ -35,11 +35,13 @@ class ProjectController extends Controller
             },
             'results' => function ($query) {
                 $query->orderBy('id', 'desc');
-            }
-        ])->paginate();
+            },
 
+        ])
+            ->withSum('applicationDonations', 'amount_usd')
+            ->paginate();
 
-
+        $project->loadSum('projectDonations', 'amount_usd');
         return Inertia::render('Project/Show', [
             'project' => $project,
             'applications' => $applications

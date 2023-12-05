@@ -24,6 +24,14 @@ class RoundApplication extends Model
         'created_at',
     ];
 
+
+
+    public function applicationDonations()
+    {
+        return $this->hasMany(ProjectDonation::class, 'internal_application_id', 'id');
+    }
+
+
     public function round()
     {
         return $this->belongsTo(Round::class);

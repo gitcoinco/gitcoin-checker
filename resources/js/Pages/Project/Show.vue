@@ -120,9 +120,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     target="_blank"
                                     class="text-blue-500"
                                 >
-                                    {{
-                                        project.metadata.projectGithub
-                                    }}
+                                    {{ project.metadata.projectGithub }}
                                     (Project)
                                 </a>
                             </div>
@@ -160,6 +158,15 @@ const applications = ref(usePage().props.applications.valueOf());
                         class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8"
                         v-if="applications && applications.data.length > 0"
                     >
+                        <div class="mb-3">
+                            Total project funding: ${{
+                                project.project_donations_sum_amount_usd
+                            }}<br />
+                            <div class="italic text-gray-500 text-xs">
+                                Under development: Estimate
+                            </div>
+                        </div>
+
                         <h2 class="text-xl">All Applications</h2>
 
                         <table class="text-sm">
@@ -190,6 +197,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     </th>
                                     <th>Eligibility</th>
                                     <th>Prompt</th>
+                                    <th>User Funding</th>
                                     <!-- <th>Evaluation</th> -->
                                 </tr>
                             </thead>
@@ -201,6 +209,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     :key="index"
                                 >
                                     <td>
+                                        {{ application.id }} -
                                         <span
                                             v-html="
                                                 applicationStatusIcon(
@@ -296,6 +305,24 @@ const applications = ref(usePage().props.applications.valueOf());
                                             </template>
                                         </Tooltip>
                                     </td>
+
+                                    <td>
+                                        <span
+                                            v-if="
+                                                application.application_donations_sum_amount_usd
+                                            "
+                                        >
+                                            ${{
+                                                application.application_donations_sum_amount_usd
+                                            }}
+                                        </span>
+                                        <div
+                                            class="italic text-gray-500 text-xs"
+                                        >
+                                            Under development: Estimate
+                                        </div>
+                                    </td>
+
                                     <!-- <td>
                                 <GptEvaluationResults
                                     :application="application"

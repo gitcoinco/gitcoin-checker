@@ -19,6 +19,7 @@ use \PsychoB\Ethereum\AddressValidator;
 use Illuminate\Support\Str;
 use App\Services\AddressService;
 use App\Services\DateService;
+use App\Services\HashService;
 
 class IngestData extends Command
 {
@@ -42,6 +43,8 @@ class IngestData extends Command
 
     protected $blockTimeService;
 
+    protected $httpTimeout = 120000;
+
     /**
      * Create a new command instance.
      *
@@ -61,6 +64,7 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
+
         $startTime = microtime(true);
 
         $longRunning = $this->option('longRunning') ?? false;
@@ -86,7 +90,7 @@ class IngestData extends Command
         $this->info('Fetching directory list...');
 
         // Chains are hardcoded for now but should be fetched from a dynamic source
-        $chainList = [1, 10, 137, 250, 42161, 421613, 424, 5, 58008, 80001];
+        $chainList = [1, 10, 137, 250, 42161, 421613, 424, 58008, 80001];
 
         foreach ($chainList as $key => $chainId) {
             $this->info("Processing data for chain ID: {$chainId}...");
@@ -117,18 +121,19 @@ class IngestData extends Command
 
             $rounds = Round::where('chain_id', $chain->id)->get();
             foreach ($rounds as $round) {
-                $this->info("Processing donations data for chain ID: {$chain->chain_id}...");
+                $this->info("Processing donations data for chain ID: {$chain->chain_id}, round ID: {$round->id}...");
                 $this->updateDonations($round);
             }
         }
     }
+
 
     private function updateDonations(Round $round)
     {
         $donationsData = Cache::remember($this->cacheName . "-votes_data{$round->id}", now()->addMinutes(10), function () use ($round) {
             $url = "{$this->indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/votes.json";
 
-            $response = Http::timeout(120)->get($url);
+            $response = Http::timeout($this->httpTimeout)->get($url);
             if ($response->status() === 404) {
                 $this->error("404 Not Found for URL: $url");
                 return;
@@ -137,16 +142,32 @@ class IngestData extends Command
             return json_decode($response->body(), true);
         });
 
+        $hash = HashService::hashMultidimensionalArray($donationsData);
+        $cacheName = $this->cacheName . "-updateDonations({$round->id})-hash";
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Donations data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
+
         if ($donationsData && count($donationsData) > 0) {
             foreach ($donationsData as $key => $donation) {
-                $projectId = AddressService::getAddress($donation['projectId']);
-                $project = Project::where('id_addr', $projectId)->first();
 
-                if ($project) {
-                    $project->donations()->updateOrCreate(
+                $projectAddr = AddressService::getAddress($donation['projectId']);
+                $project = Project::where('id_addr', $projectAddr)->first();
+
+                // Find the application this belongs to
+                $application = RoundApplication::where('round_id', $round->id)
+                    ->where('project_addr', $projectAddr)
+                    ->where('application_id', $donation['applicationId'])
+                    ->first();
+
+                if ($project && $application) {
+                    $project->projectDonations()->updateOrCreate(
                         ['transaction_addr' => $donation['id']],
                         [
                             'application_id' => $donation['applicationId'],
+                            'internal_application_id' => $application->id,
                             'round_id' => $round->id,
                             'amount_usd' => $donation['amountUSD'],
                             'voter_addr' => AddressService::getAddress($donation['voter']),
@@ -156,6 +177,8 @@ class IngestData extends Command
                     );
                 }
             }
+
+            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -168,7 +191,7 @@ class IngestData extends Command
 
         $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/projects.json";
-            $response = Http::timeout(120)->get($url);
+            $response = Http::timeout($this->httpTimeout)->get($url);
 
             if ($response->status() === 404) {
                 $this->error("404 Not Found for URL: $url");
@@ -177,6 +200,15 @@ class IngestData extends Command
 
             return json_decode($response->body(), true);
         });
+
+        $hash = HashService::hashMultidimensionalArray($projectData);
+        $cacheName = $this->cacheName . "-updateProjectOwnersForChain({$chain->id})-hash";
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Project owners data for chain {$chain->id} has not changed. Skipping...");
+            return;
+        }
+
 
         if ($projectData && count($projectData) > 0) {
             foreach ($projectData as $key => $data) {
@@ -194,6 +226,8 @@ class IngestData extends Command
                     }
                 }
             }
+
+            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -201,11 +235,10 @@ class IngestData extends Command
 
     private function updateRounds($chain)
     {
-
         $indexerUrl = $this->indexerUrl;
         $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds.json";
-            $response = Http::timeout(120)->get($url);
+            $response = Http::timeout($this->httpTimeout)->get($url);
 
             if ($response->status() === 404) {
                 $this->error("404 Not Found for URL: $url");
@@ -214,6 +247,14 @@ class IngestData extends Command
 
             return json_decode($response->body(), true);
         });
+
+        $hash = HashService::hashMultidimensionalArray($roundsData);
+        $cacheName = $this->cacheName . "-updateRounds({$chain->id})-hash";
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Rounds data for chain {$chain->id} has not changed. Skipping...");
+            return;
+        }
 
         if (is_array($roundsData)) {
             foreach ($roundsData as $roundData) {
@@ -298,6 +339,8 @@ class IngestData extends Command
                     $round->save();
                 }
             }
+
+            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -309,7 +352,7 @@ class IngestData extends Command
 
         $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($chain, $round) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-            $response = Http::timeout(120)->get($url);
+            $response = Http::timeout($this->httpTimeout)->get($url);
 
             if ($response->status() === 404) {
                 $this->error("404 Not Found for URL: $url");
@@ -318,6 +361,15 @@ class IngestData extends Command
 
             return json_decode($response->body(), true);
         });
+
+        $hash = HashService::hashMultidimensionalArray($applicationData);
+        $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Projects data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
+
 
         if ($applicationData && count($applicationData) > 0) {
 
@@ -354,6 +406,8 @@ class IngestData extends Command
                     );
                 }
             }
+
+            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -363,7 +417,7 @@ class IngestData extends Command
 
         $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
             $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-            $response = Http::timeout(120)->get($url);
+            $response = Http::timeout($this->httpTimeout)->get($url);
 
             if ($response->status() === 404) {
                 $this->error("404 Not Found for URL: $url");
@@ -373,7 +427,13 @@ class IngestData extends Command
             return json_decode($response->body(), true);
         });
 
+        $hash = HashService::hashMultidimensionalArray($applicationData);
+        $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
 
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Applications data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
 
         if ($applicationData && count($applicationData) > 0) {
 
@@ -425,6 +485,8 @@ class IngestData extends Command
                     $round->save();
                 }
             }
+
+            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 }
