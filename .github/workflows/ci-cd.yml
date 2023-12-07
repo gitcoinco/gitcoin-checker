@@ -67,6 +67,10 @@ jobs:
         run: |
           rsync -av -e "ssh -i ~/.ssh/id_rsa" --delete . ubuntu@checker.gitcoin.co:/var/www/checker/deploying.checker.gitcoin.co
 
+      - name: Install Node.js production dependencies
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co/node_app && npm install --production"
+
       - name: Build assets
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install && php artisan optimize && npm install && npm run build"
@@ -82,6 +86,10 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+
+      - name: Restart Node.js application
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "pm2 restart node_app"
 
   data-import:
     if: github.ref == 'refs/heads/main'
