@@ -11,6 +11,10 @@ down:
 in:
 	docker exec -it checker.php /bin/bash
 
+.PHONY: in-node
+in-node:
+	docker exec -it nodejs_app /bin/bash
+
 .PHONY: test
 test:
 	./vendor/bin/phpunit

@@ -49,6 +49,19 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+
+    nodejs:
+        container_name: nodejs_app
+        image: node:18
+        working_dir: /app
+        volumes:
+            - './node_app:/app'
+        ports:
+            - '3000:3000'
+        networks:
+            - sail
+        command: npm run dev
+
 networks:
     sail:
         driver: bridge
