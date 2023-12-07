@@ -69,7 +69,7 @@ jobs:
 
       - name: Install Node.js production dependencies
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co/node_app && npm install --production"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/deploying.checker.gitcoin.co/node_app && npm install --production"
 
       - name: Build assets
         run: |
