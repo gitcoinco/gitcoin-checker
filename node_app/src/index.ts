@@ -1,14 +1,14 @@
 import express from "express";
 import {
-    ApplicationStatus,
     MatchingStatsData,
     PayoutToken,
     ProjectApplication,
     Round,
 } from "./types";
 import { ethers } from "ethers";
-import { ChainId, formatAmount, payoutTokens } from "./utils";
+import { ChainId, payoutTokens } from "./utils";
 import {
+    fetchMatchingDistribution,
     fetchPayoutTokenPrice,
     getProjectsApplications,
     getRoundById,
@@ -83,21 +83,44 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         roundData = { ...data, matchingPoolUSD, rate, matchingFundPayoutToken };
 
-        // applications data
-        applications = await getProjectsApplications(roundId, chainId);
+        // applications data from indexer
+        const allApplications = await getProjectsApplications(roundId, chainId);
         if (!applications) throw new Error("No applications");
 
-        let totalAmountUSD = 0;
-        for (let application of applications) {
-            if (
-                application.projectId === projectId &&
-                application.roundId === roundId
-            ) {
-                totalAmountUSD += application.amountUSD;
-            }
-        }
+        // matching data
+        const matchingData = await fetchMatchingDistribution(
+            roundId,
+            signerOrProvider,
+            roundData.matchingFundPayoutToken,
+            roundData.matchingPoolUSD,
+        );
 
-        res.json({ totalAmountUSD: totalAmountUSD });
+        // add .matchingData to applications
+        applications = allApplications?.map((app) => {
+            const projectMatchingData = matchingData?.find(
+                (data) => data.projectId == app.projectId,
+            );
+            return {
+                ...app,
+                matchingData: projectMatchingData,
+            };
+        });
+
+        // find the project
+        const project = applications?.find(
+            (application) =>
+                application.projectId == projectId &&
+                application.roundId === roundId,
+        );
+        if (!project) throw new Error("Project not found");
+        if (!project.matchingData?.matchAmountUSD)
+            throw new Error("No matching data for this project");
+
+        // total amount = crowdfunded USD + matched USD
+        const totalAmountUSD =
+            project.amountUSD + project.matchingData.matchAmountUSD;
+
+        res.json({ totalAmountUSD });
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
