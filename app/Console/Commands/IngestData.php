@@ -140,6 +140,10 @@ class IngestData extends Command
 
     private function updateApplicationFunding(RoundApplication $application)
     {
+        if ($application->donor_amount_usd && $application->match_amount_usd) {
+            $this->info("Application id: {$application->id} already has donor_amount_usd set. Skipping...");
+            return;
+        }
         $this->info("Processing application id: {$application->id}");
 
         $round = $application->round;
@@ -153,7 +157,11 @@ class IngestData extends Command
 
         $url = $nodeAppUrl . ":3000/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
         $response = Http::get($url);
-        $match_usd = $response->json()['totalAmountUSD'];
+        $data = $response->json();
+        $match_usd = null;
+        if (isset($data['totalAmountUSD'])) {
+            $match_usd = $data['totalAmountUSD'];
+        }
 
         $application->donor_amount_usd = $donor_usd;
         $application->match_amount_usd = $match_usd;
