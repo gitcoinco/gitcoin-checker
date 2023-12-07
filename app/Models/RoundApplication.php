@@ -22,6 +22,9 @@ class RoundApplication extends Model
         'approved_at',
         'rejected_at',
         'created_at',
+        'updated_at',
+        'donor_amount_usd',
+        'match_amount_usd',
     ];
 
 

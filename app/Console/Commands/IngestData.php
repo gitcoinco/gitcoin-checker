@@ -68,14 +68,9 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
-        // $rounds = Round::all();
-        // foreach ($rounds as $round) {
-        //     $this->updateMatchFunding($round);
-        // }
-
-        // die('done');
 
         $startTime = microtime(true);
+
 
         $longRunning = $this->option('longRunning') ?? false;
 
@@ -119,6 +114,12 @@ class IngestData extends Command
                 $this->updateApplications($round);
             }
         }
+
+        $this->info('Fetching application funding data...');
+        $applications = RoundApplication::whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
+        foreach ($applications as $application) {
+            $this->updateApplicationFunding($application);
+        }
     }
 
     // Split the long running tasks into a separate function so we can run them in the background
@@ -137,14 +138,29 @@ class IngestData extends Command
         }
     }
 
+    private function updateApplicationFunding(RoundApplication $application)
+    {
+        $this->info("Processing application id: {$application->id}");
 
+        $round = $application->round;
+        $chain = $round->chain;
 
-    // private function updateMatchFunding(Round $round)
-    // {
-    //     dd(AddressService::getContractMatchAmount('0x8de918F0163b2021839A8D84954dD7E8e151326D'));
+        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'amount_usd')->first();
 
-    //     dd(AddressService::getContractABI($round->round_addr));
-    // }
+        $donor_usd = $application->application_donations_sum_amount_usd;
+
+        $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
+
+        $url = $nodeAppUrl . ":3000/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
+        $response = Http::get($url);
+        $match_usd = $response->json()['totalAmountUSD'];
+
+        $application->donor_amount_usd = $donor_usd;
+        $application->match_amount_usd = $match_usd;
+        $application->save();
+
+        $this->info("Successfully updated application id: {$application->id}");
+    }
 
     private function updateDonations(Round $round)
     {
