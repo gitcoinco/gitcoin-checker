@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ProjectDonation;
+use App\Models\RoundApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -50,11 +52,49 @@ class ProjectController extends Controller
 
     public function indexPublic($search = null)
     {
-        $projects = Project::orderBy('id', 'desc')->paginate();
+        $cacheName = 'ProjectController()->indexPublic()';
+        //        $projects = Project::orderBy('id', 'desc')->paginate();
+
+        $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', 60, function () {
+            return RoundApplication::sum('donor_amount_usd');
+        });
+        $totalMatchAmountUSD = Cache::remember($cacheName . '->totalMatchAmountUSD', 60, function () {
+            return RoundApplication::sum('match_amount_usd');
+        });
+        $totalUniqueDonors = Cache::remember($cacheName . '->totalUniqueDonors', 60, function () {
+            return ProjectDonation::distinct('voter_addr')->count('voter_addr');
+        });
+
+        // Let's put one project in the spotlight.  Look for projects that have received over $500 of donor and match contributions
+        $spotlightProject = Cache::remember($cacheName . '->spotlightProject', 5, function () {
+            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
+            return $application->project()->first();
+        });
+
+        $spotlightProjectTotalDonorAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalDonorAmountUSD', 5, function () use ($spotlightProject) {
+            return $spotlightProject->applications()->sum('donor_amount_usd');
+        });
+
+        $spotlightProjectTotalMatchAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalMatchAmountUSD', 5, function () use ($spotlightProject) {
+            return $spotlightProject->applications()->sum('match_amount_usd');
+        });
+
+        $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', 5, function () use ($spotlightProject) {
+            return $spotlightProject->projectDonations()->distinct('voter_addr')->count('voter_addr');
+        });
+
 
         return view('public.project.index', [
-            'projects' => $projects,
+            //            'projects' => $projects,
             'canLogin' => true,
+            'totalDonorAmountUSD' => $totalDonorAmountUSD,
+            'totalMatchAmountUSD' => $totalMatchAmountUSD,
+            'totalUniqueDonors' => $totalUniqueDonors,
+            'spotlightProject' => $spotlightProject,
+            'spotlightProjectTotalDonorAmountUSD' => $spotlightProjectTotalDonorAmountUSD,
+            'spotlightProjectTotalMatchAmountUSD' => $spotlightProjectTotalMatchAmountUSD,
+            'spotlightProjectUniqueDonors' => $spotlightProjectUniqueDonors,
+            'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
         ]);
     }
 
@@ -116,13 +156,26 @@ class ProjectController extends Controller
             $descriptionHTML = $converter->convertToHTML($project->description)->getContent();
         }
 
-        $totalDonationsReceived = $project->donations()->sum('amount_usd');
+        $totalProjectDonorAmount = 0;
+        $totalProjectDonorContributionsCount = 0;
+        $totalProjectMatchAmount = 0;
+
+        foreach ($applications as $application) {
+            $totalProjectDonorAmount += $application->donor_amount_usd;
+            $totalProjectDonorContributionsCount += $application->donor_contributions_count;
+            $totalProjectMatchAmount += $application->match_amount_usd;
+        }
+
+
+        $totalDonationsReceived = $project->projectDonations()->sum('amount_usd');
 
         return view('public.project.show', [
             'project' => $project,
             'applications' => $applications,
             'descriptionHTML' => $descriptionHTML,
-            'totalDonationsReceived' => $totalDonationsReceived,
+            'totalProjectDonorAmount' => $totalProjectDonorAmount,
+            'totalProjectDonorContributionsCount' => $totalProjectDonorContributionsCount,
+            'totalProjectMatchAmount' => $totalProjectMatchAmount,
         ]);
     }
 }

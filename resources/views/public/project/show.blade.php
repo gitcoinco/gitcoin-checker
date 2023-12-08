@@ -20,9 +20,14 @@
             <div class="card-body">
                 <h1 class="card-title">{{ $project->title }}</h1>
 
-                @if($totalDonationsReceived > 0)
+                @if($totalProjectDonorAmount > 0)
                 <h2>
-                    ${{ $totalDonationsReceived }} in donations received
+                    ${{ $totalProjectDonorAmount }} in donations received from donors
+                </h2>
+                @endif
+                @if($totalProjectMatchAmount > 0)
+                <h2>
+                    ${{ $totalProjectMatchAmount }} in donations received from match pools
                 </h2>
                 @endif
 
