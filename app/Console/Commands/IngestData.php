@@ -154,7 +154,7 @@ class IngestData extends Command
 
         $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
 
-        $url = $nodeAppUrl . ":3000/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
+        $url = $nodeAppUrl . "/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
 
 
         $response = null;
