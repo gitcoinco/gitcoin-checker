@@ -159,8 +159,14 @@ class IngestData extends Command
         $response = Http::get($url);
         $data = $response->json();
         $match_usd = null;
-        if (isset($data['totalAmountUSD'])) {
-            $match_usd = $data['totalAmountUSD'];
+
+        // We can get donor amount from the node app as well if needed
+        // $donor_usd = null;
+        // if (isset($data['donorAmountUSD'])) {
+        //     $donor_usd = $data['donorAmountUSD'];
+        // }
+        if (isset($data['matchAmountUSD'])) {
+            $match_usd = $data['matchAmountUSD'];
         }
 
         $application->donor_amount_usd = $donor_usd;
