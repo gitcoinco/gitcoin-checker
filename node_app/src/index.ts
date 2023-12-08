@@ -122,6 +122,7 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         res.json({
             donorAmountUSD: project.amountUSD,
+            donorContributionsCount: project.matchingData.contributionsCount,
             matchAmountUSD: project.matchingData.matchAmountUSD,
         });
     } catch (err) {

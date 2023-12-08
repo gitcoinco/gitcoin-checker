@@ -151,25 +151,54 @@ class IngestData extends Command
 
         $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'amount_usd')->first();
 
-        $donor_usd = $application->application_donations_sum_amount_usd;
 
         $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
 
         $url = $nodeAppUrl . ":3000/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
-        $response = Http::get($url);
-        $data = $response->json();
+
+
+        $response = null;
+        $attempts = 0;
+        while ($attempts < 5) {
+            try {
+                $response = Http::get($url);
+                if ($response->successful()) {
+                    break;
+                }
+            } catch (\Exception $e) {
+                $this->error("Attempt {$attempts} to get data from {$url} failed. Retrying...");
+            }
+            $attempts++;
+        }
+
+        if ($response && $response->successful()) {
+            $data = $response->json();
+            Cache::put($url, $data, now()->addMinutes(10));
+        } else {
+            $data = Cache::get($url);
+            if (!$data) {
+                $this->error("Failed to get data from {$url} after 5 attempts.");
+            }
+        }
+
+
         $match_usd = null;
 
-        // We can get donor amount from the node app as well if needed
-        // $donor_usd = null;
-        // if (isset($data['donorAmountUSD'])) {
-        //     $donor_usd = $data['donorAmountUSD'];
-        // }
+        // We can get donor amount from the node app as well if needed, but let's use the contract if it's available
+        $donor_usd = $application->application_donations_sum_amount_usd;
+        $donor_contributions_count = 0;
+        if (isset($data['donorAmountUSD'])) {
+            $donor_usd = $data['donorAmountUSD'];
+        }
         if (isset($data['matchAmountUSD'])) {
             $match_usd = $data['matchAmountUSD'];
         }
+        if (isset($data['donorContributionsCount'])) {
+            $donor_contributions_count = $data['donorContributionsCount'];
+        }
 
         $application->donor_amount_usd = $donor_usd;
+        $application->donor_contributions_count = $donor_contributions_count;
         $application->match_amount_usd = $match_usd;
         $application->save();
 

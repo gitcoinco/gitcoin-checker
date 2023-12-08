@@ -25,6 +25,7 @@ class RoundApplication extends Model
         'updated_at',
         'donor_amount_usd',
         'match_amount_usd',
+        'donor_contributions_count',
     ];
 
 
