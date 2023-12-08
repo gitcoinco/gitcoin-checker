@@ -85,7 +85,7 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         // applications data from indexer
         const allApplications = await getProjectsApplications(roundId, chainId);
-        if (!applications) throw new Error("No applications");
+        if (!allApplications) throw new Error("No applications");
 
         // matching data
         const matchingData = await fetchMatchingDistribution(
@@ -120,7 +120,10 @@ app.get("/get-match-pool-amount", async (req, res) => {
         const totalAmountUSD =
             project.amountUSD + project.matchingData.matchAmountUSD;
 
-        res.json({ totalAmountUSD });
+        res.json({
+            donorAmountUSD: project.amountUSD,
+            matchAmountUSD: project.matchingData.matchAmountUSD,
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
