@@ -68,20 +68,31 @@ class ProjectController extends Controller
         // Let's put one project in the spotlight.  Look for projects that have received over $500 of donor and match contributions
         $spotlightProject = Cache::remember($cacheName . '->spotlightProject', 5, function () {
             $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
+
+            if ($application == null) {
+                return null;
+            }
+
             return $application->project()->first();
         });
 
-        $spotlightProjectTotalDonorAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalDonorAmountUSD', 5, function () use ($spotlightProject) {
-            return $spotlightProject->applications()->sum('donor_amount_usd');
-        });
+        $spotlightProjectTotalDonorAmountUSD = 0;
+        $spotlightProjectTotalMatchAmountUSD = 0;
+        $spotlightProjectUniqueDonors = 0;
 
-        $spotlightProjectTotalMatchAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalMatchAmountUSD', 5, function () use ($spotlightProject) {
-            return $spotlightProject->applications()->sum('match_amount_usd');
-        });
+        if ($spotlightProject) {
+            $spotlightProjectTotalDonorAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalDonorAmountUSD', 5, function () use ($spotlightProject) {
+                return $spotlightProject->applications()->sum('donor_amount_usd');
+            });
 
-        $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', 5, function () use ($spotlightProject) {
-            return $spotlightProject->projectDonations()->distinct('voter_addr')->count('voter_addr');
-        });
+            $spotlightProjectTotalMatchAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalMatchAmountUSD', 5, function () use ($spotlightProject) {
+                return $spotlightProject->applications()->sum('match_amount_usd');
+            });
+
+            $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', 5, function () use ($spotlightProject) {
+                return $spotlightProject->projectDonations()->distinct('voter_addr')->count('voter_addr');
+            });
+        }
 
 
         return view('public.project.index', [
