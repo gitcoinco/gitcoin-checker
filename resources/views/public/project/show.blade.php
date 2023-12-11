@@ -18,20 +18,33 @@
         <!-- Project Details -->
         <div class="card mb-3">
             <div class="card-body">
-                <h1 class="card-title">{{ $project->title }}</h1>
 
-                @if($totalProjectDonorAmount > 0)
-                <h2>
-                    ${{ $totalProjectDonorAmount }} in donations received from donors
-                </h2>
-                @endif
-                @if($totalProjectMatchAmount > 0)
-                <h2>
-                    ${{ $totalProjectMatchAmount }} in donations received from match pools
-                </h2>
+                <div class="d-flex align-items-center mb-4">
+                    <a href="{{ route('public.project.show', $project) }}">
+                        <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
+                    </a>
+                    <h1 class="card-title ml-2">{{ $project->title }}</h1>
+                </div>
+
+
+
+                @if($totalProjectDonorAmount > 0 || $totalProjectMatchAmount > 0)
+                <div class="highlight-green mb-4">
+
+                    @if($totalProjectDonorAmount > 0)
+                    <h3>
+                        ${{ number_format($totalProjectDonorAmount, 2) }} in donations received from donors
+                    </h3>
+                    @endif
+                    @if($totalProjectMatchAmount > 0)
+                    <h3>
+                        ${{ number_format($totalProjectMatchAmount, 2) }} in donations received from match pools
+                    </h3>
+                    @endif
+                </div>
                 @endif
 
-                <div class="mb-3">
+                <div class="mb-4">
 
                     @if(isset($project->website))
                     <div><i class="fa fa-globe" aria-hidden="true"></i> Website: <a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></div>
@@ -48,7 +61,7 @@
                 </div>
 
                 @if($descriptionHTML)
-                <div class="text-xs">
+                <div class="text-xs descriptionHTML">
                     {!! ($descriptionHTML) !!}
                 </div>
                 @endif
@@ -58,23 +71,55 @@
 
         <!-- Applications -->
         @if(count($applications) > 0)
-
-        @foreach($applications as $application)
         <div class="card mb-3">
             <div class="card-body">
+                <h2>{{ $project->title }} History</h2>
+                <ul>
 
-                @if(strtolower($application->status) == 'approved')
-                <div>{{ $project->title }} applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at }} which was accepted</div>
-                @elseif(strtolower($application->status) == 'rejected')
-                <div>{{ $project->title }} applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at }} which was rejected</div>
-                @elseif(strtolower($application->status) == 'pending')
-                <div>{{ $project->title }} applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at }} of which the application is still in a pending state</div>
-                @endif
+                    @foreach($applications as $application)
+                    <li class="mb-3">
+                        @if(strtolower($application->status) == 'approved')
+                        <div>accepted into <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> {{ $application->created_at->diffForHumans() }}.
+                            @if ($application->donor_contributions_count)
+                            {{ $application->donor_contributions_count }} people contributed ${{ number_format($application->donor_amount_usd) }} to the project, and ${{ number_format($application->match_amount_usd) }} of match funding was provided.
+                            @endif
+                        </div>
+                        @elseif(strtolower($application->status) == 'rejected')
+                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at->diffForHumans() }} which was rejected</div>
+                        @elseif(strtolower($application->status) == 'pending')
+                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at->diffForHumans() }} of which the application is still in a pending state</div>
+                        @endif
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        </div>
 
+        <div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2>People donating to {{ $project->title }}, also donated to</h2>
+
+                    @if(count($projectsAlsoDonatedTo) > 0)
+                    <div>
+                        @foreach($projectsAlsoDonatedTo as $project)
+                        <div class="mb-2">
+                            <a href="{{ route('public.project.show', $project) }}" onmouseover="this.children[0].classList.remove('grayscale');" onmouseout="this.children[0].classList.add('grayscale');">
+                                <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle hover:grayscale-0 grayscale" />
+
+                                {{ $project->title }}
+                            </a>
+
+
+
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
             </div>
         </div>
-        @endforeach
-        @endif
 
         <!-- Back to projects -->
         <div class="card mb-3">
@@ -83,7 +128,17 @@
             </div>
         </div>
     </div>
-</div>
+
+    <style>
+        .grayscale {
+            filter: grayscale(100%);
+        }
+
+        .hover\:grayscale-0:hover {
+            filter: grayscale(0%);
+        }
+    </style>
 
 
-@endsection
+
+    @endsection

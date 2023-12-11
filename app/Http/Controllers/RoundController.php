@@ -130,8 +130,13 @@ class RoundController extends Controller
     {
         $round->load(['chain']);
 
+        $projectAddr = $round->applications()->where('status', 'APPROVED')->pluck('project_addr')->toArray();
+
+        $projects = Project::whereIn('id_addr', $projectAddr)->orderBy('id', 'desc')->paginate(1000);
+
         return view('public.round.show', [
             'round' => $round,
+            'projects' => $projects
         ]);
     }
 }

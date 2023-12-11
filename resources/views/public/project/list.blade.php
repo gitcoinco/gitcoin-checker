@@ -40,9 +40,9 @@
                     <div>
                         <a href="{{ route('public.project.show', $project) }}" class="text-primary">{{ $project->title }}</a>
                     </div>
-                    <div class="small descriptionHTML">
+                    <!-- <div class="small descriptionHTML">
                         {!! ($project->descriptionHTML) !!}
-                    </div>
+                    </div> -->
                     <div class="small">
                         @if($project->website)
                         <a href="{{ $project->website }}" target="_blank">
@@ -70,6 +70,9 @@
                             </svg>
                             {{ $project->projectGithub }}</a><br />
                         @endif
+                        <div class="text-muted font-italic">
+                            Created {{ $project->created_at->diffForHumans() }}
+                        </div>
                     </div>
                 </div>
             </div>

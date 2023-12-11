@@ -36,7 +36,7 @@
             </div>
 
             @if ($spotlightProject)
-            <div style="border-left: 10px solid green; padding-left: 15px;">
+            <div class="highlight-green">
                 <h3>In the spotlight</h3>
 
                 <div class="row">

@@ -20,9 +20,22 @@ The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
             <div class="card-body">
                 <h1 class="card-title">{{ $round->name }}</h1>
 
-                <p>
+
+
+                <div class="mb-4">
                     The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}.
-                </p>
+                </div>
+
+                @if(count($projects) > 0)
+                <div>
+                    <h3>Projects in the {{ $round->name }} round.</h3>
+                    <ul>
+                        @foreach($projects as $project)
+                        <li><a href="{{ route('public.project.show', $project) }}">{{ $project->title }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
         </div>
 

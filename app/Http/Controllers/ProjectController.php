@@ -64,22 +64,12 @@ class ProjectController extends Controller
             $projects = Project::whereNotIn('id', $listOfTestProjectIds)->orderBy('id', 'desc')->paginate();
         }
 
-        $converter = new CommonMarkConverter();
-
-        // Convert descriptions to HTML
-        $projects->transform(function ($project) use ($converter) {
-            $project->descriptionHTML = $converter->convertToHTML($project->description)->getContent();
-            $project->descriptionHTML = preg_replace_callback('/\bhttps?:\/\/\S+/i', function ($matches) {
-                $url = $matches[0];
-                // Remove trailing </p> if exists
-                if (substr($url, -4) === '</p>') {
-                    $url = substr($url, 0, -4);
-                }
-                return '<a href="' . $url . '" target="_blank">' . $url . '</a>';
-            }, $project->descriptionHTML);
-
-            return $project;
-        });
+        // $converter = new CommonMarkConverter();
+        // // Convert descriptions to HTML
+        // $projects->transform(function ($project) use ($converter) {
+        //     $project->descriptionHTML = $converter->convertToHTML($project->description)->getContent();
+        //     return $project;
+        // });
 
         return view('public.project.list', [
             'projects' => $projects,
@@ -215,16 +205,28 @@ class ProjectController extends Controller
             $totalProjectMatchAmount += $application->match_amount_usd;
         }
 
+        $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
 
-        $totalDonationsReceived = $project->projectDonations()->sum('amount_usd');
+        $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
+            ->where('project_id', '!=', $project->id)
+            ->select('project_id', 'amount_usd')
+            ->distinct()
+            ->orderBy('amount_usd', 'desc')
+            ->limit(5)
+            ->pluck('project_id')
+            ->toArray();
+
+        $projectsAlsoDonatedTo = Project::whereIn('id', $donations)->get();
 
         return view('public.project.show', [
             'project' => $project,
+            'projectsAlsoDonatedTo' => $projectsAlsoDonatedTo,
             'applications' => $applications,
             'descriptionHTML' => $descriptionHTML,
             'totalProjectDonorAmount' => $totalProjectDonorAmount,
             'totalProjectDonorContributionsCount' => $totalProjectDonorContributionsCount,
             'totalProjectMatchAmount' => $totalProjectMatchAmount,
+            'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
         ]);
     }
 }
