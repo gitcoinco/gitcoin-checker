@@ -9,11 +9,35 @@
 
     <div class="container py-3">
 
+        @if ($spotlightProject)
+        <div class="highlight-green mb-4">
+            <h3>In the spotlight</h3>
+
+            <div class="row">
+                <div class="col-md-auto">
+                    <a href="{{ route('public.project.show', $spotlightProject) }}">
+                        <img src="{{ $spotlightProject->logoImg ? $pinataUrl.'/'.$spotlightProject->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
+                    </a>
+                </div>
+                <div class="col">
+                    <div class="mb-2">
+                        Gitcoin funded <a href="{{ route('public.project.show', $spotlightProject) }}">{{ $spotlightProject->title }}</a> to the tune of ${{ number_format($spotlightProjectTotalDonorAmountUSD + $spotlightProjectTotalMatchAmountUSD, 0) }}. The project had support from {{ $spotlightProjectUniqueDonors}} individual donors, which contributed ${{ $spotlightProjectTotalDonorAmountUSD }} and this was matched by a Gitcoin contribution of ${{ $spotlightProjectTotalMatchAmountUSD }}.
+                    </div>
+                    <div>
+                        We work out these numbers using <a href="https://wtfisqf.com/">Quadratic Funding</a>, which gives more money to projects that have broader community appeal.
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+
         <div class="mb-4">
             <a href="{{ route('public.projects.list') }}">
-                Projects
+                View a more Gitcoin projects
             </a>
         </div>
+
 
         <div class="mb-4">
             From pioneering open-source software to trailblazing climate solutions and building robust Web3 infrastructure, Gitcoin stands at the forefront of collaborative funding. Our mission is to connect visionary creators with a community eager to support impactful initiatives.
@@ -35,27 +59,6 @@
                 More than {{ $totalUniqueDonors }} contributors and Supporters: Be part of an enthusiastic and diverse community. Our platform is a hub for talents and supporters from various backgrounds, united by a shared vision of progress.
             </div>
 
-            @if ($spotlightProject)
-            <div class="highlight-green">
-                <h3>In the spotlight</h3>
-
-                <div class="row">
-                    <div class="col-md-auto">
-                        <a href="{{ route('public.project.show', $spotlightProject) }}">
-                            <img src="{{ $spotlightProject->logoImg ? $pinataUrl.'/'.$spotlightProject->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
-                        </a>
-                    </div>
-                    <div class="col">
-                        <div class="mb-2">
-                            Gitcoin funded <a href="{{ route('public.project.show', $spotlightProject) }}">{{ $spotlightProject->title }}</a> to the tune of ${{ number_format($spotlightProjectTotalDonorAmountUSD + $spotlightProjectTotalMatchAmountUSD, 0) }}. The project had support from {{ $spotlightProjectUniqueDonors}} individual donors, which contributed ${{ $spotlightProjectTotalDonorAmountUSD }} and this was matched by a Gitcoin contribution of ${{ $spotlightProjectTotalMatchAmountUSD }}.
-                        </div>
-                        <div>
-                            We work out these numbers using <a href="https://wtfisqf.com/">Quadratic Funding</a>, which gives more money to projects that have broader community appeal.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
 
         <div class="mb-5">

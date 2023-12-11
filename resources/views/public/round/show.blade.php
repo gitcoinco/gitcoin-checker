@@ -28,13 +28,21 @@ The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
 
                 @if(count($projects) > 0)
                 <div>
-                    <h3>Projects in the {{ $round->name }} round.</h3>
-                    <ul>
+                    <!-- <h3>Projects in the {{ $round->name }} round.</h3> -->
+                    <div>
                         @foreach($projects as $project)
-                        <li><a href="{{ route('public.project.show', $project) }}">{{ $project->title }}</a></li>
+                        <div class="d-flex align-items-center mb-2 bg-light p-2">
+                            <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
+                                <h6 class="ml-2">{{ $project->title }}</h6>
+                            </a>
+                        </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
+
+                {{ $projects->links() }}
+
                 @endif
             </div>
         </div>

@@ -96,12 +96,11 @@
             @endif
         </div>
 
+        @if(count($projectsAlsoDonatedTo) > 0)
         <div>
             <div class="card mb-3">
                 <div class="card-body">
                     <h2>People donating to {{ $project->title }}, also donated to</h2>
-
-                    @if(count($projectsAlsoDonatedTo) > 0)
                     <div>
                         @foreach($projectsAlsoDonatedTo as $project)
                         <div class="mb-2">
@@ -110,16 +109,13 @@
 
                                 {{ $project->title }}
                             </a>
-
-
-
                         </div>
                         @endforeach
                     </div>
-                    @endif
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Back to projects -->
         <div class="card mb-3">
