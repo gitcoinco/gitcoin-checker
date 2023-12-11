@@ -39,7 +39,7 @@ Gitcoin: {{ $project->title }}
 
                     @if($totalProjectMatchAmount > 0)
                     <h3>
-                        ${{ number_format($totalProjectMatchAmount, 2) }} in donations received from match pools
+                        ${{ number_format($totalProjectMatchAmount, 2) }} received from match pools
                     </h3>
                     @endif
                 </div>
