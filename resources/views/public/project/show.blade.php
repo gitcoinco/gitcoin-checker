@@ -19,11 +19,14 @@ Gitcoin: {{ $project->title }}
         <div class="card mb-3">
             <div class="card-body">
 
-                <div class="d-flex align-items-center mb-4">
-                    <a href="{{ route('public.project.show', $project) }}">
-                        <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
-                    </a>
-                    <h1 class="card-title ml-2">{{ $project->title }}</h1>
+                <div class="d-flex align-items-center mb-4 flex-column">
+                    <div class="d-flex flex-column justify-content-center align-items-center" style="background-image: url('{{ $pinataUrl.'/'.$project->bannerImg.'?img-height=300' }}');">
+                        <a href="{{ route('public.project.show', $project) }}" class="col-12 col-md-auto">
+
+                            <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
+                        </a>
+                        <h1 class="card-title mt-2 mt-md-0 h3 h1-md col-12 col-md-auto px-0 px-md-3 text-md-left bg-white opacity-50">{{ $project->title }}</h1>
+                    </div>
                 </div>
 
 
@@ -86,9 +89,9 @@ Gitcoin: {{ $project->title }}
                             @endif
                         </div>
                         @elseif(strtolower($application->status) == 'rejected')
-                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at->diffForHumans() }} which was rejected</div>
+                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> {{ $application->created_at->diffForHumans() }} which was rejected</div>
                         @elseif(strtolower($application->status) == 'pending')
-                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> on {{ $application->created_at->diffForHumans() }} of which the application is still in a pending state</div>
+                        <div>applied to the <a href="{{ route('public.round.show', $application->round) }}">{{ $application->round->name }}</a> {{ $application->created_at->diffForHumans() }} of which the application is still in a pending state</div>
                         @endif
                     </li>
                     @endforeach
@@ -97,28 +100,33 @@ Gitcoin: {{ $project->title }}
             @endif
         </div>
 
-        @if(count($projectsAlsoDonatedTo) > 0)
+        @if(count($projectsInterest) > 0)
+
         <div>
             <div class="card mb-3">
                 <div class="card-body">
+                    @if ($projectsInterestType == 'donated-to')
                     <h2>People donating to {{ $project->title }}, also donated to</h2>
+                    @elseif ($projectsInterestType == 'random')
+                    <h2>Explore projects</h2>
+                    @endif
                     <div>
-                        @foreach($projectsAlsoDonatedTo as $project)
+                        @foreach($projectsInterest as $project)
                         <div class="mb-2 d-flex">
                             <div class="mr-2">
-                                <a href="{{ route('public.project.show', $project) }}">
+                                <a href="{{ route('public.project.show', $project) }}" class="">
                                     <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
                                 </a>
                             </div>
 
-                            <div>
+                            <div class="">
                                 <div>
                                     <a href="{{ route('public.project.show', $project) }}">
                                         {{ $project->title }}
                                     </a>
                                 </div>
                                 @if($project->gpt_summary)
-                                <div class="text-xs">
+                                <div class="text-xs text-break">
                                     {{ $project->gpt_summary }}
                                 </div>
                                 @endif

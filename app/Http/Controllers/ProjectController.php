@@ -222,7 +222,8 @@ class ProjectController extends Controller
         });
 
 
-        $projectsAlsoDonatedTo = Cache::remember($cacheName . '-projectsAlsoDonatedTo', 60, function () use ($project) {
+        $projectsInterestType = 'donated-to';
+        $projectsInterest = Cache::remember($cacheName . '-projectsAlsoDonatedTo', 60, function () use ($project) {
             $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
 
             $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
@@ -237,9 +238,15 @@ class ProjectController extends Controller
             return Project::whereIn('id', $donations)->get();
         });
 
+        if (count($projectsInterest) == 0) {
+            $projectsInterestType = 'random';
+            $projectsInterest = Project::whereNotNull('gpt_summary')->inRandomOrder()->limit(5)->get();
+        }
+
         return view('public.project.show', [
             'project' => $project,
-            'projectsAlsoDonatedTo' => $projectsAlsoDonatedTo,
+            'projectsInterest' => $projectsInterest,
+            'projectsInterestType' => $projectsInterestType,
             'applications' => $applications,
             'descriptionHTML' => $descriptionHTML,
             'totalProjectDonorAmount' => $totalProjectDonorAmount,
