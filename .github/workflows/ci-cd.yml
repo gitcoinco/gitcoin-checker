@@ -91,24 +91,24 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "pm2 restart node_app"
 
-  data-import:
-    if: github.ref == 'refs/heads/main'
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
-        with:
-          fetch-depth: 1
+  # data-import:
+  #   if: github.ref == 'refs/heads/main'
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3 # It's important to checkout your repository to access its contents.
+  #       with:
+  #         fetch-depth: 1
 
-      - name: Install SSH key
-        env:
-          PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
+  #     - name: Install SSH key
+  #       env:
+  #         PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+  #         chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan checker.gitcoin.co >> ~/.ssh/known_hosts
 
-      - name: Check for new data
-        run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co && php artisan ingest:data"
+  #     - name: Check for new data
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/checker.gitcoin.co && php artisan ingest:data"
