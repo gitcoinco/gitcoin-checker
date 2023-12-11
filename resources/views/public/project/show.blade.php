@@ -104,11 +104,25 @@ Gitcoin: {{ $project->title }}
                     <h2>People donating to {{ $project->title }}, also donated to</h2>
                     <div>
                         @foreach($projectsAlsoDonatedTo as $project)
-                        <div class="mb-2">
-                            <a href="{{ route('public.project.show', $project) }}" onmouseover="this.children[0].classList.remove('grayscale');" onmouseout="this.children[0].classList.add('grayscale');">
-                                <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle hover:grayscale-0 grayscale" />
+                        <div class="mb-2 d-flex">
+                            <div class="mr-2">
+                                <a href="{{ route('public.project.show', $project) }}">
+                                    <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
+                                </a>
+                            </div>
 
-                                {{ $project->title }}
+                            <div>
+                                <div>
+                                    <a href="{{ route('public.project.show', $project) }}">
+                                        {{ $project->title }}
+                                    </a>
+                                </div>
+                                @if($project->gpt_summary)
+                                <div class="text-xs">
+                                    {{ $project->gpt_summary }}
+                                </div>
+                                @endif
+                            </div>
                             </a>
                         </div>
                         @endforeach

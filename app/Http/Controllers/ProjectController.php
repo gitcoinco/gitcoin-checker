@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use League\CommonMark\CommonMarkConverter;
+use Orhanerday\OpenAi\OpenAi;
 
 class ProjectController extends Controller
 {
@@ -246,5 +247,51 @@ class ProjectController extends Controller
             'totalProjectMatchAmount' => $totalProjectMatchAmount,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
         ]);
+    }
+
+    // Update the gpt_summary using the project description if it's big enough
+    public function doGPTSummary(Project $project)
+    {
+        if ($project->gpt_summary) {
+            return $project;
+        }
+
+        // If the description is short, then just use it
+        $wordCount = str_word_count($project->description);
+        if ($wordCount <= 30) {
+            $project->gpt_summary = $project->description;
+            $project->save();
+            return $project;
+        }
+
+        $open_ai = new OpenAi(env('OPENAI_API_KEY'));
+
+        $messages = [
+            [
+                "role" => "system",
+                "content" => 'Take a project description and shorten it to less than 30 words to create a summary of the project.  Do not include any links or images in the response, and where possible, do not include the project name.',
+            ],
+            [
+                "role" => "user",
+                "content" => $project->description
+            ],
+        ];
+
+        $gptResponse = $open_ai->chat([
+            'model' => 'gpt-4-1106-preview',
+            'messages' => $messages,
+            'temperature' => 1.0,
+            'max_tokens' => 4000,
+            'frequency_penalty' => 0,
+            'presence_penalty' => 0,
+        ]);
+
+        $gptResponse = json_decode($gptResponse);
+
+        if (isset($gptResponse->choices[0]->message->content)) {
+            $project->gpt_summary = $gptResponse->choices[0]->message->content;
+            $project->save();
+            return $project;
+        }
     }
 }

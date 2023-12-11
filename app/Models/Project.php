@@ -16,6 +16,7 @@ class Project extends Model
         'slug',
         'id_addr',
         'title',
+        'gpt_summary',
         'description',
         'website',
         'logoImg',

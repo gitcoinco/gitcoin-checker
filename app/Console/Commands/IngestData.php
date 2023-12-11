@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\RoundPromptController;
 use Illuminate\Console\Command;
@@ -68,6 +69,7 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
+        $this->updateProjectSummaries();
 
         $startTime = microtime(true);
 
@@ -135,6 +137,17 @@ class IngestData extends Command
                 $this->info("Processing donations data for chain ID: {$chain->chain_id}, round ID: {$round->id}...");
                 $this->updateDonations($round);
             }
+        }
+    }
+
+    private function updateProjectSummaries()
+    {
+        $projectController = new ProjectController();
+
+        $projects = Project::whereNull('gpt_summary')->limit(10)->get();
+        foreach ($projects as $project) {
+            $this->info("Processing project: {$project->title}");
+            $projectController->doGPTSummary($project);
         }
     }
 

@@ -34,6 +34,11 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
                 <div>
                     <div>
                         <a href="{{ route('public.project.show', $project) }}" class="text-primary">{{ $project->title }}</a>
+                        @if($project->gpt_summary)
+                        <div class="text-xs">
+                            {{ $project->gpt_summary }}
+                        </div>
+                        @endif
                     </div>
                     <!-- <div class="small descriptionHTML">
                         {!! ($project->descriptionHTML) !!}
