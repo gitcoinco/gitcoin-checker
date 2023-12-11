@@ -126,6 +126,17 @@ class RoundController extends Controller
         return response()->json($round);
     }
 
+    public function listPublic(Request $request)
+    {
+        $testIds = Round::where('name', 'like', '%test%')->pluck('id')->toArray();
+
+        $rounds = Round::orderBy('round_start_time', 'desc')->whereNotIn('id', $testIds)->with(['chain'])->withCount('applications')->paginate();
+
+        return view('public.round.list', [
+            'rounds' => $rounds,
+        ]);
+    }
+
     public function showPublic(Round $round)
     {
         $round->load(['chain']);

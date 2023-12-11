@@ -9,6 +9,16 @@
 
     <div class="container py-3">
 
+        <div class="mb-4">
+            <a href="{{ route('public.projects.list') }}" title="View a list of projects that have applied for funding via Gitcoin">
+                Projects
+            </a> |
+            <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">
+                Rounds
+            </a>
+        </div>
+
+
         @if ($spotlightProject)
         <div class="highlight-green mb-4">
             <h3>In the spotlight</h3>
@@ -30,13 +40,6 @@
             </div>
         </div>
         @endif
-
-
-        <div class="mb-4">
-            <a href="{{ route('public.projects.list') }}">
-                View a more Gitcoin projects
-            </a>
-        </div>
 
 
         <div class="mb-4">
@@ -65,11 +68,11 @@
             <h2>Stay Connected</h2>
 
             <div class="mb-3">
-                <a href="https://gitcoin.co" target="_blank">Join the Gitcoin Ecosystem</a>: Whether you're an innovator, a developer, or a passionate supporter, your journey towards making a difference starts here. Explore projects, contribute to diverse causes, and be part of a community that's shaping the future.
+                <a href="https://gitcoin.co?utm_source=checker.gitcoin.co" target="_blank">Join the Gitcoin Ecosystem</a>: Whether you're an innovator, a developer, or a passionate supporter, your journey towards making a difference starts here. Explore projects, contribute to diverse causes, and be part of a community that's shaping the future.
             </div>
 
             <div class="mb-3">
-                <a href="https://twitter.com/gitcoin" target="_blank">Stay Informed and Connected</a>: Follow us on <a href="https://twitter.com/gitcoin" target="_blank">Twitter</a> for the latest news, project highlights, and community stories.
+                <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Stay Informed and Connected</a>: Follow us on <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Twitter</a> for the latest news, project highlights, and community stories.
             </div>
         </div>
 
