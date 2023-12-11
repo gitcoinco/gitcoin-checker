@@ -18,6 +18,10 @@ Gitcoin: What we have been funding
             </a>
         </div>
 
+        <div class="mb-4">
+            From pioneering open-source software to trailblazing climate solutions and building robust Web3 infrastructure, Gitcoin stands at the forefront of collaborative funding. Our mission is to connect visionary creators with a community eager to support impactful initiatives.
+        </div>
+
 
         @if ($spotlightProject)
         <div class="highlight-green mb-4">
@@ -34,17 +38,12 @@ Gitcoin: What we have been funding
                         Gitcoin funded <a href="{{ route('public.project.show', $spotlightProject) }}">{{ $spotlightProject->title }}</a> to the tune of ${{ number_format($spotlightProjectTotalDonorAmountUSD + $spotlightProjectTotalMatchAmountUSD, 0) }}. The project had support from {{ $spotlightProjectUniqueDonors}} individual donors, which contributed ${{ $spotlightProjectTotalDonorAmountUSD }} and this was matched by a Gitcoin contribution of ${{ $spotlightProjectTotalMatchAmountUSD }}.
                     </div>
                     <div>
-                        We work out these numbers using <a href="https://wtfisqf.com/">Quadratic Funding</a>, which gives more money to projects that have broader community appeal.
+                        We work out these numbers using <a href="https://wtfisqf.com/?utm_source=checker.gitcoin.co">Quadratic Funding</a>, which gives more money to projects that have broader community appeal.
                     </div>
                 </div>
             </div>
         </div>
         @endif
-
-
-        <div class="mb-4">
-            From pioneering open-source software to trailblazing climate solutions and building robust Web3 infrastructure, Gitcoin stands at the forefront of collaborative funding. Our mission is to connect visionary creators with a community eager to support impactful initiatives.
-        </div>
 
         <div class="mb-4">
             Dive into a world where boundaries are pushed, and innovation flourishes across various sectors. Gitcoin is not just a funding platform; it's a catalyst for change, fostering a space where ideas, big and small, get the support they need to make a lasting impact.

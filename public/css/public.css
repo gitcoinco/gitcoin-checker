@@ -132,6 +132,11 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
 .descriptionHTML img { max-width: 100%; }
 .descriptionHTML strong { font-weight: normal; }
 
-.highlight-green { border-left: 10px solid green; padding-left: 15px; }
-
+.highlight-green {
+    border-left: 10px solid green;
+    padding: 15px;
+    background-color: #ddd;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
 ol, ul { margin-left: 25px; }
