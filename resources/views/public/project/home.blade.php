@@ -1,7 +1,7 @@
 @extends('public')
 
-@section('head')
-<title>Welcome</title>
+@section('title')
+Gitcoin: What we have been funding
 @endsection
 
 @section('content')

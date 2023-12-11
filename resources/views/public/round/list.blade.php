@@ -1,8 +1,9 @@
 @extends('public')
 
-@section('head')
-<title>Welcome</title>
+@section('title')
+Gitcoin: A list of funding rounds that have been run on Gitcoin.
 @endsection
+
 
 @section('content')
 <div class="container-fluid bg-light">

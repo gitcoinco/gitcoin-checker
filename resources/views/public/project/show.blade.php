@@ -1,7 +1,7 @@
 @extends('public')
 
 @section('title')
-{{ $project->title }}
+Gitcoin: {{ $project->title }}
 @endsection
 
 @section('meta_description')
@@ -33,9 +33,10 @@
 
                     @if($totalProjectDonorAmount > 0)
                     <h3>
-                        ${{ number_format($totalProjectDonorAmount, 2) }} in donations received from donors
+                        ${{ number_format($totalProjectDonorAmount, 2) }} in donations received from {{ $totalProjectDonorContributionsCount}} donors
                     </h3>
                     @endif
+
                     @if($totalProjectMatchAmount > 0)
                     <h3>
                         ${{ number_format($totalProjectMatchAmount, 2) }} in donations received from match pools

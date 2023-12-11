@@ -1,7 +1,7 @@
 @extends('public')
 
-@section('head')
-<title>Welcome</title>
+@section('title')
+Gitcoin: A list of projects that have been funded by Gitcoin Grants
 @endsection
 
 @section('content')
