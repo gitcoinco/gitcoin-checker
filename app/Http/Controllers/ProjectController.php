@@ -186,6 +186,7 @@ class ProjectController extends Controller
 
     public function showPublic(Project $project)
     {
+        $cacheName = 'ProjectController::showPublic(' . $project->uuid . ')';
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
 
         $converter = new CommonMarkConverter();
@@ -195,28 +196,45 @@ class ProjectController extends Controller
             $descriptionHTML = $converter->convertToHTML($project->description)->getContent();
         }
 
-        $totalProjectDonorAmount = 0;
-        $totalProjectDonorContributionsCount = 0;
-        $totalProjectMatchAmount = 0;
+        $totalProjectDonorAmount = Cache::remember($cacheName . '-totalProjectDonorAmount', 60, function () use ($applications) {
+            $total = 0;
+            foreach ($applications as $application) {
+                $total += $application->donor_amount_usd;
+            }
+            return $total;
+        });
 
-        foreach ($applications as $application) {
-            $totalProjectDonorAmount += $application->donor_amount_usd;
-            $totalProjectDonorContributionsCount += $application->donor_contributions_count;
-            $totalProjectMatchAmount += $application->match_amount_usd;
-        }
+        $totalProjectDonorContributionsCount = Cache::remember($cacheName . '-totalProjectDonorContributionsCount', 60, function () use ($applications) {
+            $total = 0;
+            foreach ($applications as $application) {
+                $total += $application->donor_contributions_count;
+            }
+            return $total;
+        });
 
-        $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
+        $totalProjectMatchAmount = Cache::remember($cacheName . '-totalProjectMatchAmount', 60, function () use ($applications) {
+            $total = 0;
+            foreach ($applications as $application) {
+                $total += $application->match_amount_usd;
+            }
+            return $total;
+        });
 
-        $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
-            ->where('project_id', '!=', $project->id)
-            ->select('project_id', 'amount_usd')
-            ->distinct()
-            ->orderBy('amount_usd', 'desc')
-            ->limit(5)
-            ->pluck('project_id')
-            ->toArray();
 
-        $projectsAlsoDonatedTo = Project::whereIn('id', $donations)->get();
+        $projectsAlsoDonatedTo = Cache::remember($cacheName . '-projectsAlsoDonatedTo', 60, function () use ($project) {
+            $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
+
+            $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
+                ->where('project_id', '!=', $project->id)
+                ->select('project_id', 'amount_usd')
+                ->distinct()
+                ->orderBy('amount_usd', 'desc')
+                ->limit(5)
+                ->pluck('project_id')
+                ->toArray();
+
+            return Project::whereIn('id', $donations)->get();
+        });
 
         return view('public.project.show', [
             'project' => $project,
