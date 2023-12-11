@@ -50,9 +50,47 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function indexPublic($search = null)
+    public function listPublic(Request $request)
     {
-        $cacheName = 'ProjectController()->indexPublic()';
+        // Get a list of test projects in order to keep them out of the results
+        $listOfTestProjectIds = Project::where(function ($query) {
+            $query->where('title', 'like', ' test%')->orWhere('title', 'like', '% test %');
+        })->pluck('id')->toArray();
+
+        $search = $request->query('query');
+        if ($search) {
+            $projects = Project::whereNotIn('id', $listOfTestProjectIds)->where('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate();
+        } else {
+            $projects = Project::whereNotIn('id', $listOfTestProjectIds)->orderBy('id', 'desc')->paginate();
+        }
+
+        $converter = new CommonMarkConverter();
+
+        // Convert descriptions to HTML
+        $projects->transform(function ($project) use ($converter) {
+            $project->descriptionHTML = $converter->convertToHTML($project->description)->getContent();
+            $project->descriptionHTML = preg_replace_callback('/\bhttps?:\/\/\S+/i', function ($matches) {
+                $url = $matches[0];
+                // Remove trailing </p> if exists
+                if (substr($url, -4) === '</p>') {
+                    $url = substr($url, 0, -4);
+                }
+                return '<a href="' . $url . '" target="_blank">' . $url . '</a>';
+            }, $project->descriptionHTML);
+
+            return $project;
+        });
+
+        return view('public.project.list', [
+            'projects' => $projects,
+            'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+        ]);
+    }
+
+
+    public function homePublic($search = null)
+    {
+        $cacheName = 'ProjectController()->homePublic()';
         //        $projects = Project::orderBy('id', 'desc')->paginate();
 
         $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', 60, function () {
@@ -95,7 +133,7 @@ class ProjectController extends Controller
         }
 
 
-        return view('public.project.index', [
+        return view('public.project.home', [
             //            'projects' => $projects,
             'canLogin' => true,
             'totalDonorAmountUSD' => $totalDonorAmountUSD,

@@ -127,3 +127,5 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
 .text-xs {
     font-size: 0.7rem;
 }
+
+.descriptionHTML img { max-width: 100%; }

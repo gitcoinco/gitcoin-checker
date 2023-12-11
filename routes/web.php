@@ -41,9 +41,10 @@ Route::get('/', function () {
 Route::prefix('public')->group(
     function () {
         Route::get('/', function () {
-            return redirect()->route('public.projects.index');
+            return redirect()->route('public.projects.home');
         });
-        Route::get('/projects', [ProjectController::class, 'indexPublic'])->name('public.projects.index');
+        Route::get('/projects', [ProjectController::class, 'homePublic'])->name('public.projects.home');
+        Route::get('/projects/list', [ProjectController::class, 'listPublic'])->name('public.projects.list');
         Route::get('/project/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
 
         Route::get('/round/show/{round}', [RoundController::class, 'showPublic'])->name('public.round.show');

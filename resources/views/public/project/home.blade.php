@@ -10,6 +10,12 @@
     <div class="container py-3">
 
         <div class="mb-4">
+            <a href="{{ route('public.projects.list') }}">
+                Projects
+            </a>
+        </div>
+
+        <div class="mb-4">
             From pioneering open-source software to trailblazing climate solutions and building robust Web3 infrastructure, Gitcoin stands at the forefront of collaborative funding. Our mission is to connect visionary creators with a community eager to support impactful initiatives.
         </div>
 

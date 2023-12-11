@@ -79,7 +79,7 @@
         <!-- Back to projects -->
         <div class="card mb-3">
             <div class="card-body">
-                <a href="{{ route('public.projects.index') }}" class="text-decoration-none text-primary">Back to Projects</a>
+                <a href="{{ route('public.projects.list') }}" class="text-decoration-none text-primary">Back to Projects</a>
             </div>
         </div>
     </div>
