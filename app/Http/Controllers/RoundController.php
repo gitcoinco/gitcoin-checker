@@ -130,10 +130,18 @@ class RoundController extends Controller
     {
         $testIds = Round::where('name', 'like', '%test%')->pluck('id')->toArray();
 
-        $rounds = Round::orderBy('round_start_time', 'desc')->whereNotIn('id', $testIds)->with(['chain'])->withCount('applications')->paginate();
+        $search = $request->query('search');
+        if ($search) {
+            $rounds = Round::search($search)->paginate();
+            $rounds->load(['chain']);
+            $rounds->loadCount('applications');
+        } else {
+            $rounds = Round::orderBy('round_start_time', 'desc')->whereNotIn('id', $testIds)->with(['chain'])->withCount('applications')->paginate();
+        }
 
         return view('public.round.list', [
             'rounds' => $rounds,
+            'search' => $search,
         ]);
     }
 

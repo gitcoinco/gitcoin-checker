@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ShortUniqueUuidTrait;
+use Laravel\Scout\Searchable;
 
 class Round extends Model
 {
-    use HasFactory, ShortUniqueUuidTrait;
+    use HasFactory, ShortUniqueUuidTrait, Searchable;
 
     protected $fillable = [
         'uuid',

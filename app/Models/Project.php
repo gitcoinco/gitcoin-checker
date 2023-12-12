@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Traits\ShortUniqueUuidTrait;
+use Laravel\Scout\Searchable;
 
 class Project extends Model
 {
-    use HasFactory, ShortUniqueUuidTrait;
+    use HasFactory, ShortUniqueUuidTrait, Searchable;
 
     protected $fillable = [
         'uuid',

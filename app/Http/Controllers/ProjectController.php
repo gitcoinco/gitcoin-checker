@@ -58,9 +58,9 @@ class ProjectController extends Controller
             $query->where('title', 'like', ' test%')->orWhere('title', 'like', '% test %');
         })->pluck('id')->toArray();
 
-        $search = $request->query('query');
+        $search = $request->query('search');
         if ($search) {
-            $projects = Project::whereNotIn('id', $listOfTestProjectIds)->where('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate();
+            $projects = Project::search($search)->paginate();
         } else {
             $projects = Project::whereNotIn('id', $listOfTestProjectIds)->orderBy('id', 'desc')->paginate();
         }
@@ -75,6 +75,7 @@ class ProjectController extends Controller
         return view('public.project.list', [
             'projects' => $projects,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+            'search' => $search,
         ]);
     }
 

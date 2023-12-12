@@ -14,7 +14,7 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                 <div>
                     <form action="/public/rounds/list">
                         <div class="input-group mb-3">
-                            <input name="query" type="text" class="form-control" placeholder="Search rounds..." aria-label="Search for rounds" aria-describedby="button-addon2">
+                            <input name="search" type="text" value="{{ $search }}" class="form-control" placeholder="Search rounds..." aria-label="Search for rounds" aria-describedby="button-addon2">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
                             </div>

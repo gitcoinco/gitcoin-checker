@@ -62,9 +62,22 @@ services:
             - sail
         command: npm run dev
 
+    meilisearch:
+        image: getmeili/meilisearch:latest
+        environment:
+            - MEILI_MASTER_KEY=238742ihsdlkjfsd8fysdkfjsdn
+        ports:
+            - "7700:7700"
+        volumes:
+            - meilisearch-data:/data.ms
+        networks:
+            - sail
+
+
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mysql:
         driver: local
+    meilisearch-data:
