@@ -55,7 +55,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 mt-6">
+    <main class="container mx-auto mt-6">
         @yield('content')
     </main>
 
