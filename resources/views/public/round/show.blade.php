@@ -32,6 +32,11 @@ The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
                             <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark d-flex align-items-center">
                                 <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
                                 <h6 class="ml-2">{{ $project->title }}</h6>
+                                @if ($project->gpt_summary)
+                                <div>
+                                    {{ $project->gpt_summary }}
+                                </div>
+                                @endif
                             </a>
                         </div>
                         @endforeach
