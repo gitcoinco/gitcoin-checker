@@ -65,7 +65,7 @@ services:
     meilisearch:
         image: getmeili/meilisearch:latest
         environment:
-            - MEILI_MASTER_KEY=238742ihsdlkjfsd8fysdkfjsdn
+            - MEILI_MASTER_KEY=abcdefghijklmnopqrstuvwxyz123456
         ports:
             - "7700:7700"
         volumes:
