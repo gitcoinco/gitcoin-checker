@@ -29,15 +29,25 @@ The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
                     <div>
                         @foreach($projects as $project)
                         <div class="d-flex align-items-center mb-2 bg-light p-2">
-                            <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark d-flex align-items-center">
-                                <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
-                                <h6 class="ml-2">{{ $project->title }}</h6>
-                                @if ($project->gpt_summary)
+                            <div>
+                                <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                    <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
+
+                                </a>
+
+                            </div>
+                            <div class="ml-2">
                                 <div>
+                                    <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark align-items-center">
+                                        <h6>{{ $project->title }}</h6>
+                                    </a>
+                                </div>
+                                @if ($project->gpt_summary)
+                                <div class="text-xs">
                                     {{ $project->gpt_summary }}
                                 </div>
                                 @endif
-                            </a>
+                            </div>
                         </div>
                         @endforeach
                     </div>
