@@ -47,7 +47,7 @@ Gitcoin: What we have been funding
                 @endif
 
                 <div class="mb-4">
-                    Dive into a world where boundaries are pushed, and innovation flourishes across various sectors. Gitcoin is not just a funding platform; it's a catalyst for change, fostering a space where ideas, big and small, get the support they need to make a lasting impact.
+                    Dive into a world where boundaries are pushed, and innovation flourishes across various sectors. Gitcoin has evolved into more than merely a grants program; it's a catalyst for change, empowering any community to fund what matters to them.
                 </div>
 
                 <div class="mb-5">
