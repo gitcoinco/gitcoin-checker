@@ -144,7 +144,7 @@ class IngestData extends Command
     {
         $projectController = new ProjectController();
 
-        $projects = Project::whereNull('gpt_summary')->limit(10)->get();
+        $projects = Project::whereNull('gpt_summary')->limit(100)->get();
         foreach ($projects as $project) {
             $this->info("Processing project: {$project->title}");
             $projectController->doGPTSummary($project);
