@@ -81,21 +81,22 @@ class ProjectController extends Controller
 
     public function homePublic($search = null)
     {
+        $cacheTimeout = 60 * 60;
         $cacheName = 'ProjectController()->homePublic()';
         //        $projects = Project::orderBy('id', 'desc')->paginate();
 
-        $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', 60, function () {
+        $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', $cacheTimeout, function () {
             return RoundApplication::sum('donor_amount_usd');
         });
-        $totalMatchAmountUSD = Cache::remember($cacheName . '->totalMatchAmountUSD', 60, function () {
+        $totalMatchAmountUSD = Cache::remember($cacheName . '->totalMatchAmountUSD', $cacheTimeout, function () {
             return RoundApplication::sum('match_amount_usd');
         });
-        $totalUniqueDonors = Cache::remember($cacheName . '->totalUniqueDonors', 60, function () {
+        $totalUniqueDonors = Cache::remember($cacheName . '->totalUniqueDonors', $cacheTimeout, function () {
             return ProjectDonation::distinct('voter_addr')->count('voter_addr');
         });
 
         // Let's put one project in the spotlight.  Look for projects that have received over $500 of donor and match contributions
-        $spotlightProject = Cache::remember($cacheName . '->spotlightProject', 5, function () {
+        $spotlightProject = Cache::remember($cacheName . '->spotlightProject', $cacheTimeout, function () {
             $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
 
             if ($application == null) {
@@ -110,22 +111,21 @@ class ProjectController extends Controller
         $spotlightProjectUniqueDonors = 0;
 
         if ($spotlightProject) {
-            $spotlightProjectTotalDonorAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalDonorAmountUSD', 5, function () use ($spotlightProject) {
+            $spotlightProjectTotalDonorAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalDonorAmountUSD', $cacheTimeout, function () use ($spotlightProject) {
                 return $spotlightProject->applications()->sum('donor_amount_usd');
             });
 
-            $spotlightProjectTotalMatchAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalMatchAmountUSD', 5, function () use ($spotlightProject) {
+            $spotlightProjectTotalMatchAmountUSD = Cache::remember($cacheName . '->spotlightProjectTotalMatchAmountUSD', $cacheTimeout, function () use ($spotlightProject) {
                 return $spotlightProject->applications()->sum('match_amount_usd');
             });
 
-            $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', 5, function () use ($spotlightProject) {
+            $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', $cacheTimeout, function () use ($spotlightProject) {
                 return $spotlightProject->projectDonations()->distinct('voter_addr')->count('voter_addr');
             });
         }
 
 
         return view('public.project.home', [
-            //            'projects' => $projects,
             'canLogin' => true,
             'totalDonorAmountUSD' => $totalDonorAmountUSD,
             'totalMatchAmountUSD' => $totalMatchAmountUSD,
@@ -187,6 +187,7 @@ class ProjectController extends Controller
 
     public function showPublic(Project $project)
     {
+        $cacheTimeout = 60 * 60;
         $cacheName = 'ProjectController::showPublic(' . $project->uuid . ')';
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
 
@@ -197,7 +198,7 @@ class ProjectController extends Controller
             $descriptionHTML = $converter->convertToHTML($project->description)->getContent();
         }
 
-        $totalProjectDonorAmount = Cache::remember($cacheName . '-totalProjectDonorAmount', 60, function () use ($applications) {
+        $totalProjectDonorAmount = Cache::remember($cacheName . '-totalProjectDonorAmount', $cacheTimeout, function () use ($applications) {
             $total = 0;
             foreach ($applications as $application) {
                 $total += $application->donor_amount_usd;
@@ -205,7 +206,7 @@ class ProjectController extends Controller
             return $total;
         });
 
-        $totalProjectDonorContributionsCount = Cache::remember($cacheName . '-totalProjectDonorContributionsCount', 60, function () use ($applications) {
+        $totalProjectDonorContributionsCount = Cache::remember($cacheName . '-totalProjectDonorContributionsCount', $cacheTimeout, function () use ($applications) {
             $total = 0;
             foreach ($applications as $application) {
                 $total += $application->donor_contributions_count;
@@ -213,7 +214,7 @@ class ProjectController extends Controller
             return $total;
         });
 
-        $totalProjectMatchAmount = Cache::remember($cacheName . '-totalProjectMatchAmount', 60, function () use ($applications) {
+        $totalProjectMatchAmount = Cache::remember($cacheName . '-totalProjectMatchAmount', $cacheTimeout, function () use ($applications) {
             $total = 0;
             foreach ($applications as $application) {
                 $total += $application->match_amount_usd;
@@ -223,7 +224,7 @@ class ProjectController extends Controller
 
 
         $projectsInterestType = 'donated-to';
-        $projectsInterest = Cache::remember($cacheName . '-projectsAlsoDonatedTo', 60, function () use ($project) {
+        $projectsInterest = Cache::remember($cacheName . '-projectsAlsoDonatedTo', $cacheTimeout, function () use ($project) {
             $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
 
             $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
