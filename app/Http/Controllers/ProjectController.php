@@ -297,6 +297,12 @@ class ProjectController extends Controller
 
         $gptResponse = json_decode($gptResponse);
 
+
+        // check for error
+        if (isset($gptResponse->error)) {
+            throw new \Exception($gptResponse->error->message);
+        }
+
         if (isset($gptResponse->choices[0]->message->content)) {
             $project->gpt_summary = $gptResponse->choices[0]->message->content;
             $project->save();
