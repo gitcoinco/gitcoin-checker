@@ -47,7 +47,7 @@
                 </a>
                 <div>
                     <a href="/public" class="text-muted text-decoration-none">
-                        <small class="text-muted"><em>Checker: <span>Projects and how we've funded them</span></em></small>
+                        <small class="text-muted"><em>Checker: <span>An Overview of Gitcoin Grants projects & donations</span></em></small>
                     </a>
                 </div>
                 <!-- You can add more header elements here -->
