@@ -17,8 +17,8 @@
     @stack('head')
 </head>
 
-<body class="bg-gray-100">
-    <header class="bg-white p-4 shadow mb-5">
+<body class="bg-gray-100" style="background-image: url('/img/backgrounds/bg1.png')">
+    <header class="bg-white p-4 shadow mb-5" style="opacity: 0.75;">
         <div class="container mx-auto">
             <div class="flex">
                 <a href="/public" class="text-lg font-bold text-gray-700 items-center space-x-2 flex">
@@ -55,7 +55,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto mt-6">
+    <main class="container mx-auto mt-6" style="opacity: 0.75;">
         @yield('content')
     </main>
 
