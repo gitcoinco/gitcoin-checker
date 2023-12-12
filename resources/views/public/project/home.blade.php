@@ -20,7 +20,7 @@ Gitcoin: What we have been funding
                 </div>
 
                 <div class="mb-4">
-                    From pioneering open-source software to trailblazing climate solutions and building robust Web3 infrastructure, Gitcoin stands at the forefront of collaborative funding. Our mission is to connect visionary creators with a community eager to support impactful initiatives.
+                    Gitcoin creates onchain grants and identity management solutions that let communities govern their shared resources with trust and transparency. Our mission is to create technologies and opportunities that enable communities to build, fund and protect what matters.
                 </div>
 
 
