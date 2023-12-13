@@ -92,7 +92,7 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/"
+          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/ && cd /var/www/checker/checker.gitcoin.co && php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear"
 
       - name: Restart Node.js application
         run: |
