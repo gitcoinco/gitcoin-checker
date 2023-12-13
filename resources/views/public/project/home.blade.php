@@ -64,11 +64,11 @@ Gitcoin: What we have been funding
                     <h2>Stay Connected</h2>
 
                     <div class="mb-3">
-                        <a href="https://gitcoin.co?utm_source=checker.gitcoin.co" target="_blank">Join the Gitcoin Ecosystem</a>: Whether you're an innovator, a developer, or a passionate supporter, your journey towards making a difference starts here. Explore projects, contribute to diverse causes, and be part of a community that's shaping the future.
+                        <a href="https://grants.gitcoin.co/?utm_source=checker.gitcoin.co" target="_blank">Explore projects, contribute to diverse causes</a>, and be part of a community that's shaping the future.
                     </div>
 
                     <div class="mb-3">
-                        <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Stay Informed and Connected</a>: Follow us on <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Twitter</a> for the latest news, project highlights, and community stories.
+                        Follow us on <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Twitter</a> or <a href="https://www.gitcoin.co/?action=get-updates&utm_source=checker.gitcoin.co">sign up to our newsletter</a> for the latest news, project highlights, and community stories.
                     </div>
                 </div>
 
