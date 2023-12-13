@@ -1,7 +1,7 @@
 @extends('public')
 
 @section('title')
-Gitcoin Round: {{ $round->title }}
+Gitcoin Round: {{ $round->name }}
 @endsection
 
 @section('meta_description')
@@ -31,6 +31,61 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                     The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}.
                 </div>
 
+                <div class="mb-4 d-flex justify-content-between">
+                    <div>
+                        <div class="mb-4">
+                            {{$roundToken}} {{ $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
+                            (${{ number_format($round->match_amount_usd, 2) }})<br />
+                            <span class="text-muted font-italic">Matching pool</span>
+                        </div>
+                        <div>
+                            {{ $projects->total() }}<br />
+                            <span class="text-muted font-italic"> Total Projects
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mb-4">
+                            ${{ number_format($round->amount_usd, 2)}}<br />
+                            <span class="text-muted font-italic"> Total USD Crowdfunded
+                            </span>
+                        </div>
+                        <div>
+                            {{ $totalRoundDonatators }}<br />
+                            <span class="text-muted font-italic"> Total Donations
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="mb-4">
+                            ${{ ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
+                            <span class="text-muted font-italic"> Matching Cap
+                            </span>
+                        </div>
+                        <div>
+                            {{ $totalRoundDonors }}<br />
+                            <span class="text-muted font-italic"> Total Donors
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="mb-4">
+                            {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />
+                            <span class="text-muted font-italic"> Round ended on
+                            </span>
+                        </div>
+                        <div>
+                            {{ $totalProjectsReachingMatchingCap }}<br />
+                            <span class="text-muted font-italic"> Projects Reaching Matching Cap
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 @if(count($projects) > 0)
                 <div>
                     <!-- <h3>Projects in the {{ $round->name }} round.</h3> -->
@@ -38,16 +93,14 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                         @foreach($projects as $project)
                         <div class="d-flex align-items-center mb-2 bg-light p-2">
                             <div>
-                                <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                <a href="{{ route('public.project.show', $project->slug) }}" class="text-decoration-none text-dark d-flex align-items-center">
                                     <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
-
                                 </a>
-
                             </div>
                             <div class="ml-2">
                                 <div>
-                                    <a href="{{ route('public.project.show', $project) }}" class="text-decoration-none text-dark align-items-center">
-                                        <h6>{{ $project->title }}</h6>
+                                    <a href="{{ route('public.project.show', $project->slug) }}" class="text-decoration-none text-dark align-items-center">
+                                        <h6>{{ $project->title }}</h6>${{ number_format($project->total_amount, 2) }}
                                     </a>
                                 </div>
                                 @if ($project->gpt_summary)

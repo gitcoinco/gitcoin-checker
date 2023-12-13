@@ -17,7 +17,8 @@
     @stack('head')
 </head>
 
-<body class="bg-gray-100" style="background-image: url('/img/backgrounds/bg1.png')">
+<body class="bg-gray-100" style="background-attachment: fixed; background-image: url('/img/backgrounds/bg3.jpeg');">
+
     <header class="bg-white p-4 shadow mb-5" style="opacity: 0.75;">
         <div class="container mx-auto">
             <div class="flex">

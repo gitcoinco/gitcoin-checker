@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ProjectDonation;
 use App\Models\Round;
+use App\Models\RoundApplication;
+use App\Services\AddressService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -156,12 +159,37 @@ class RoundController extends Controller
 
         $projectAddr = $round->applications()->where('status', 'APPROVED')->pluck('project_addr')->toArray();
 
-        $projects = Project::whereIn('id_addr', $projectAddr)->orderBy('id', 'desc')->paginate();
+        //        $projects = Project::whereIn('id_addr', $projectAddr)->orderBy('id', 'desc')->paginate();
+
+        $totalRoundDonatators = ProjectDonation::where('round_id', $round->id)->count();
+        $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('voter_addr')->count('voter_addr');
+
+        $matchingCap = ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+
+        $projects = RoundApplication::where('round_id', $round->id)
+            ->join('projects', 'round_applications.project_addr', '=', 'projects.id_addr')
+            ->selectRaw('projects.title, projects.slug, projects.logoImg, round_applications.project_addr, sum(round_applications.donor_amount_usd + round_applications.match_amount_usd) as total_amount')
+            ->groupBy('projects.title', 'round_applications.project_addr')
+            ->orderBy('total_amount', 'desc')
+            ->paginate(100);
+
+        $totalProjectsReachingMatchingCap = 0;
+        foreach ($projects as $key => $project) {
+            if ($project->total_amount >= $matchingCap) {
+                $totalProjectsReachingMatchingCap++;
+            }
+        }
+
+        $roundToken = AddressService::getTokenFromAddress($round->token);
 
         return view('public.round.show', [
             'round' => $round,
             'projects' => $projects,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+            'totalRoundDonatators' => $totalRoundDonatators,
+            'totalRoundDonors' => $totalRoundDonors,
+            'totalProjectsReachingMatchingCap' => $totalProjectsReachingMatchingCap,
+            'roundToken' => $roundToken,
         ]);
     }
 }
