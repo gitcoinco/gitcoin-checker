@@ -34,9 +34,14 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                 <div class="mb-4 d-flex justify-content-between">
                     <div>
                         <div class="mb-4">
+                            @if (isset($round->metadata['quadraticFundingConfig']['matchingFundsAvailable']))
                             {{$roundToken}} {{ $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
                             (${{ number_format($round->match_amount_usd, 2) }})<br />
                             <span class="text-muted font-italic">Matching pool</span>
+                            @else
+                            No matching funds available
+                            <span class="text-muted font-italic">Matching pool</span>
+                            @endif
                         </div>
                         <div>
                             {{ $projects->total() }}<br />
