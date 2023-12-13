@@ -11,6 +11,12 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
         <div class="card mb-3">
             <div class="card-body">
 
+                <div class="mb-4">
+                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
+                    <a href="{{ route('public.projects.list') }}" title="View a list of rounds">Projects</a>
+                </div>
+
+
                 <div>
                     <form action="/public/rounds/list">
                         <div class="input-group mb-3">

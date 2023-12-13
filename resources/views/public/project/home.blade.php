@@ -11,12 +11,8 @@ Gitcoin: What we have been funding
             <div class="card-body">
 
                 <div class="mb-4">
-                    <a href="{{ route('public.projects.list') }}" title="View a list of projects that have applied for funding via Gitcoin">
-                        Projects
-                    </a> |
-                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">
-                        Rounds
-                    </a>
+                    <a href="{{ route('public.projects.list') }}" title="View a list of projects that have applied for funding via Gitcoin">Projects</a> |
+                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
                 </div>
 
                 <div class="mb-4">

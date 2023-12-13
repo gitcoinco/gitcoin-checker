@@ -4,42 +4,19 @@
 Gitcoin: A list of projects that have been funded by Gitcoin Grants
 @endsection
 
-<script>
-    function getRandomProject() {
-        fetch('{{ route("public.project.random") }}')
-            .then(response => response.json())
-            .then(data => {
-                let project = data.project;
-                let pinataUrl = data.pinataUrl;
-                let projectDiv = document.createElement('div');
-                projectDiv.innerHTML = `
-                <h3 class="mb-3 text-dark">In the spotlight</h3>
-                <a href="/public/project/show/${project.slug}" class="text-dark">
-                                <div class="d-flex">
-                                <div class="mr-3">
-                                <img width="100" height="100" src="${pinataUrl}/${project.logoImg}?img-width=100" class="mx-auto rounded-circle" />
-                                </div>
-                                <div>
-                            <h6>${project.title}</h6>
-                            <div>${project.gpt_summary}</div>
-                            </div>
-                            </div>
-                            </a>
-                        `;
-                document.querySelector('#randomProject').innerHTML = projectDiv.outerHTML;
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    getRandomProject();
-</script>
 
 @section('content')
 <div class="container-fluid bg-light ml-0 mr-0 pl-0 pr-0">
     <div class="container py-3 ml-0 mr-0 pl-0 pr-0">
-
         <div class="card mb-3">
             <div class="card-body">
+
+                <div class="mb-4">
+                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
+                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
+                </div>
+
+
                 <div class="container py-3">
 
                     <div class="mb-5 highlight-green">
@@ -138,3 +115,33 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
     </div>
 </div>
 @endsection
+
+<script>
+    function getRandomProject() {
+        fetch('{{ route("public.project.random") }}')
+            .then(response => response.json())
+            .then(data => {
+                let project = data.project;
+                let pinataUrl = data.pinataUrl;
+                let projectDiv = document.createElement('div');
+                projectDiv.innerHTML = `
+                <h3 class="mb-3 text-dark">In the spotlight</h3>
+                <a href="/public/project/show/${project.slug}" class="text-dark">
+                                <div class="d-flex">
+                                <div class="mr-3">
+                                <img width="100" height="100" src="${pinataUrl}/${project.logoImg}?img-width=100" class="mx-auto rounded-circle" />
+                                </div>
+                                <div>
+                            <h6>${project.title}</h6>
+                            <div>${project.gpt_summary}</div>
+                            </div>
+                            </div>
+                            </a>
+                        `;
+                document.querySelector('#randomProject').innerHTML = projectDiv.outerHTML;
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    getRandomProject();
+</script>

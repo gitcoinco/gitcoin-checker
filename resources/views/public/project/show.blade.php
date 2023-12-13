@@ -18,13 +18,19 @@ Gitcoin: {{ $project->title }}
         <div class="card mb-3">
             <div class="card-body">
 
+                <div class="mb-4">
+                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
+                    <a href="{{ route('public.projects.list') }}" title="View a list of rounds">Projects</a> |
+                    <span>{{ $project->title }}</span>
+                </div>
+
+
                 <div class="d-flex align-items-center mb-4 flex-column">
                     <div class="d-flex flex-column justify-content-center align-items-center" style="background-image: url('{{ $pinataUrl.'/'.$project->bannerImg.'?img-height=300' }}');">
                         <a href="{{ route('public.project.show', $project) }}" class="col-12 col-md-auto">
 
                             <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=100' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 100px; max-width: inherit" class="mx-auto rounded-circle" />
                         </a>
-                        <h1 class="card-title mt-2 mt-md-0 h3 h1-md col-12 col-md-auto px-0 px-md-3 text-md-left bg-white opacity-50">{{ $project->title }}</h1>
                     </div>
                 </div>
 
@@ -50,18 +56,24 @@ Gitcoin: {{ $project->title }}
                 <div class="mb-4">
 
                     @if(isset($project->website))
-                    <div><i class="fa fa-globe" aria-hidden="true"></i> Website: <a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></div>
+                    <div><i class="fa fa-globe" aria-hidden="true"></i> <a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></div>
                     @endif
                     @if(isset($project->projectTwitter))
-                    <div><i class="fa fa-twitter" aria-hidden="true"></i> Twitter: <a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></div>
+                    <div><i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></div>
                     @endif
                     @if($project->userGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> User Github: <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a></div>
+                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a></div>
                     @endif
                     @if($project->projectGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> Project Github: <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a></div>
+                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a></div>
                     @endif
                 </div>
+
+                @if($project->gpt_summary && $project->gpt_summary != $project->description)
+                <div class="mb-4">
+                    {{ $project->gpt_summary }}
+                </div>
+                @endif
 
                 @if($descriptionHTML)
                 <div class="text-xs descriptionHTML">

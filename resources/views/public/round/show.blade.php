@@ -5,7 +5,7 @@ Gitcoin Round: {{ $round->title }}
 @endsection
 
 @section('meta_description')
-The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
+The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
 @endsection
 
 
@@ -17,6 +17,14 @@ The {{ $round->title }} round was ran on {{ $round->round_start_time }}.
         <!-- Project Details -->
         <div class="card mb-3">
             <div class="card-body">
+
+                <div class="mb-4">
+                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
+                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
+                    | <span>{{ $round->name }}</span>
+                </div>
+
+
                 <h1 class="card-title">{{ $round->name }}</h1>
 
                 <div class="mb-4">
