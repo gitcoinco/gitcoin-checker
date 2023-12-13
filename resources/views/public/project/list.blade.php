@@ -4,6 +4,36 @@
 Gitcoin: A list of projects that have been funded by Gitcoin Grants
 @endsection
 
+<script>
+    function getRandomProject() {
+        fetch('{{ route("public.project.random") }}')
+            .then(response => response.json())
+            .then(data => {
+                let project = data.project;
+                let pinataUrl = data.pinataUrl;
+                let projectDiv = document.createElement('div');
+                projectDiv.innerHTML = `
+                <h3 class="mb-3 text-dark">In the spotlight</h3>
+                <a href="/public/project/show/${project.slug}" class="text-dark">
+                                <div class="d-flex">
+                                <div class="mr-3">
+                                <img width="100" height="100" src="${pinataUrl}/${project.logoImg}?img-width=100" class="mx-auto rounded-circle" />
+                                </div>
+                                <div>
+                            <h6>${project.title}</h6>
+                            <div>${project.gpt_summary}</div>
+                            </div>
+                            </div>
+                            </a>
+                        `;
+                document.querySelector('#randomProject').innerHTML = projectDiv.outerHTML;
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    getRandomProject();
+</script>
+
 @section('content')
 <div class="container-fluid bg-light ml-0 mr-0 pl-0 pr-0">
     <div class="container py-3 ml-0 mr-0 pl-0 pr-0">
@@ -11,6 +41,30 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
         <div class="card mb-3">
             <div class="card-body">
                 <div class="container py-3">
+
+                    <div class="mb-5 highlight-green">
+                        <div id="randomProject"></div>
+                        <div id="randomProjectCounter" class="pointer text-right text-muted font-italic small"></div>
+                        <script>
+                            let counter = 10;
+                            document.querySelector('#randomProjectCounter').addEventListener('click', function() {
+                                getRandomProject();
+                                document.querySelector('#randomProjectCounter').innerHTML = '';
+                                counter = 10;
+                            });
+
+                            let countdown = setInterval(function() {
+                                document.querySelector('#randomProjectCounter').innerHTML = 'Auto refresh in ' + counter + ' seconds';
+                                counter--;
+                                if (counter < 0) {
+                                    counter = 10;
+                                    getRandomProject();
+                                }
+                            }, 1000);
+                        </script>
+                    </div>
+
+
                     <form action="/public/projects/list">
                         <div class="input-group mb-3">
                             <input name="search" type="text" value="{{ $search }}" class="form-control" placeholder="Search projects..." aria-label="Search for projects" aria-describedby="button-addon2">

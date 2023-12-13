@@ -140,3 +140,5 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
     border-bottom-right-radius: 10px;
 }
 ol, ul { margin-left: 25px; }
+
+.pointer { cursor: pointer; }

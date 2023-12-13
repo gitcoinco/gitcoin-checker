@@ -44,6 +44,7 @@ Route::prefix('public')->group(
             return redirect()->route('public.projects.home');
         });
         Route::get('/projects', [ProjectController::class, 'homePublic'])->name('public.projects.home');
+        Route::get('/project/random', [ProjectController::class, 'randomProjectPublic'])->name('public.project.random');
         Route::get('/projects/list', [ProjectController::class, 'listPublic'])->name('public.projects.list');
         Route::get('/project/show/{project}', [ProjectController::class, 'showPublic'])->name('public.project.show');
 

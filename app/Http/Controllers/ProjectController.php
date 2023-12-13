@@ -65,17 +65,38 @@ class ProjectController extends Controller
             $projects = Project::whereNotIn('id', $listOfTestProjectIds)->orderBy('id', 'desc')->paginate();
         }
 
-        // $converter = new CommonMarkConverter();
-        // // Convert descriptions to HTML
-        // $projects->transform(function ($project) use ($converter) {
-        //     $project->descriptionHTML = $converter->convertToHTML($project->description)->getContent();
-        //     return $project;
-        // });
-
         return view('public.project.list', [
             'projects' => $projects,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
             'search' => $search,
+        ]);
+    }
+
+    public function randomProjectPublic()
+    {
+        $cacheTimeout = 2;
+        $cacheName = 'ProjectController()->randomProjectPublic()';
+
+        $listOfTestProjectIds = Project::where(function ($query) {
+            $query->where('title', 'like', ' test%')->orWhere('title', 'like', '% test %');
+        })->pluck('id')->toArray();
+
+
+        $spotlightProject = Cache::remember($cacheName . '->spotlightProject1', $cacheTimeout, function () {
+            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
+
+            if ($application == null) {
+                return null;
+            }
+
+            return $application->project()->first();
+        });
+
+
+        $project = Project::whereNotIn('id', $listOfTestProjectIds)->whereNotNull('gpt_summary')->inRandomOrder()->first();
+        return response()->json([
+            'project' => $spotlightProject,
+            'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
         ]);
     }
 
