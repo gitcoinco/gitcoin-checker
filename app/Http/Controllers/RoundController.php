@@ -136,7 +136,12 @@ class RoundController extends Controller
             $rounds->load(['chain']);
             $rounds->loadCount('applications');
         } else {
-            $rounds = Round::orderBy('round_start_time', 'desc')->whereNotIn('id', $testIds)->with(['chain'])->withCount('applications')->paginate();
+            $rounds = Round::orderBy('round_start_time', 'desc')
+                ->whereNotIn('id', $testIds)
+                ->whereHas('applications')
+                ->with(['chain'])
+                ->withCount('applications')
+                ->paginate();
         }
 
         return view('public.round.list', [

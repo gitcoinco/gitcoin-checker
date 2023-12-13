@@ -31,10 +31,12 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                     <div class="mb-5">
 
                         @foreach ($rounds as $round)
-                        <div class="mb-2">
-                            <a href="{{ route('public.round.show', $round) }}">
-                                {{ $round->name }} <span class="text-xs">on {{ $round->chain->name }}, {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }} ({{ $round->applications_count}} applications)</span>
-                            </a>
+                        <div class="mb-3">
+                            <h4 class="mb-0"> <a href="{{ route('public.round.show', $round) }}">
+                                    {{ $round->name }} </a>
+                            </h4>
+
+                            <span class="text-xs">{{ $round->chain->name }}, {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />({{ $round->applications_count}} applications)</span>
                         </div>
                         @endforeach
                     </div>
