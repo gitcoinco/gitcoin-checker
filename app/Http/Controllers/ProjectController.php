@@ -103,7 +103,7 @@ class ProjectController extends Controller
 
     public function homePublic($search = null)
     {
-        $cacheTimeout = 60 * 60;
+        $cacheTimeout = 60 * 60 * 24 * 7;
         $cacheName = 'ProjectController()->homePublic()';
         //        $projects = Project::orderBy('id', 'desc')->paginate();
 
@@ -118,7 +118,7 @@ class ProjectController extends Controller
         });
 
         // Let's put one project in the spotlight.  Look for projects that have received over $500 of donor and match contributions
-        $spotlightProject = Cache::remember($cacheName . '->spotlightProject', $cacheTimeout, function () {
+        $spotlightProject = Cache::remember($cacheName . '->spotlightProject', 60 * 60, function () {
             $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
 
             if ($application == null) {
