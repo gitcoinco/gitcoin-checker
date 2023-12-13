@@ -164,7 +164,11 @@ class RoundController extends Controller
         $totalRoundDonatators = ProjectDonation::where('round_id', $round->id)->count();
         $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('voter_addr')->count('voter_addr');
 
-        $matchingCap = ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+        $matchingCap = 0;
+
+        if (isset($round->metadata['quadraticFundingConfig']['matchingCapAmount'])) {
+            $matchingCap = ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+        }
 
         $projects = RoundApplication::where('round_id', $round->id)
             ->join('projects', 'round_applications.project_addr', '=', 'projects.id_addr')
@@ -174,9 +178,12 @@ class RoundController extends Controller
             ->paginate(100);
 
         $totalProjectsReachingMatchingCap = 0;
-        foreach ($projects as $key => $project) {
-            if ($project->total_amount >= $matchingCap) {
-                $totalProjectsReachingMatchingCap++;
+        if ($matchingCap > 0) {
+
+            foreach ($projects as $key => $project) {
+                if ($project->total_amount >= $matchingCap) {
+                    $totalProjectsReachingMatchingCap++;
+                }
             }
         }
 
@@ -190,6 +197,7 @@ class RoundController extends Controller
             'totalRoundDonors' => $totalRoundDonors,
             'totalProjectsReachingMatchingCap' => $totalProjectsReachingMatchingCap,
             'roundToken' => $roundToken,
+            'matchingCap' => $matchingCap,
         ]);
     }
 }

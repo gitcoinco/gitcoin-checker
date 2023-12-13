@@ -59,9 +59,16 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
 
                     <div>
                         <div class="mb-4">
+                            @if ($matchingCap > 0)
                             ${{ ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
                             <span class="text-muted font-italic"> Matching Cap
                             </span>
+                            @else
+                            0 matching cap<br />
+                            <span class="text-muted font-italic"> No Matching Cap
+
+                            </span>
+                            @endif
                         </div>
                         <div>
                             {{ $totalRoundDonors }}<br />
