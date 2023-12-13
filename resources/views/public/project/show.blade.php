@@ -41,7 +41,7 @@ Gitcoin: {{ $project->title }}
 
                     @if($totalProjectDonorAmount > 0)
                     <h3>
-                        ${{ number_format($totalProjectDonorAmount, 2) }} in donations received from {{ $totalProjectDonorContributionsCount}} donors
+                        ${{ number_format($totalProjectDonorAmount, 2) }} crowdfunded from {{ $totalProjectDonorContributionsCount}} people
                     </h3>
                     @endif
 

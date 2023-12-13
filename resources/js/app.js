@@ -46,3 +46,12 @@ createInertiaApp({
         color: "#4B5563",
     },
 });
+
+// if production
+if (process.env.NODE_ENV === "production") {
+    router.on("navigate", (event) => {
+        gtag("event", "page_view", {
+            page_location: event.detail.page.url,
+        });
+    });
+}

@@ -61,6 +61,22 @@
     </main>
 
     @stack('scripts')
+
+    @production
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env('GOOGLE_TAGMANAGER_ID') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', '{{ env("GOOGLE_TAGMANAGER_ID") }}');
+    </script>
+    @endproduction
+
 </body>
 
 </html>
