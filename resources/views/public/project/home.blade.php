@@ -65,7 +65,7 @@ Gitcoin: What we have been funding
                     </div>
 
                     <div class="mb-3">
-                        Follow us on <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Twitter</a> or <a href="https://www.gitcoin.co/?action=get-updates&utm_source=checker.gitcoin.co">sign up to our newsletter</a> for the latest news, project highlights, and community stories.
+                        Follow us on <a href="https://twitter.com/gitcoin?utm_source=checker.gitcoin.co" target="_blank">Twitter</a> or <a href="https://www.gitcoin.co/updates?action=get-updates&utm_source=checker.gitcoin.co">sign up to our newsletter</a> for the latest news, project highlights, and community stories.
                     </div>
                 </div>
 
