@@ -18,7 +18,7 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                         <h3 class="mb-3 text-dark">In the spotlight</h3>
 
                         <a href="{{ route('public.round.show', $spotlightRound) }}">{{ $spotlightRound->name }}</a>, running on {{ $spotlightRound->chain->name}} with a matching pool of
-                        ${{ $spotlightRound->match_amount_usd}}
+                        ${{ number_format($spotlightRound->match_amount_usd, 2)}}
 
 
                     </div>
@@ -43,7 +43,10 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                                         {{ $round->name }} </a>
                                 </h4>
 
-                                <span class="text-xs">{{ $round->chain->name }}, {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />({{ $round->applications_count}} applications)</span>
+                                <span class="text-xs">{{ $round->chain->name }}, {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />({{ $round->applications_count}} applications)</span><br />
+                                <span class="text-xs">
+                                    ${{number_format($round->match_amount_usd, 2)}} match pool
+                                </span>
                             </div>
                             @endforeach
                         </div>
