@@ -52,6 +52,7 @@ Route::prefix('public')->group(
         Route::get('/round/show/{round}', [RoundController::class, 'showPublic'])->name('public.round.show');
 
         Route::get('/projects/sitemap.xml', [ProjectController::class, 'sitemapPublic'])->name('public.projects.sitemap');
+        Route::get('/projects/sitemap-{index}.xml', [ProjectController::class, 'sitemapIndexPublic'])->where('index', '[0-9]+')->name('public.projects.sitemap.index');
     }
 );
 

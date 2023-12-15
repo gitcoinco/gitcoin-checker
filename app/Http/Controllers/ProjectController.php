@@ -162,7 +162,16 @@ class ProjectController extends Controller
 
     public function sitemapPublic()
     {
-        $projects = Cache::remember('ProjectController::sitemapPublic', 60, function () {
+        $projectsCount = Project::count();
+        $sitemapCount = ceil($projectsCount / 1000);
+        return view('public.project.sitemap', [
+            'sitemapCount' => $sitemapCount,
+        ]);
+    }
+
+    public function sitemapIndexPublic($index)
+    {
+        $projects = Cache::remember('ProjectController::sitemapPublic', 60, function () use ($index) {
             $projects =  Project::orderBy('id', 'desc')->get();
 
             $listOfProjectOwnersWithTestInTheTitle = [];
@@ -196,15 +205,15 @@ class ProjectController extends Controller
                 $listOfProjectsIdsToExclude[] = $value['project.id'];
             }
 
-            $projects = Project::whereNotIn('id', $listOfProjectsIdsToExclude)
-                ->orderBy('id', 'desc')
-                ->get(['id', 'slug']);
-
-            return Project::whereNotIn('id', $listOfProjectsIdsToExclude)->orderBy('id', 'desc')->get();
+            return Project::whereNotIn('id', $listOfProjectsIdsToExclude)
+                ->orderBy('id', 'asc')
+                ->skip($index * 1000)
+                ->take(1000)
+                ->get(['id', 'slug', 'updated_at']);
         });
 
 
-        return view('public.project.sitemap', [
+        return view('public.project.sitemapIndex', [
             'projects' => $projects,
         ]);
     }
