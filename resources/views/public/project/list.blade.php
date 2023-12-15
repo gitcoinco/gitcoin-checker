@@ -107,7 +107,6 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
         </div>
     </div>
 </div>
-@endsection
 
 <script>
     function getRandomProject() {
@@ -138,3 +137,5 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
 
     getRandomProject();
 </script>
+
+@endsection
