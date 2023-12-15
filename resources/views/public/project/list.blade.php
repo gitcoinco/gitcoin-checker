@@ -10,15 +10,8 @@ Gitcoin: A list of projects that have been funded by Gitcoin Grants
     <div class="container py-3 ml-0 mr-0 pl-0 pr-0">
         <div class="card mb-3">
             <div class="card-body">
-
-                <div class="mb-4">
-                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
-                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
-                </div>
-
-
+                @include('public.breadcrumb')
                 <div class="container py-3">
-
                     <div class="mb-5 highlight-green">
                         <div id="randomProject"></div>
                         <div id="randomProjectCounter" class="pointer text-right text-muted font-italic small"></div>

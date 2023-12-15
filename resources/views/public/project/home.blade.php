@@ -4,16 +4,13 @@
 Gitcoin: What we have been funding
 @endsection
 
+
 @section('content')
 <div class="container-fluid bg-light ml-0 mr-0 pl-0 pr-0">
     <div class="container py-3 ml-0 mr-0 pl-0 pr-0">
         <div class="card mb-3">
             <div class="card-body">
-
-                <div class="mb-4">
-                    <a href="{{ route('public.projects.list') }}" title="View a list of projects that have applied for funding via Gitcoin">Projects</a> |
-                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
-                </div>
+                @include('public.breadcrumb')
 
                 <div class="mb-4">
                     Gitcoin creates onchain grants and identity management solutions that let communities govern their shared resources with trust and transparency. Our mission is to create technologies and opportunities that enable communities to build, fund and protect what matters.

@@ -142,3 +142,9 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
 ol, ul { margin-left: 25px; }
 
 .pointer { cursor: pointer; }
+
+div.container { background-color: #fff; }
+
+.mybreadcrumb a { margin-right: 20px; padding-right: 20px; border-right: 1px solid #bbb; }
+.mybreadcrumb a:last-child { margin-right: 0; padding-right: 0; border-right: 0; }
+.mybreadcrumb a.selected { text-decoration: underline; }

@@ -8,6 +8,12 @@ Gitcoin: {{ $project->title }}
 {{ $project->title }} is a project that applied for a grant on Gitcoin.
 @endsection
 
+@section('breadcrumbExtra')
+<div>
+    <i class="text-muted">{{ $project->title }}</i>
+</div>
+@endsection
+
 
 @section('content')
 
@@ -17,14 +23,7 @@ Gitcoin: {{ $project->title }}
         <!-- Project Details -->
         <div class="card mb-3">
             <div class="card-body">
-
-                <div class="mb-4">
-                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
-                    <a href="{{ route('public.projects.list') }}" title="View a list of rounds">Projects</a> |
-                    <span>{{ $project->title }}</span>
-                </div>
-
-
+                @include('public.breadcrumb')
                 <div class="d-flex align-items-center mb-4 flex-column">
                     <div class="d-flex flex-column justify-content-center align-items-center" style="background-image: url('{{ $pinataUrl.'/'.$project->bannerImg.'?img-height=300' }}');">
                         <a href="{{ route('public.project.show', $project) }}" class="col-12 col-md-auto">

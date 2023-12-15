@@ -8,23 +8,20 @@ Gitcoin Round: {{ $round->name }}
 The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
 @endsection
 
+@section('breadcrumbExtra')
+<div>
+    <i class="text-muted">{{ $round->name }}</i>
+</div>
+@endsection
+
 
 @section('content')
 
 <div class="container-fluid bg-light ml-0 mr-0 pl-0 pr-0">
     <div class="container py-3 ml-0 mr-0 pl-0 pr-0">
-
-        <!-- Project Details -->
         <div class="card mb-3">
             <div class="card-body">
-
-                <div class="mb-4">
-                    <a href="{{ route('public.projects.home') }}" title="View a list of projects that have applied for funding via Gitcoin">Home</a> |
-                    <a href="{{ route('public.rounds.list') }}" title="View a list of rounds">Rounds</a>
-                    | <span>{{ $round->name }}</span>
-                </div>
-
-
+                @include('public.breadcrumb')
                 <h1 class="card-title">{{ $round->name }}</h1>
 
                 <div class="mb-4">
