@@ -196,7 +196,9 @@ class ProjectController extends Controller
                 $listOfProjectsIdsToExclude[] = $value['project.id'];
             }
 
-            $projects = Project::whereNotIn('id', $listOfProjectsIdsToExclude)->orderBy('id', 'desc')->count();
+            $projects = Project::whereNotIn('id', $listOfProjectsIdsToExclude)
+                ->orderBy('id', 'desc')
+                ->get(['id', 'slug']);
 
             return Project::whereNotIn('id', $listOfProjectsIdsToExclude)->orderBy('id', 'desc')->get();
         });
