@@ -147,9 +147,12 @@ class RoundController extends Controller
                 ->paginate();
         }
 
+        $spotlightRound = Round::where('round_start_time', '<', Carbon::now())->where('round_end_time', '>', Carbon::now())->whereNotIn('id', $testIds)->inRandomOrder()->where('match_amount_usd', '>', 1000)->first();
+
         return view('public.round.list', [
             'rounds' => $rounds,
             'search' => $search,
+            'spotlightRound' => $spotlightRound,
         ]);
     }
 
@@ -158,8 +161,6 @@ class RoundController extends Controller
         $round->load(['chain']);
 
         $projectAddr = $round->applications()->where('status', 'APPROVED')->pluck('project_addr')->toArray();
-
-        //        $projects = Project::whereIn('id_addr', $projectAddr)->orderBy('id', 'desc')->paginate();
 
         $totalRoundDonatators = ProjectDonation::where('round_id', $round->id)->count();
         $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('voter_addr')->count('voter_addr');
