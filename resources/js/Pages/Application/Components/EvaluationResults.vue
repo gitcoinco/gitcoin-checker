@@ -90,7 +90,13 @@ const getGptAnswer = (question) => {
 };
 
 const questions = () => {
-    return JSON.parse(props.application.round.evaluation_questions.questions);
+    try {
+        return JSON.parse(
+            props.application.round.evaluation_questions.questions
+        );
+    } catch (error) {
+        return [];
+    }
 };
 </script>
 
