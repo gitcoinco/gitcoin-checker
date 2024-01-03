@@ -209,7 +209,6 @@ const applications = ref(usePage().props.applications.valueOf());
                                     :key="index"
                                 >
                                     <td>
-                                        {{ application.id }} -
                                         <span
                                             v-html="
                                                 applicationStatusIcon(
