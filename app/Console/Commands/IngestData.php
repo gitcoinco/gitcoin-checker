@@ -191,6 +191,7 @@ class IngestData extends Command
             $data = Cache::get($url);
             if (!$data) {
                 $this->error("Failed to get data from {$url} after 5 attempts.");
+                return;
             }
         }
 
