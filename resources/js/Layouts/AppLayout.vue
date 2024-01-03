@@ -65,6 +65,26 @@ const logout = () => {
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    :href="route('project.index')"
+                                    :active="route().current('project.index')"
+                                >
+                                    Projects
+                                </NavLink>
+                                <NavLink
+                                    :href="route('round.index')"
+                                    :active="route().current('round.index')"
+                                >
+                                    Rounds
+                                </NavLink>
+                                <NavLink
+                                    :href="route('access-control.index')"
+                                    :active="
+                                        route().current('access-control.index')
+                                    "
+                                >
+                                    Users
+                                </NavLink>
                             </div>
                         </div>
 
