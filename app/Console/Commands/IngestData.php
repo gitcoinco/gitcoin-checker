@@ -69,10 +69,7 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
-        $this->updateProjectSummaries();
-
         $startTime = microtime(true);
-
 
         $longRunning = $this->option('longRunning') ?? false;
 
@@ -127,6 +124,8 @@ class IngestData extends Command
     // Split the long running tasks into a separate function so we can run them in the background
     private function longRunningTasks()
     {
+        $this->updateProjectSummaries();
+
         // Loop through all the chains and update project owners
         $chains = Chain::all();
         foreach ($chains as $chain) {
