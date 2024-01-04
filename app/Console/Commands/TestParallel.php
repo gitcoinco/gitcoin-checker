@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Promise\Utils;
+use Throwable;
 
 class TestParallel extends Command
 {
@@ -14,9 +16,8 @@ class TestParallel extends Command
     public function handle()
     {
         $urls = [];
-
-        for ($i = 1; $i <= 100; $i++) {
-            $urls[] = 'https://jsonplaceholder.typicode.com/posts/' . $i;
+        for ($i = 1; $i <= 10; $i++) {
+            $urls[] = 'https://postman-echo.com/delay/3';
         }
 
         $this->info('Starting sequential processing...');
@@ -36,25 +37,33 @@ class TestParallel extends Command
     {
         $client = new Client();
 
-        foreach ($urls as $url) {
-            $response = $client->get($url);
-            //            $this->info('Response: ' . $response->getBody());
+        foreach ($urls as $key => $url) {
+            $this->info('Request #' . ($key + 1) . ' sent!');
+            try {
+                $response = $client->get($url);
+                $this->info('Response received for Request #' . ($key + 1));
+            } catch (Throwable $e) {
+                $this->error('Error on Request #' . ($key + 1) . ': ' . $e->getMessage());
+            }
         }
     }
 
     private function parallelProcessing($urls)
     {
-        $client = new Client();
-        $promises = [];
+        $client = Http::async();
+        $client = $client->setClient(new Client([
+            'handler' => $client->buildHandlerStack(),
+            'cookies' => true,
+        ]));
 
-        foreach ($urls as $url) {
-            $promises[] = $client->getAsync($url);
-        }
 
-        $results = Promise\Utils::unwrap($promises);
+        $promises = array_map(function ($url) use ($client) {
+            return $client->get($url);
+        }, $urls);
 
-        foreach ($results as $response) {
-            //            $this->info('Response: ' . $response->getBody());
-        }
+        $combinedPromise = Utils::all($promises);
+
+        $results = $combinedPromise->wait();
+        return $results;
     }
 }
