@@ -12,6 +12,8 @@
     <meta name="description" content="@yield('meta_description', 'A showcase of projects on Gitcoin.')">
     <meta name="keywords" content="@yield('meta_keywords', 'Gitcoin, Open Source, Projects, Grants, Crowdfunding')">
 
+    <meta name="google-site-verification" content="-DJDK5GlrthN2Fg_kOX1bbcSAR9ws8RBmfO4LMiaXP0" />
+
     <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
 
     @stack('head')
