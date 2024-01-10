@@ -147,7 +147,7 @@ class RoundController extends Controller
                 ->paginate();
         }
 
-        $spotlightRound = Round::where('round_start_time', '<', Carbon::now())->where('round_end_time', '>', Carbon::now())->whereNotIn('id', $testIds)->inRandomOrder()->where('match_amount_usd', '>', 1000)->first();
+        $spotlightRound = Round::where('round_start_time', '<', Carbon::now())->where('round_end_time', '>', Carbon::now())->whereNotIn('id', $testIds)->inRandomOrder()->where('match_amount_in_usd', '>', 1000)->first();
 
         return view('public.round.list', [
             'rounds' => $rounds,
@@ -167,8 +167,8 @@ class RoundController extends Controller
 
         $matchingCap = 0;
 
-        if (isset($round->metadata['quadraticFundingConfig']['matchingCapAmount'])) {
-            $matchingCap = ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+        if (isset($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'])) {
+            $matchingCap = ($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'];
         }
 
         $projects = RoundApplication::where('round_id', $round->id)
@@ -188,7 +188,7 @@ class RoundController extends Controller
             }
         }
 
-        $roundToken = AddressService::getTokenFromAddress($round->token);
+        $roundToken = AddressService::getTokenFromAddress($round->match_token_address);
 
         return view('public.round.show', [
             'round' => $round,

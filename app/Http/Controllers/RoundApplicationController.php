@@ -484,14 +484,14 @@ class RoundApplicationController extends Controller
         $replace[] = RoundApplicationController::getProjectHistory($application);
 
         $search[] = '{{ round.eligibility.description }}';
-        $replace[] = $round->metadata['eligibility']['description'];
+        $replace[] = $round->round_metadata['eligibility']['description'];
 
         $search[] = '{{ round.name }}';
-        $replace[] = $round->metadata['name'];
+        $replace[] = $round->round_metadata['name'];
 
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
-        foreach ($round->metadata['eligibility']['requirements'] as $key => $requirement) {
+        foreach ($round->round_metadata['eligibility']['requirements'] as $key => $requirement) {
             $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
         }
         $replace[] = $requirements;

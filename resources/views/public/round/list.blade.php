@@ -18,7 +18,7 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                         <h3 class="mb-3 text-dark">In the spotlight</h3>
 
                         <a href="{{ route('public.round.show', $spotlightRound) }}">{{ $spotlightRound->name }}</a>, running on {{ $spotlightRound->chain->name}} with a matching pool of
-                        ${{ number_format($spotlightRound->match_amount_usd, 2)}}
+                        ${{ number_format($spotlightRound->match_amount_in_usd, 2)}}
 
 
                     </div>

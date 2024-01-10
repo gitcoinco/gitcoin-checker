@@ -31,9 +31,9 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                 <div class="mb-4 d-flex justify-content-between">
                     <div>
                         <div class="mb-4">
-                            @if (isset($round->metadata['quadraticFundingConfig']['matchingFundsAvailable']))
-                            {{$roundToken}} {{ $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
-                            (${{ number_format($round->match_amount_usd, 2) }})<br />
+                            @if (isset($round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable']))
+                            {{$roundToken}} {{ $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
+                            (${{ number_format($round->match_amount_in_usd, 2) }})<br />
                             <span class="text-muted font-italic">Matching pool</span>
                             @else
                             No matching funds available
@@ -48,7 +48,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                     </div>
                     <div>
                         <div class="mb-4">
-                            ${{ number_format($round->amount_usd, 2)}}<br />
+                            ${{ number_format($round->total_amount_donated_in_usd, 2)}}<br />
                             <span class="text-muted font-italic"> Total USD Crowdfunded
                             </span>
                         </div>
@@ -62,7 +62,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                     <div>
                         <div class="mb-4">
                             @if ($matchingCap > 0)
-                            ${{ ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
+                            ${{ ($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
                             <span class="text-muted font-italic"> Matching Cap
                             </span>
                             @else

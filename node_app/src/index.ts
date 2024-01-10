@@ -42,10 +42,14 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         const { data } = await getRoundById(chainId, roundId);
 
-        if (!data?.metadata?.quadraticFundingConfig?.matchingFundsAvailable)
+        if (
+            !data?.roundMetadata?.quadraticFundingConfig?.matchingFundsAvailable
+        )
             throw new Error("No round metadata");
         const matchingFundPayoutToken: PayoutToken = payoutTokens.filter(
-            (t) => t.address.toLowerCase() == data?.token.toLowerCase(),
+            (t) =>
+                t.address.toLowerCase() ==
+                data?.matchTokenAddress.toLowerCase(),
         )[0];
         tokenAmount = parseFloat(
             ethers.utils.formatUnits(
@@ -78,7 +82,7 @@ app.get("/get-match-pool-amount", async (req, res) => {
         );
         const rate = price ? price : data.matchAmountUSD / tokenAmount;
         const matchingPoolUSD =
-            data.metadata?.quadraticFundingConfig?.matchingFundsAvailable *
+            data.roundMetadata?.quadraticFundingConfig?.matchingFundsAvailable *
             rate;
 
         roundData = { ...data, matchingPoolUSD, rate, matchingFundPayoutToken };
@@ -118,10 +122,11 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         // total amount = crowdfunded USD + matched USD
         const totalAmountUSD =
-            project.amountUSD + project.matchingData.matchAmountUSD;
+            project.totalAmountDonatedInUsd +
+            project.matchingData.matchAmountUSD;
 
         res.json({
-            donorAmountUSD: project.amountUSD,
+            donorAmountUSD: project.totalAmountDonatedInUsd,
             donorContributionsCount: project.matchingData.contributionsCount,
             matchAmountUSD: project.matchingData.matchAmountUSD,
         });

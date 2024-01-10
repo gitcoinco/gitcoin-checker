@@ -41,10 +41,10 @@ class ProjectController extends Controller
             },
 
         ])
-            ->withSum('applicationDonations', 'amount_usd')
+            ->withSum('applicationDonations', 'total_amount_donated_in_usd')
             ->paginate();
 
-        $project->loadSum('projectDonations', 'amount_usd');
+        $project->loadSum('projectDonations', 'total_amount_donated_in_usd');
         return Inertia::render('Project/Show', [
             'project' => $project,
             'applications' => $applications
@@ -83,7 +83,7 @@ class ProjectController extends Controller
 
 
         $spotlightProject = Cache::remember($cacheName . '->spotlightProject1', $cacheTimeout, function () {
-            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
+            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_in_usd', '>', 500)->inRandomOrder()->first();
 
             if ($application == null) {
                 return null;
@@ -262,7 +262,7 @@ class ProjectController extends Controller
 
             $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
                 ->where('project_id', '!=', $project->id)
-                ->select('project_id', 'amount_usd')
+                ->select('project_id', 'total_amount_donated_in_usd')
                 ->distinct()
                 ->orderBy('amount_usd', 'desc')
                 ->limit(5)

@@ -249,7 +249,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                         <div
                                             class="mb-2"
                                             v-if="
-                                                application.round.metadata
+                                                application.round.round_metadata
                                                     .eligibility
                                             "
                                         >
@@ -257,22 +257,23 @@ const applications = ref(usePage().props.applications.valueOf());
 
                                             <div class="text-xs">
                                                 {{
-                                                    application.round.metadata
+                                                    application.round
+                                                        .round_metadata
                                                         .eligibility.description
                                                 }}
                                             </div>
                                         </div>
                                         <div
                                             v-if="
-                                                application.round.metadata
+                                                application.round.round_metadata
                                                     .requirements
                                             "
                                         >
                                             <strong>Requirements:</strong><br />
                                             <div
                                                 v-for="requirement in application
-                                                    .round.metadata.eligibility
-                                                    .requirements"
+                                                    .round.round_metadata
+                                                    .eligibility.requirements"
                                                 :key="requirement"
                                                 class="text-xs"
                                             >

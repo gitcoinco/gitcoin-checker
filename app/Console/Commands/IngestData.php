@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\RoundController;
 use App\Http\Controllers\RoundPromptController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -16,15 +15,12 @@ use App\Models\RoundApplication;
 use App\Services\BlockTimeService;
 use App\Services\DirectoryParser;
 use Exception;
-use \PsychoB\Ethereum\AddressValidator;
 use Illuminate\Support\Str;
 use App\Services\AddressService;
 use App\Services\DateService;
 use App\Services\HashService;
-use Web3\Web3;
-use Web3\Contract;
 
-
+use BendeckDavid\GraphqlClient\Facades\GraphQL;
 
 class IngestData extends Command
 {
@@ -58,7 +54,7 @@ class IngestData extends Command
     public function __construct(BlockTimeService $blockTimeService)
     {
         parent::__construct();
-        $this->indexerUrl = env('INDEXER_URL', 'https://indexer-production.fly.dev/data/');
+        $this->indexerUrl = env('INDEXER_URL', 'https://indexer-staging.fly.dev/graphiql');
         $this->blockTimeService = $blockTimeService;
     }
 
@@ -102,6 +98,8 @@ class IngestData extends Command
 
             $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain);
+
+            die('rounds done');
 
             $rounds = Round::where('chain_id', $chain->id)->get();
             foreach ($rounds as $round) {
@@ -161,7 +159,7 @@ class IngestData extends Command
         $round = $application->round;
         $chain = $round->chain;
 
-        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'amount_usd')->first();
+        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'total_amount_donated_in_usd')->first();
 
 
         $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
@@ -259,7 +257,7 @@ class IngestData extends Command
                             'application_id' => $donation['applicationId'],
                             'internal_application_id' => $application->id,
                             'round_id' => $round->id,
-                            'amount_usd' => $donation['amountUSD'],
+                            'total_amount_donated_in_usd' => $donation['totalAmountDonatedInUsd'],
                             'voter_addr' => AddressService::getAddress($donation['voter']),
                             'grant_addr' => AddressService::getAddress($donation['grantAddress']),
                             'block_number' => $donation['blockNumber'],
@@ -326,17 +324,29 @@ class IngestData extends Command
     private function updateRounds($chain)
     {
         $indexerUrl = $this->indexerUrl;
-        $roundsData = Cache::remember($this->cacheName . "-rounds_data_2{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds.json";
-            $response = Http::timeout($this->httpTimeout)->get($url);
 
-            if ($response->status() === 404) {
-                $this->error("404 Not Found for URL: $url");
-                return;
-            }
+        $roundsData = GraphQL::query('
+        rounds(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
+            id
+            totalAmountDonatedInUsd
+            matchAmount
+            matchAmountInUsd
+            applicationsStartTime
+            applicationsEndTime
+            donationsStartTime
+            donationsEndTime
+            createdAtBlock
+            updatedAtBlock
+            roundMetadata
+            matchTokenAddress
+            uniqueDonorsCount
+            totalDonationsCount
+          }
+        ')->get();
 
-            return json_decode($response->body(), true);
-        });
+
+
+        $roundsData = $roundsData['rounds'];
 
         $hash = HashService::hashMultidimensionalArray($roundsData);
         $cacheName = $this->cacheName . "-updateRounds({$chain->id})-hash";
@@ -348,7 +358,6 @@ class IngestData extends Command
 
         if (is_array($roundsData)) {
             foreach ($roundsData as $roundData) {
-
                 $this->info("Processing round ID: {$roundData['id']}...");
 
                 $this->info($roundData['applicationsStartTime']);
@@ -356,19 +365,19 @@ class IngestData extends Command
                 $round = Round::updateOrCreate(
                     ['round_addr' => AddressService::getAddress($roundData['id']), 'chain_id' => $chain->id],
                     [
-                        'amount_usd' => $roundData['amountUSD'],
-                        'votes' => $roundData['votes'],
-                        'token' => $roundData['token'],
+                        'total_amount_donated_in_usd' => $roundData['totalAmountDonatedInUsd'],
+                        'total_donations_count' => $roundData['totalDonationsCount'],
+                        'match_token_address' => $roundData['matchTokenAddress'],
                         'match_amount' => $roundData['matchAmount'],
-                        'match_amount_usd' => $roundData['matchAmountUSD'],
-                        'unique_contributors' => $roundData['uniqueContributors'],
+                        'match_amount_in_usd' => $roundData['matchAmountInUsd'],
+                        'unique_donors_count' => $roundData['uniqueDonorsCount'],
                         'applications_start_time' => DateService::dateTimeConverter($roundData['applicationsStartTime']),
                         'applications_end_time' => DateService::dateTimeConverter($roundData['applicationsEndTime']),
-                        'round_start_time' => DateService::dateTimeConverter($roundData['roundStartTime']),
-                        'round_end_time' => DateService::dateTimeConverter($roundData['roundEndTime']),
+                        'donations_start_time' => DateService::dateTimeConverter($roundData['donationsStartTime']),
+                        'donations_end_time' => DateService::dateTimeConverter($roundData['donationsEndTime']),
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
-                        'metadata' => $roundData['metadata'],
+                        'round_metadata' => $roundData['roundMetadata'],
                     ]
                 );
 
@@ -381,9 +390,9 @@ class IngestData extends Command
                     ]);
                 }
 
-                if (!$round->evaluationQuestions && isset($round->metadata['eligibility']['requirements'])) {
+                if (!$round->evaluationQuestions && isset($round->round_metadata['eligibility']['requirements'])) {
 
-                    $questionsMeta = $round->metadata['eligibility']['requirements'];
+                    $questionsMeta = $round->round_metadata['eligibility']['requirements'];
                     $questions = [];
                     foreach ($questionsMeta as $key => $q) {
                         if (Str::length($q['requirement']) > 0) {
@@ -424,8 +433,8 @@ class IngestData extends Command
 
 
 
-                if (isset($roundData['metadata']['name'])) {
-                    $round->name = $roundData['metadata']['name'];
+                if (isset($roundData['round_metadata']['name'])) {
+                    $round->name = $roundData['round_metadata']['name'];
                     $round->save();
                 }
             }
@@ -496,9 +505,8 @@ class IngestData extends Command
                     );
                 }
             }
-
-            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
+        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
     private function updateApplications($round)

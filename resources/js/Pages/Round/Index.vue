@@ -169,7 +169,7 @@ const flagRound = async (round) => {
                                     )
                                 }}
                             </td>
-                            <td>${{ round.amount_usd }}</td>
+                            <td>${{ round.total_amount_donated_in_usd }}</td>
                             <td>
                                 {{ round.chain.name }}
                             </td>

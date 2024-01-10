@@ -16,11 +16,11 @@ class Round extends Model
         'chain_id',
         'round_addr',
         'flagged_at',
-        'amount_usd',
-        'votes',
-        'token',
+        'total_amount_donated_in_usd',
+        'total_donations_count',
+        'match_token_address',
         'match_amount',
-        'match_amount_usd',
+        'match_amount_in_usd',
         'unique_contributors',
         'application_meta_ptr',
         'meta_ptr',
@@ -31,7 +31,7 @@ class Round extends Model
         'round_end_time',
         'created_at_block',
         'updated_at_block',
-        'metadata',
+        'round_metadata',
         'name',
         'prompt_data',
     ];
@@ -52,7 +52,7 @@ class Round extends Model
         return $this->hasOne(RoundApplicationMetadata::class);
     }
 
-    public function metadata()
+    public function roundMetadata()
     {
         return $this->hasOne(RoundMetadata::class);
     }

@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    fetchFromIPFS,
-    findRoundById,
-    formatCurrency,
-} from "./utils";
+import { fetchFromIPFS, findRoundById, formatCurrency } from "./utils";
 import { Address, getAddress } from "viem";
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
@@ -44,9 +40,9 @@ export interface RoundResult {
     applicationMetaPtr: MetadataPointer;
     applicationsStartTime: string;
     applicationsEndTime: string;
-    roundStartTime: string;
-    roundEndTime: string;
-    token: string;
+    donationsStartTime: string;
+    donationsEndTime: string;
+    matchTokenAddress: string;
     votingStrategy: string;
     projectsMetaPtr?: MetadataPointer | null;
 }
@@ -62,7 +58,7 @@ export interface ProjectVote {
     grantAddress: Address;
     token: string;
     amount: string;
-    amountUSD: number;
+    totalAmountDonatedInUsd: number;
     amountRoundToken: string;
 }
 /**
@@ -133,12 +129,12 @@ export const getRoundsByChainId = async (
         const data = (await resp.json()) as Round[];
         const filteredData = data?.filter(
             (round) =>
-                !!round.metadata?.name &&
-                !!round.metadata.quadraticFundingConfig
+                !!round.roundMetadata?.name &&
+                !!round.roundMetadata.quadraticFundingConfig
                     ?.matchingFundsAvailable &&
-                !!round.votes &&
-                !round.metadata?.name.toLowerCase().includes("test") &&
-                round.amountUSD > 50,
+                !!round.totalDonationsCount &&
+                !round.roundMetadata?.name.toLowerCase().includes("test") &&
+                round.totalAmountDonatedInUsd > 50,
         );
 
         return {

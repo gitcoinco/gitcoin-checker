@@ -37,10 +37,12 @@ export const sortByMatchAmount = (
     });
 };
 
-export const sortByx = <T extends { amountUSD: number }[]>(arr: T) => {
-    if (!arr.length || !arr[0]?.amountUSD) return arr;
+export const sortByx = <T extends { totalAmountDonatedInUsd: number }[]>(
+    arr: T,
+) => {
+    if (!arr.length || !arr[0]?.totalAmountDonatedInUsd) return arr;
     return arr.sort(function (a, b) {
-        return b.amountUSD - a.amountUSD;
+        return b.totalAmountDonatedInUsd - a.totalAmountDonatedInUsd;
     });
 };
 
@@ -60,7 +62,7 @@ export const formatAmount = (amount: string | number, noDigits?: boolean) => {
 //     let sumAmount = 0;
 
 //     for (let j = 0; j < newProjects[i].votesArray.length; j++) {
-//       sumAmount += Math.sqrt(newProjects[i].votesArray[j].amountUSD);
+//       sumAmount += Math.sqrt(newProjects[i].votesArray[j].totalAmountDonatedInUsd);
 //     }
 
 //     sumAmount *= sumAmount;
