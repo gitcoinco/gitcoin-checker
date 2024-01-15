@@ -377,7 +377,7 @@ class IngestData extends Command
                         'donations_end_time' => DateService::dateTimeConverter($roundData['donationsEndTime']),
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
-                        'round_metadata' => $roundData['roundMetadata'],
+                        'round_metadata' => json_encode($roundData['roundMetadata']),
                     ]
                 );
 
