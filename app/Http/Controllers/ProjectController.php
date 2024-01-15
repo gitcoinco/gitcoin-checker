@@ -44,7 +44,7 @@ class ProjectController extends Controller
             ->withSum('applicationDonations', 'total_amount_donated_in_usd')
             ->paginate();
 
-        $project->loadSum('projectDonations', 'total_amount_donated_in_usd');
+        $project->loadSum('projectDonations', 'amount_usd');
         return Inertia::render('Project/Show', [
             'project' => $project,
             'applications' => $applications
