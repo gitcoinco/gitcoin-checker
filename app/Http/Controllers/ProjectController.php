@@ -41,7 +41,7 @@ class ProjectController extends Controller
             },
 
         ])
-            ->withSum('applicationDonations', 'total_amount_donated_in_usd')
+            ->withSum('applicationDonations', 'amount_usd')
             ->paginate();
 
         $project->loadSum('projectDonations', 'amount_usd');
@@ -262,7 +262,7 @@ class ProjectController extends Controller
 
             $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
                 ->where('project_id', '!=', $project->id)
-                ->select('project_id', 'total_amount_donated_in_usd')
+                ->select('project_id', 'amount_usd')
                 ->distinct()
                 ->orderBy('amount_usd', 'desc')
                 ->limit(5)

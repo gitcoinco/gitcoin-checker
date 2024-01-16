@@ -64,7 +64,7 @@ export interface ProjectVote {
 /**
  * Shape of IPFS content of Round RoundMetaPtr
  */
-export type RoundMetadata = {
+export type metadata = {
     name: string;
     roundType: string;
     eligibility: Eligibility;
@@ -129,11 +129,11 @@ export const getRoundsByChainId = async (
         const data = (await resp.json()) as Round[];
         const filteredData = data?.filter(
             (round) =>
-                !!round.roundMetadata?.name &&
-                !!round.roundMetadata.quadraticFundingConfig
+                !!round.metadata?.name &&
+                !!round.metadata.quadraticFundingConfig
                     ?.matchingFundsAvailable &&
                 !!round.totalDonationsCount &&
-                !round.roundMetadata?.name.toLowerCase().includes("test") &&
+                !round.metadata?.name.toLowerCase().includes("test") &&
                 round.totalAmountDonatedInUsd > 50,
         );
 

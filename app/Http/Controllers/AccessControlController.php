@@ -7,6 +7,8 @@ use App\Models\AccessControl;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
 
 class AccessControlController extends Controller
 {
@@ -45,7 +47,7 @@ class AccessControlController extends Controller
         }
 
         AccessControl::updateOrCreate(
-            ['eth_addr' => $request->eth_addr],
+            ['eth_addr' => Str::lower($request->eth_addr)],
             ['role' => $request->role, 'name' => $request->name, 'email' => $request->email]
         );
 

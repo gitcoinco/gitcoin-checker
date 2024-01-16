@@ -16,7 +16,9 @@ use App\Services\BlockTimeService;
 use App\Services\DirectoryParser;
 use Exception;
 use Illuminate\Support\Str;
-use App\Services\AddressService;
+
+// Continue removing address service and going lowercase
+
 use App\Services\DateService;
 use App\Services\HashService;
 
@@ -89,23 +91,22 @@ class IngestData extends Command
     {
         $this->info('Fetching directory list...');
 
-        // Chains are hardcoded for now but should be fetched from a dynamic source
+        // Chains are hardcoded for now but should be fetched from a dynamic source in the future
         $chainList = [1, 10, 137, 250, 42161, 424];
 
         foreach ($chainList as $key => $chainId) {
             $this->info("Processing data for chain ID: {$chainId}...");
             $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
 
-            $this->info("Processing rounds data for chain ID: {$chainId}...");
+            // $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain);
-
-            die('rounds done');
 
             $rounds = Round::where('chain_id', $chain->id)->get();
             foreach ($rounds as $round) {
                 $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateProjects($round);
             }
+
             foreach ($rounds as $round) {
                 $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
@@ -122,7 +123,8 @@ class IngestData extends Command
     // Split the long running tasks into a separate function so we can run them in the background
     private function longRunningTasks()
     {
-        $this->updateProjectSummaries();
+        //TODO::: Enable GPT summaries
+        // $this->updateProjectSummaries();
 
         // Loop through all the chains and update project owners
         $chains = Chain::all();
@@ -150,6 +152,9 @@ class IngestData extends Command
 
     private function updateApplicationFunding(RoundApplication $application)
     {
+        //TODO:::Fix
+        return false;
+
         if ($application->donor_amount_usd && $application->match_amount_usd) {
             $this->info("Application id: {$application->id} already has donor_amount_usd set. Skipping...");
             return;
@@ -159,7 +164,7 @@ class IngestData extends Command
         $round = $application->round;
         $chain = $round->chain;
 
-        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'total_amount_donated_in_usd')->first();
+        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'amount_usd')->first();
 
 
         $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
@@ -218,30 +223,27 @@ class IngestData extends Command
 
     private function updateDonations(Round $round)
     {
-        $donationsData = Cache::remember($this->cacheName . "-votes_data{$round->id}", now()->addMinutes(10), function () use ($round) {
-            $url = "{$this->indexerUrl}/{$round->chain->chain_id}/rounds/{$round->round_addr}/votes.json";
-
-            $response = Http::timeout($this->httpTimeout)->get($url);
-            if ($response->status() === 404) {
-                $this->error("404 Not Found for URL: $url");
-                return;
+        $query = '
+        donations(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
+            id
+            projectId
+            applicationId
+            amountInUsd
+            donorAddress
+            project {
+                id
+                createdAtBlock
+                name
+                metadata
             }
-
-            return json_decode($response->body(), true);
-        });
-
-        $hash = HashService::hashMultidimensionalArray($donationsData);
-        $cacheName = $this->cacheName . "-updateDonations({$round->id})-hash";
-
-        if (Cache::get($cacheName) == $hash) {
-            $this->info("Donations data for round {$round->id} has not changed. Skipping...");
-            return;
-        }
+          }
+        ';
+        $donationsData = GraphQL::query($query)->get();
 
         if ($donationsData && count($donationsData) > 0) {
             foreach ($donationsData as $key => $donation) {
 
-                $projectAddr = AddressService::getAddress($donation['projectId']);
+                $projectAddr = Str::lower($donation['project']['id']);
                 $project = Project::where('id_addr', $projectAddr)->first();
 
                 // Find the application this belongs to
@@ -257,16 +259,14 @@ class IngestData extends Command
                             'application_id' => $donation['applicationId'],
                             'internal_application_id' => $application->id,
                             'round_id' => $round->id,
-                            'total_amount_donated_in_usd' => $donation['totalAmountDonatedInUsd'],
-                            'voter_addr' => AddressService::getAddress($donation['voter']),
-                            'grant_addr' => AddressService::getAddress($donation['grantAddress']),
+                            'amount_usd' => $donation['amountInUsd'],
+                            'voter_addr' => Str::lower($donation['donorAddress']),
+                            'grant_addr' => Str::lower($donation['recipientAddress']),
                             'block_number' => $donation['blockNumber'],
                         ]
                     );
                 }
             }
-
-            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -277,45 +277,51 @@ class IngestData extends Command
 
         $indexerUrl = $this->indexerUrl;
 
-        $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-            $url = "{$this->indexerUrl}/{$chain->chain_id}/projects.json";
-            $response = Http::timeout($this->httpTimeout)->get($url);
+        // $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
+        //     $url = "{$this->indexerUrl}/{$chain->chain_id}/projects.json";
+        //     $response = Http::timeout($this->httpTimeout)->get($url);
 
-            if ($response->status() === 404) {
-                $this->error("404 Not Found for URL: $url");
-                return;
-            }
+        //     if ($response->status() === 404) {
+        //         $this->error("404 Not Found for URL: $url");
+        //         return;
+        //     }
 
-            return json_decode($response->body(), true);
-        });
+        //     return json_decode($response->body(), true);
+        // });
 
-        $hash = HashService::hashMultidimensionalArray($projectData);
-        $cacheName = $this->cacheName . "-updateProjectOwnersForChain({$chain->id})-hash";
+        // $hash = HashService::hashMultidimensionalArray($projectData);
+        // $cacheName = $this->cacheName . "-updateProjectOwnersForChain({$chain->id})-hash";
 
-        if (Cache::get($cacheName) == $hash) {
-            $this->info("Project owners data for chain {$chain->id} has not changed. Skipping...");
-            return;
-        }
+        // if (Cache::get($cacheName) == $hash) {
+        //     $this->info("Project owners data for chain {$chain->id} has not changed. Skipping...");
+        //     return;
+        // }
 
 
-        if ($projectData && count($projectData) > 0) {
-            foreach ($projectData as $key => $data) {
-                $projectAddress = AddressService::getAddress($data['id']);
-                $owners = $data['owners'];
+        $query = '
+        projects(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
+            id
+            ownerAddresses
+          }
+        ';
+        $projectData = GraphQL::query($query)->get();
+
+        if (isset($projectData['projects']) && count($projectData['projects']) > 0) {
+            foreach ($projectData['projects'] as $key => $data) {
+                $projectAddress = Str::lower($data['id']);
+                $owners = $data['ownerAddresses'];
                 $project = Project::where('id_addr', $projectAddress)->first();
 
                 if ($project && count($owners)) {
                     // Loop through and add all the owners
                     foreach ($owners as $ownerAddress) {
-                        $ownerAddress = AddressService::getAddress($ownerAddress);
+                        $ownerAddress = Str::lower($ownerAddress);
                         $project->owners()->updateOrCreate(
                             ['eth_addr' => $ownerAddress, 'project_id' => $project->id],
                         );
                     }
                 }
             }
-
-            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 
@@ -363,7 +369,7 @@ class IngestData extends Command
                 $this->info($roundData['applicationsStartTime']);
 
                 $round = Round::updateOrCreate(
-                    ['round_addr' => AddressService::getAddress($roundData['id']), 'chain_id' => $chain->id],
+                    ['round_addr' => Str::lower($roundData['id']), 'chain_id' => $chain->id],
                     [
                         'total_amount_donated_in_usd' => $roundData['totalAmountDonatedInUsd'],
                         'total_donations_count' => $roundData['totalDonationsCount'],
@@ -443,101 +449,116 @@ class IngestData extends Command
         }
     }
 
+    /**
+     * Update project data by pulling projects for a specific round
+     */
     private function updateProjects($round)
     {
+        // dd(Str::lower('0xd4CC0dd193c7DC1d665AE244cE12D7FAB337a008'));
+
+        // // 0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008
+        // if ($round->round_addr != Str::lower('0xd4CC0dd193c7DC1d665AE244cE12D7FAB337a008')) {
+        //     return;
+        // }
+
         $indexerUrl = $this->indexerUrl;
 
-        $chain = $round->chain;
-
-        $applicationData = Cache::remember($this->cacheName . "-project_data{$chain->id}-{$round->id}", now()->addMinutes(10), function () use ($chain, $round) {
-            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-            $response = Http::timeout($this->httpTimeout)->get($url);
-
-            if ($response->status() === 404) {
-                $this->error("404 Not Found for URL: $url");
-                return;
+        $query = '
+        applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
+            id
+            project {
+                id
+                createdAtBlock
+                name
+                metadata
             }
+          }
+        ';
+        $applicationData = GraphQL::query($query)->get();
 
-            return json_decode($response->body(), true);
-        });
+        foreach ($applicationData['applications'] as $key => $data) {
+            if (isset($data['project']) && count($data['project']) > 0) {
 
-        $hash = HashService::hashMultidimensionalArray($applicationData);
-        $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
+                $metadata = $data['project']['metadata'];
 
-        if (Cache::get($cacheName) == $hash) {
-            $this->info("Projects data for round {$round->id} has not changed. Skipping...");
-            return;
-        }
-
-
-        if ($applicationData && count($applicationData) > 0) {
-
-            foreach ($applicationData as $key => $data) {
-                if (isset($data['metadata']['application']['project'])) {
-
-                    $projectData = $data['metadata']['application']['project'];
-
-                    // restrict the length of description to 1000 characters
-                    $description = null;
-                    if (isset($projectData['description'])) {
-                        $description = $projectData['description'];
-                    }
-
-                    $createdAt = now();
-                    if (isset($projectData['createdAt'])) {
-                        $createdAt = date('Y-m-d H:i:s', intval($projectData['createdAt'] / 1000));
-                    }
-
-                    $project = Project::updateOrCreate(
-                        ['id_addr' => AddressService::getAddress($data['projectId'])],
-                        [
-                            'created_at' => $createdAt,
-                            'title' => isset($projectData['title']) ? $projectData['title'] : null,
-                            'description' => $description,
-                            'website' => isset($projectData['website']) ? $projectData['website'] : null,
-                            'userGithub' => isset($projectData['userGithub']) ? $projectData['userGithub'] : null,
-                            'projectGithub' => isset($projectData['projectGithub']) ? $projectData['projectGithub'] : null,
-                            'projectTwitter' => isset($projectData['projectTwitter']) ? $projectData['projectTwitter'] : null,
-                            'metadata' => $projectData,
-                            'logoImg' => isset($projectData['logoImg']) ? $projectData['logoImg'] : null,
-                            'bannerImg' => isset($projectData['bannerImg']) ? $projectData['bannerImg'] : null,
-                        ]
-                    );
+                $description = null;
+                if (isset($metadata['description'])) {
+                    $description = $metadata['description'];
                 }
+
+                $createdAt = now();
+                if (isset($data['createdAtBlock'])) {
+                    $createdAt = $this->blockTimeService->getBlockTime($round->chain, $data['createdAtBlock']);
+                }
+
+
+                $project = Project::updateOrCreate(
+                    ['id_addr' => Str::lower($data['project']['id'])],
+                    [
+                        'created_at' => $createdAt,
+                        'title' => isset($metadata['title']) ? $metadata['title'] : null,
+                        'description' => $description,
+                        'website' => isset($metadata['website']) ? $metadata['website'] : null,
+                        'userGithub' => isset($metadata['userGithub']) ? $metadata['userGithub'] : null,
+                        'projectGithub' => isset($metadata['projectGithub']) ? $metadata['projectGithub'] : null,
+                        'projectTwitter' => isset($metadata['projectTwitter']) ? $metadata['projectTwitter'] : null,
+                        'metadata' => json_encode($metadata),
+                        'logoImg' => isset($metadata['logoImg']) ? base64_encode($metadata['logoImg']) : null,
+                        'bannerImg' => isset($metadata['bannerImg']) ? $metadata['bannerImg'] : null,
+                    ]
+                );
+
+                $this->info("Successfully updated project: {$project->title}");
             }
         }
-        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
     private function updateApplications($round)
     {
         $chain = $round->chain;
 
-        $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
-            $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-            $response = Http::timeout($this->httpTimeout)->get($url);
-
-            if ($response->status() === 404) {
-                $this->error("404 Not Found for URL: $url");
-                return;
+        $query = '
+        applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
+            id
+            statusSnapshots
+            status
+            createdAtBlock
+            metadata
+            project {
+                id
+                createdAtBlock
+                name
             }
+          }
+        ';
+        $applicationData = GraphQL::query($query)->get();
 
-            return json_decode($response->body(), true);
-        });
 
-        $hash = HashService::hashMultidimensionalArray($applicationData);
-        $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
+        // $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
+        //     $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
+        //     $response = Http::timeout($this->httpTimeout)->get($url);
 
-        if (Cache::get($cacheName) == $hash) {
-            $this->info("Applications data for round {$round->id} has not changed. Skipping...");
-            return;
-        }
+        //     if ($response->status() === 404) {
+        //         $this->error("404 Not Found for URL: $url");
+        //         return;
+        //     }
 
-        if ($applicationData && count($applicationData) > 0) {
+        //     return json_decode($response->body(), true);
+        // });
 
-            foreach ($applicationData as $key => $data) {
+        // $hash = HashService::hashMultidimensionalArray($applicationData);
+        // $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
 
-                $this->info("Processing application: {$data['projectId']}");
+        // if (Cache::get($cacheName) == $hash) {
+        //     $this->info("Applications data for round {$round->id} has not changed. Skipping...");
+        //     return;
+        // }
+
+        if (isset($applicationData['applications']) && count($applicationData['applications']) > 0) {
+
+            foreach ($applicationData['applications'] as $key => $data) {
+
+                $this->info("Processing application: {$data['id']}");
 
                 $createdAt = null;
                 // When was this application created?
@@ -545,33 +566,35 @@ class IngestData extends Command
                     $createdAt = $this->blockTimeService->getBlockTime($chain, $data['createdAtBlock']);
                 }
 
+                $metadata = $data['metadata'];
+
                 // When was this application approved / pending
                 $rejectedAt = null;
                 $approvedAt = null;
                 if ($data['statusSnapshots']) {
                     foreach ($data['statusSnapshots'] as $key => $value) {
                         if (strtolower($value['status']) == 'rejected') {
-                            $rejectedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']);
+                            $rejectedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']['value']);
                         } else if (strtolower($value['status']) == 'approved') {
-                            $approvedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']);
+                            $approvedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']['value']);
                         }
                     }
                 }
 
                 if (!$createdAt) {
-                    throw new Exception("Unable to determine createdAt for application {$data['projectId']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
+                    throw new Exception("Unable to determine createdAt for application {$data['project']['id']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
                 }
 
                 $roundApplication = RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => AddressService::getAddress($data['projectId'])]
+                    ['round_id' => $round->id, 'project_addr' => Str::lower($data['project']['id'])]
                 );
 
                 $roundApplication->update([
                     'application_id' => $data['id'],
                     'round_id' => $round->id,
-                    'project_addr' => $data['projectId'],
+                    'project_addr' => $data['project']['id'],
                     'status' => $data['status'],
-                    'metadata' => json_encode($data['metadata']),
+                    'metadata' => json_encode($metadata),
                     'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
                     'rejected_at' => $rejectedAt ? date('Y-m-d H:i:s', $rejectedAt) : null,
                     'approved_at' => $approvedAt ? date('Y-m-d H:i:s', $approvedAt) : null,
@@ -583,8 +606,6 @@ class IngestData extends Command
                     $round->save();
                 }
             }
-
-            Cache::put($cacheName, $hash, now()->addMonths(12));
         }
     }
 }
