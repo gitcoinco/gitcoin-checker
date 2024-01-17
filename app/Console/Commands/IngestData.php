@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 
 use App\Services\DateService;
 use App\Services\HashService;
-
+use App\Services\MetabaseService;
 use BendeckDavid\GraphqlClient\Facades\GraphQL;
 
 class IngestData extends Command
@@ -38,13 +38,12 @@ class IngestData extends Command
      *
      * @var string
      */
-    protected $description = 'Ingest data from the specified indexer URL and populate the database';
+    protected $description = 'Ingest data from the indexer and populate the database';
 
     protected $cacheName = 'ingest-cache';
 
-    protected $indexerUrl = '';
-
     protected $blockTimeService;
+    protected $metabaseService;
 
     protected $httpTimeout = 120000;
 
@@ -53,11 +52,11 @@ class IngestData extends Command
      *
      * @return void
      */
-    public function __construct(BlockTimeService $blockTimeService)
+    public function __construct(BlockTimeService $blockTimeService, MetabaseService $metabaseService)
     {
         parent::__construct();
-        $this->indexerUrl = env('INDEXER_URL', 'https://indexer-staging.fly.dev/graphiql');
         $this->blockTimeService = $blockTimeService;
+        $this->metabaseService = $metabaseService;
     }
 
     /**
@@ -98,7 +97,7 @@ class IngestData extends Command
             $this->info("Processing data for chain ID: {$chainId}...");
             $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
 
-            // $this->info("Processing rounds data for chain ID: {$chainId}...");
+            $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain);
 
             $rounds = Round::where('chain_id', $chain->id)->get();
@@ -152,8 +151,6 @@ class IngestData extends Command
 
     private function updateApplicationFunding(RoundApplication $application)
     {
-        //TODO:::Fix
-        return false;
 
         if ($application->donor_amount_usd && $application->match_amount_usd) {
             $this->info("Application id: {$application->id} already has donor_amount_usd set. Skipping...");
@@ -164,58 +161,11 @@ class IngestData extends Command
         $round = $application->round;
         $chain = $round->chain;
 
-        $application = RoundApplication::where('id', $application->id)->withSum('applicationDonations', 'amount_usd')->first();
+        $metabase = $this->metabaseService->getMatchingDistribution($chain->chain_id, $application->project_addr, $application->application_id);
 
-
-        $nodeAppUrl = env('NODE_APP_URL', 'http://localhost:3000');
-
-        $url = $nodeAppUrl . "/get-match-pool-amount?chainId={$chain->chain_id}&roundId={$round->round_addr}&projectId={$application->project_addr}";
-
-
-        $response = null;
-        $attempts = 0;
-        while ($attempts < 5) {
-            try {
-                $response = Http::get($url);
-                if ($response->successful()) {
-                    break;
-                }
-            } catch (\Exception $e) {
-                $this->error("Attempt {$attempts} to get data from {$url} failed. Retrying...");
-            }
-            $attempts++;
-        }
-
-        if ($response && $response->successful()) {
-            $data = $response->json();
-            Cache::put($url, $data, now()->addMinutes(10));
-        } else {
-            $data = Cache::get($url);
-            if (!$data) {
-                $this->error("Failed to get data from {$url} after 5 attempts.");
-                return;
-            }
-        }
-
-
-        $match_usd = null;
-
-        // We can get donor amount from the node app as well if needed, but let's use the contract if it's available
-        $donor_usd = $application->application_donations_sum_amount_usd;
-        $donor_contributions_count = 0;
-        if (isset($data['donorAmountUSD'])) {
-            $donor_usd = $data['donorAmountUSD'];
-        }
-        if (isset($data['matchAmountUSD'])) {
-            $match_usd = $data['matchAmountUSD'];
-        }
-        if (isset($data['donorContributionsCount'])) {
-            $donor_contributions_count = $data['donorContributionsCount'];
-        }
-
-        $application->donor_amount_usd = $donor_usd;
-        $application->donor_contributions_count = $donor_contributions_count;
-        $application->match_amount_usd = $match_usd;
+        $application->donor_amount_usd = $metabase['donorAmountUSD'];
+        $application->donor_contributions_count = $metabase['contributionsCount'];
+        $application->match_amount_usd = $metabase['matchAmountUSD'];
         $application->save();
 
         $this->info("Successfully updated application id: {$application->id}");
@@ -230,20 +180,15 @@ class IngestData extends Command
             applicationId
             amountInUsd
             donorAddress
-            project {
-                id
-                createdAtBlock
-                name
-                metadata
-            }
+            recipientAddress
+            blockNumber
           }
         ';
         $donationsData = GraphQL::query($query)->get();
 
-        if ($donationsData && count($donationsData) > 0) {
-            foreach ($donationsData as $key => $donation) {
-
-                $projectAddr = Str::lower($donation['project']['id']);
+        if (isset($donationsData['donations']) && count($donationsData['donations']) > 0) {
+            foreach ($donationsData['donations'] as $key => $donation) {
+                $projectAddr = Str::lower($donation['projectId']);
                 $project = Project::where('id_addr', $projectAddr)->first();
 
                 // Find the application this belongs to
@@ -260,8 +205,8 @@ class IngestData extends Command
                             'internal_application_id' => $application->id,
                             'round_id' => $round->id,
                             'amount_usd' => $donation['amountInUsd'],
-                            'voter_addr' => Str::lower($donation['donorAddress']),
-                            'grant_addr' => Str::lower($donation['recipientAddress']),
+                            'donor_address' => Str::lower($donation['donorAddress']),
+                            'recipient_address' => Str::lower($donation['recipientAddress']),
                             'block_number' => $donation['blockNumber'],
                         ]
                     );
@@ -274,29 +219,6 @@ class IngestData extends Command
     {
 
         $this->info("Processing project owners for chain ID: {$chain->chain_id}...");
-
-        $indexerUrl = $this->indexerUrl;
-
-        // $projectData = Cache::remember($this->cacheName . "-project_owners_data{$chain->chain_id}", now()->addMinutes(10), function () use ($chain) {
-        //     $url = "{$this->indexerUrl}/{$chain->chain_id}/projects.json";
-        //     $response = Http::timeout($this->httpTimeout)->get($url);
-
-        //     if ($response->status() === 404) {
-        //         $this->error("404 Not Found for URL: $url");
-        //         return;
-        //     }
-
-        //     return json_decode($response->body(), true);
-        // });
-
-        // $hash = HashService::hashMultidimensionalArray($projectData);
-        // $cacheName = $this->cacheName . "-updateProjectOwnersForChain({$chain->id})-hash";
-
-        // if (Cache::get($cacheName) == $hash) {
-        //     $this->info("Project owners data for chain {$chain->id} has not changed. Skipping...");
-        //     return;
-        // }
-
 
         $query = '
         projects(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
@@ -329,7 +251,6 @@ class IngestData extends Command
 
     private function updateRounds($chain)
     {
-        $indexerUrl = $this->indexerUrl;
 
         $roundsData = GraphQL::query('
         rounds(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
@@ -454,15 +375,6 @@ class IngestData extends Command
      */
     private function updateProjects($round)
     {
-        // dd(Str::lower('0xd4CC0dd193c7DC1d665AE244cE12D7FAB337a008'));
-
-        // // 0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008
-        // if ($round->round_addr != Str::lower('0xd4CC0dd193c7DC1d665AE244cE12D7FAB337a008')) {
-        //     return;
-        // }
-
-        $indexerUrl = $this->indexerUrl;
-
         $query = '
         applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
             id
@@ -534,26 +446,6 @@ class IngestData extends Command
         $applicationData = GraphQL::query($query)->get();
 
 
-        // $applicationData = Cache::remember($this->cacheName . "-rounds_application_data{$chain->chain_id}_{$round->id}", now()->addMinutes(10), function () use ($round, $chain) {
-        //     $url = "{$this->indexerUrl}/{$chain->chain_id}/rounds/{$round->round_addr}/applications.json";
-        //     $response = Http::timeout($this->httpTimeout)->get($url);
-
-        //     if ($response->status() === 404) {
-        //         $this->error("404 Not Found for URL: $url");
-        //         return;
-        //     }
-
-        //     return json_decode($response->body(), true);
-        // });
-
-        // $hash = HashService::hashMultidimensionalArray($applicationData);
-        // $cacheName = $this->cacheName . "-updateProjects({$round->id})-hash";
-
-        // if (Cache::get($cacheName) == $hash) {
-        //     $this->info("Applications data for round {$round->id} has not changed. Skipping...");
-        //     return;
-        // }
-
         if (isset($applicationData['applications']) && count($applicationData['applications']) > 0) {
 
             foreach ($applicationData['applications'] as $key => $data) {
@@ -583,6 +475,11 @@ class IngestData extends Command
 
                 if (!$createdAt) {
                     throw new Exception("Unable to determine createdAt for application {$data['project']['id']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
+                }
+
+                if (!isset($data['project']['id'])) {
+                    $this->info("Skipping application {$data['id']} because it has no project ID");
+                    continue;
                 }
 
                 $roundApplication = RoundApplication::updateOrCreate(

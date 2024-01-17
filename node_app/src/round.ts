@@ -40,9 +40,9 @@ export interface RoundResult {
     applicationMetaPtr: MetadataPointer;
     applicationsStartTime: string;
     applicationsEndTime: string;
-    donationsStartTime: string;
-    donationsEndTime: string;
-    matchTokenAddress: string;
+    roundStartTime: string;
+    roundEndTime: string;
+    token: string;
     votingStrategy: string;
     projectsMetaPtr?: MetadataPointer | null;
 }
@@ -58,13 +58,13 @@ export interface ProjectVote {
     grantAddress: Address;
     token: string;
     amount: string;
-    totalAmountDonatedInUsd: number;
+    amountUSD: number;
     amountRoundToken: string;
 }
 /**
  * Shape of IPFS content of Round RoundMetaPtr
  */
-export type metadata = {
+export type RoundMetadata = {
     name: string;
     roundType: string;
     eligibility: Eligibility;
@@ -132,9 +132,9 @@ export const getRoundsByChainId = async (
                 !!round.metadata?.name &&
                 !!round.metadata.quadraticFundingConfig
                     ?.matchingFundsAvailable &&
-                !!round.totalDonationsCount &&
+                !!round.votes &&
                 !round.metadata?.name.toLowerCase().includes("test") &&
-                round.totalAmountDonatedInUsd > 50,
+                round.amountUSD > 50,
         );
 
         return {

@@ -42,98 +42,89 @@ app.get("/get-match-pool-amount", async (req, res) => {
 
         const { data } = await getRoundById(chainId, roundId);
 
-        if (data) {
-            return res.send(data);
-        } else {
-            return res.status(500).send("Data not found");
-        }
+        if (!data?.metadata?.quadraticFundingConfig?.matchingFundsAvailable)
+            throw new Error("No round metadata");
+        const matchingFundPayoutToken: PayoutToken = payoutTokens.filter(
+            (t) => t.address.toLowerCase() == data?.token.toLowerCase(),
+        )[0];
+        tokenAmount = parseFloat(
+            ethers.utils.formatUnits(
+                data.matchAmount,
+                matchingFundPayoutToken.decimal,
+            ),
+        );
 
-        // if (!data?.metadata?.quadraticFundingConfig?.matchingFundsAvailable)
-        //     throw new Error("No round metadata");
-        // const matchingFundPayoutToken: PayoutToken = payoutTokens.filter(
-        //     (t) =>
-        //         t.address.toLowerCase() ==
-        //         data?.matchTokenAddress.toLowerCase(),
-        // )[0];
-        // tokenAmount = parseFloat(
-        //     ethers.utils.formatUnits(
-        //         data.matchAmount,
-        //         matchingFundPayoutToken.decimal,
-        //     ),
-        // );
+        // get payout token price
+        const signerOrProvider =
+            chainId == ChainId.PGN
+                ? new ethers.providers.JsonRpcProvider(
+                      "https://rpc.publicgoods.network",
+                      chainId,
+                  )
+                : chainId == ChainId.FANTOM_MAINNET_CHAIN_ID
+                  ? new ethers.providers.JsonRpcProvider(
+                        "https://rpcapi.fantom.network/",
+                        chainId,
+                    )
+                  : new ethers.providers.InfuraProvider(
+                        chainId,
+                        process.env.NEXT_PUBLIC_INFURA_API_KEY,
+                    );
 
-        // // get payout token price
-        // const signerOrProvider =
-        //     chainId == ChainId.PGN
-        //         ? new ethers.providers.JsonRpcProvider(
-        //               "https://rpc.publicgoods.network",
-        //               chainId,
-        //           )
-        //         : chainId == ChainId.FANTOM_MAINNET_CHAIN_ID
-        //           ? new ethers.providers.JsonRpcProvider(
-        //                 "https://rpcapi.fantom.network/",
-        //                 chainId,
-        //             )
-        //           : new ethers.providers.InfuraProvider(
-        //                 chainId,
-        //                 process.env.NEXT_PUBLIC_INFURA_API_KEY,
-        //             );
+        const price = await fetchPayoutTokenPrice(
+            roundId,
+            signerOrProvider,
+            matchingFundPayoutToken,
+        );
+        const rate = price ? price : data.matchAmountUSD / tokenAmount;
+        const matchingPoolUSD =
+            data.metadata?.quadraticFundingConfig?.matchingFundsAvailable *
+            rate;
 
-        // const price = await fetchPayoutTokenPrice(
-        //     roundId,
-        //     signerOrProvider,
-        //     matchingFundPayoutToken,
-        // );
-        // const rate = price ? price : data.matchAmountUSD / tokenAmount;
-        // const matchingPoolUSD =
-        //     data.metadata?.quadraticFundingConfig?.matchingFundsAvailable *
-        //     rate;
+        roundData = { ...data, matchingPoolUSD, rate, matchingFundPayoutToken };
 
-        // roundData = { ...data, matchingPoolUSD, rate, matchingFundPayoutToken };
+        // applications data from indexer
+        const allApplications = await getProjectsApplications(roundId, chainId);
+        if (!allApplications) throw new Error("No applications");
 
-        // // applications data from indexer
-        // const allApplications = await getProjectsApplications(roundId, chainId);
-        // if (!allApplications) throw new Error("No applications");
+        // matching data
+        const matchingData = await fetchMatchingDistribution(
+            roundId,
+            signerOrProvider,
+            roundData.matchingFundPayoutToken,
+            roundData.matchingPoolUSD,
+        );
 
-        // // matching data
-        // const matchingData = await fetchMatchingDistribution(
-        //     roundId,
-        //     signerOrProvider,
-        //     roundData.matchingFundPayoutToken,
-        //     roundData.matchingPoolUSD,
-        // );
+        // add .matchingData to applications
+        applications = allApplications?.map((app) => {
+            const projectMatchingData = matchingData?.find(
+                (data) => data.projectId == app.projectId,
+            );
+            return {
+                ...app,
+                matchingData: projectMatchingData,
+            };
+        });
 
-        // // add .matchingData to applications
-        // applications = allApplications?.map((app) => {
-        //     const projectMatchingData = matchingData?.find(
-        //         (data) => data.projectId == app.projectId,
-        //     );
-        //     return {
-        //         ...app,
-        //         matchingData: projectMatchingData,
-        //     };
-        // });
+        // find the project
+        const project = applications?.find(
+            (application) =>
+                application.projectId == projectId &&
+                application.roundId === roundId,
+        );
+        if (!project) throw new Error("Project not found");
+        if (!project.matchingData?.matchAmountUSD)
+            throw new Error("No matching data for this project");
 
-        // // find the project
-        // const project = applications?.find(
-        //     (application) =>
-        //         application.projectId == projectId &&
-        //         application.roundId === roundId,
-        // );
-        // if (!project) throw new Error("Project not found");
-        // if (!project.matchingData?.matchAmountUSD)
-        //     throw new Error("No matching data for this project");
+        // total amount = crowdfunded USD + matched USD
+        const totalAmountUSD =
+            project.amountUSD + project.matchingData.matchAmountUSD;
 
-        // // total amount = crowdfunded USD + matched USD
-        // const totalAmountUSD =
-        //     project.totalAmountDonatedInUsd +
-        //     project.matchingData.matchAmountUSD;
-
-        // res.json({
-        //     donorAmountUSD: project.totalAmountDonatedInUsd,
-        //     donorContributionsCount: project.matchingData.contributionsCount,
-        //     matchAmountUSD: project.matchingData.matchAmountUSD,
-        // });
+        res.json({
+            donorAmountUSD: project.amountUSD,
+            donorContributionsCount: project.matchingData.contributionsCount,
+            matchAmountUSD: project.matchingData.matchAmountUSD,
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send({ message: "Server error", error: err });

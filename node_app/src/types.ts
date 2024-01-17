@@ -96,11 +96,11 @@ export interface Round {
     /**
      * Unix timestamp of the start of the round
      */
-    donationsStartTime: string;
+    roundStartTime: string;
     /**
      * Unix timestamp of the end of the round
      */
-    donationsEndTime: string;
+    roundEndTime: string;
     /**
      * Unix timestamp of when grants can apply to a round
      */
@@ -112,7 +112,7 @@ export interface Round {
     /**
      * Contract address of the token used to payout match amounts at the end of a round
      */
-    matchTokenAddress: string;
+    token: string;
 
     /**
      * Contract address of the program to which the round belongs
@@ -121,7 +121,7 @@ export interface Round {
     /**
      * List of projects approved for the round
      */
-    totalAmountDonatedInUsd: number;
+    amountUSD: number;
     applicationMetaPtr: string;
     applicationMetadata: {
         // applicationSchema
@@ -135,8 +135,8 @@ export interface Round {
     matchAmount: string;
     matchAmountUSD: number;
     metaPtr: string;
-    totalDonationsCount: number;
-    uniqueDonorsCount: number;
+    votes: number;
+    uniqueContributors: number;
     rate: number;
     matchingPoolUSD: number;
     matchingFundPayoutToken: PayoutToken;
@@ -192,7 +192,7 @@ export type ProjectMetadata = {
 
 export interface ProjectApplication {
     // $ of crowdfunding
-    totalAmountDonatedInUsd: number;
+    amountUSD: number;
     createdAtBlock: number;
     id: string;
     metadata: { application: { project: ProjectMetadata; recipient: string } };

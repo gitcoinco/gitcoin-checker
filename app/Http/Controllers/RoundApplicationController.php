@@ -152,7 +152,7 @@ class RoundApplicationController extends Controller
 
         $applications = RoundApplication::with([
             'round' => function ($query) {
-                $query->select('id', 'uuid', 'name', 'round_start_time', 'round_end_time', 'round_addr', 'chain_id');
+                $query->select('id', 'uuid', 'name', 'applications_start_time', 'applications_end_time', 'round_addr', 'chain_id');
             },
             'round.chain' => function ($query) {
                 $query->select('id', 'uuid', 'name', 'chain_id');
