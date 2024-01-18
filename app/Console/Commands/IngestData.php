@@ -65,7 +65,6 @@ class IngestData extends Command
 
         $this->fromDate = now()->subDays(1000)->timestamp;
         $this->toDate = now()->addDays(1000)->timestamp;
-        die('tmp');
     }
 
     /**
@@ -75,24 +74,24 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
-        $startTime = microtime(true);
+        // $startTime = microtime(true);
 
-        $longRunning = $this->option('longRunning') ?? false;
+        // $longRunning = $this->option('longRunning') ?? false;
 
-        if ($longRunning) {
-            $this->info('Long running tasks');
-            $this->longRunningTasks();
-        } else {
-            $this->info('Short running tasks');
-            $this->shortRunningTasks($directoryParser);
-        }
+        // if ($longRunning) {
+        //     $this->info('Long running tasks');
+        //     $this->longRunningTasks();
+        // } else {
+        //     $this->info('Short running tasks');
+        //     $this->shortRunningTasks($directoryParser);
+        // }
 
-        $endTime = microtime(true);
-        $executionTime = ($endTime - $startTime);
-        $this->info("Execution time of script = " . $executionTime . " sec");
+        // $endTime = microtime(true);
+        // $executionTime = ($endTime - $startTime);
+        // $this->info("Execution time of script = " . $executionTime . " sec");
 
-        $this->info('Data ingestion completed successfully.');
-        return 0;
+        // $this->info('Data ingestion completed successfully.');
+        // return 0;
     }
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
