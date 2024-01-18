@@ -78,10 +78,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cp /var/www/checker/.env /var/www/checker/deploying.checker.gitcoin.co && cd /var/www/checker/deploying.checker.gitcoin.co && composer install && php artisan optimize && npm install && npm run build"
 
-      - name: Build node_app assets
-        run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/deploying.checker.gitcoin.co/node_app && npm install && npm run build"
-
       - name: Database migrations
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "cd /var/www/checker/deploying.checker.gitcoin.co && php artisan migrate --force"
@@ -93,10 +89,6 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "rsync -av --delete --exclude='.env' --exclude='storage/' --exclude='bootstrap/cache/' /var/www/checker/deploying.checker.gitcoin.co/ /var/www/checker/checker.gitcoin.co/ && cd /var/www/checker/checker.gitcoin.co && php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear"
-
-      - name: Restart Node.js application
-        run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@checker.gitcoin.co "pm2 restart node_app"
 
   # data-import:
   #   if: github.ref == 'refs/heads/main'
