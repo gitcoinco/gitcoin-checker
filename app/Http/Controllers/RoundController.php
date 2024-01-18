@@ -167,8 +167,10 @@ class RoundController extends Controller
 
         $matchingCap = 0;
 
-        if (isset($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'])) {
-            $matchingCap = ($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+        $metadata = json_decode($round->round_metadata, true);
+
+        if (isset($metadata['quadraticFundingConfig']['matchingCapAmount'])) {
+            $matchingCap = ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'];
         }
 
         $projects = RoundApplication::where('round_id', $round->id)

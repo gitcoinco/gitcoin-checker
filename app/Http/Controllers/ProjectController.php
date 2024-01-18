@@ -83,7 +83,7 @@ class ProjectController extends Controller
 
 
         $spotlightProject = Cache::remember($cacheName . '->spotlightProject1', $cacheTimeout, function () {
-            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_in_usd', '>', 500)->inRandomOrder()->first();
+            $application = RoundApplication::where('donor_amount_usd', '>', 500)->where('match_amount_usd', '>', 500)->inRandomOrder()->first();
 
             if ($application == null) {
                 return null;
@@ -105,7 +105,6 @@ class ProjectController extends Controller
     {
         $cacheTimeout = 60 * 60 * 24 * 7;
         $cacheName = 'ProjectController()->homePublic()';
-        //        $projects = Project::orderBy('id', 'desc')->paginate();
 
         $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', $cacheTimeout, function () {
             return RoundApplication::sum('donor_amount_usd');

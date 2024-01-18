@@ -28,11 +28,17 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->donations_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}.
                 </div>
 
+                <?php
+                $metadata = json_decode($round->round_metadata, true);
+                ?>
+
+
                 <div class="mb-4 d-flex justify-content-between">
                     <div>
                         <div class="mb-4">
-                            @if (isset($round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable']))
-                            {{$roundToken}} {{ $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
+
+                            @if (isset($metadata['quadraticFundingConfig']['matchingFundsAvailable']))
+                            {{$roundToken}} {{ $metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
                             (${{ number_format($round->match_amount_in_usd, 2) }})<br />
                             <span class="text-muted font-italic">Matching pool</span>
                             @else
@@ -62,7 +68,7 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     <div>
                         <div class="mb-4">
                             @if ($matchingCap > 0)
-                            ${{ ($round->round_metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->round_metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
+                            ${{ ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
                             <span class="text-muted font-italic"> Matching Cap
                             </span>
                             @else

@@ -117,7 +117,7 @@ class IngestData extends Command
                 $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateProjects($round);
 
-                $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
+                $this->info("Processing applications data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
 
                 $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
@@ -126,6 +126,11 @@ class IngestData extends Command
                     $this->updateApplicationFunding($application);
                 }
             }
+
+            // Let's wait a bit to avoid rate limiting
+            $nrSecondsToWait = 10;
+            $this->info('Waiting ' . $nrSecondsToWait . ' seconds to avoid rate limiting...');
+            sleep($nrSecondsToWait);
         }
     }
 
@@ -162,7 +167,12 @@ class IngestData extends Command
 
     private function updateApplicationFunding(RoundApplication $application)
     {
-        $this->info("Processing application id: {$application->id} for project: {$application->project->title}");
+        if ($application->match_amount_usd) {
+            $this->info("Skipping application id: {$application->id} for project: {$application->project->title} because it already has a match amount");
+            return;
+        }
+
+        $this->info("Processing application funding id: {$application->id} for project: {$application->project->title}");
 
         $round = $application->round;
         $chain = $round->chain;
@@ -330,9 +340,10 @@ rounds(filter: {
                     ]);
                 }
 
-                if (!$round->evaluationQuestions && isset($round->round_metadata['eligibility']['requirements'])) {
+                $metadata = json_decode($round->round_metadata, true);
 
-                    $questionsMeta = $round->round_metadata['eligibility']['requirements'];
+                if (!$round->evaluationQuestions && isset($metadata['eligibility']['requirements'])) {
+                    $questionsMeta = $metadata['eligibility']['requirements'];
                     $questions = [];
                     foreach ($questionsMeta as $key => $q) {
                         if (Str::length($q['requirement']) > 0) {
@@ -373,8 +384,8 @@ rounds(filter: {
 
 
 
-                if (isset($roundData['round_metadata']['name'])) {
-                    $round->name = $roundData['round_metadata']['name'];
+                if (isset($metadata['name'])) {
+                    $round->name = $metadata['name'];
                     $round->save();
                 }
             }
@@ -428,7 +439,7 @@ rounds(filter: {
                         'projectGithub' => isset($metadata['projectGithub']) ? $metadata['projectGithub'] : null,
                         'projectTwitter' => isset($metadata['projectTwitter']) ? $metadata['projectTwitter'] : null,
                         'metadata' => json_encode($metadata),
-                        'logoImg' => isset($metadata['logoImg']) ? base64_encode($metadata['logoImg']) : null,
+                        'logoImg' => isset($metadata['logoImg']) ? $metadata['logoImg'] : null,
                         'bannerImg' => isset($metadata['bannerImg']) ? $metadata['bannerImg'] : null,
                     ]
                 );

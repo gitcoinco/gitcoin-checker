@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessControl;
 use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
@@ -483,15 +484,17 @@ class RoundApplicationController extends Controller
         $search[] = '{{ project.historic_applications }}';
         $replace[] = RoundApplicationController::getProjectHistory($application);
 
+        $metadata = json_decode($round->round_metadata, true);
+
         $search[] = '{{ round.eligibility.description }}';
-        $replace[] = $round->round_metadata['eligibility']['description'];
+        $replace[] = $metadata['eligibility']['description'];
 
         $search[] = '{{ round.name }}';
-        $replace[] = $round->round_metadata['name'];
+        $replace[] = $metadata['name'];
 
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
-        foreach ($round->round_metadata['eligibility']['requirements'] as $key => $requirement) {
+        foreach ($metadata['eligibility']['requirements'] as $key => $requirement) {
             $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
         }
         $replace[] = $requirements;
