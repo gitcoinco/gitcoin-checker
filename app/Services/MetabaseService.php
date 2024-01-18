@@ -46,9 +46,9 @@ class MetabaseService
     /**
      * Get the total donor amount in usd for a project and application
      */
-    public function getDonorAmountUSD($chainId, $projectId, $applicationId)
+    public function getDonorAmountUSD($roundId, $applicationId)
     {
-        $cacheName = 'MetabaseService::getDonorAmountUSD(' . $chainId . ', ' . $projectId . ', ' . $applicationId . ')';
+        $cacheName = 'MetabaseService::getDonorAmountUSD(' . $roundId . ', ' . $applicationId . ')';
 
         // Check if the donor amount is already cached
         if (Cache::has($cacheName)) {
@@ -66,7 +66,7 @@ class MetabaseService
                         'source-table' => $this->database[$this->grantsDB]['tables']['ApplicationsInRounds']['id'],
                         'filter' => [
                             'and',
-                            ['=', ["field", $this->database[$this->grantsDB]['tables']['ApplicationsInRounds']['fields']['applicationMetadata → application → project → id']['id'], null], $chainId . ":" . $projectId],
+                            ['=', ["field", $this->database[$this->grantsDB]['tables']['ApplicationsInRounds']['fields']['applicationMetadata → application → round']['id'], null], $roundId],
                             ['=', ["field", $this->database[$this->grantsDB]['tables']['ApplicationsInRounds']['fields']['applicationId']['id'], null], $applicationId]
                         ],
                     ],
@@ -77,9 +77,7 @@ class MetabaseService
             if ($response->getStatusCode() == 202) {
                 $data = json_decode((string) $response->getBody(), true)['data'];
 
-
                 $amountUSDIndex = $this->findColumnIndex($data['cols'], 'amountUSD');
-
 
                 $donorAmountUSD = 0;
                 foreach ($data['rows'] as $key => $value) {
@@ -87,8 +85,7 @@ class MetabaseService
                 }
 
                 $return = $donorAmountUSD;
-                // Cache the donor amount for 1 day
-                //                Cache::put($cacheName, $return, 60 * 24);
+                Cache::put($cacheName, $return, 60 * 24);
 
                 return $return;
             } else {

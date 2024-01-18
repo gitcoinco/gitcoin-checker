@@ -31,11 +31,14 @@ class TestMetabase extends Command
         $alientBusterProjectAddress = '0x56bd4e84be7e1b79cfaa85dd34f591d294b5629d41a645d87591041378d0dabd';
         $chainId = 1;
         $applicationId = 35;
+        $roundId = '0x421510312c40486965767be5ea603aa8a5707983';
 
         // $response = $metabase->getMatchingDistribution($chainId, $alientBusterProjectAddress, $applicationId);
         // dd($response);
 
-        $response = $metabase->getDonorAmountUSD($chainId, $alientBusterProjectAddress, $applicationId);
+
+
+        $response = $metabase->getDonorAmountUSD($roundId, $applicationId);
         dd($response);
 
 

@@ -23,6 +23,7 @@ use App\Services\DateService;
 use App\Services\HashService;
 use App\Services\MetabaseService;
 use BendeckDavid\GraphqlClient\Facades\GraphQL;
+use Carbon\Carbon;
 
 class IngestData extends Command
 {
@@ -47,6 +48,10 @@ class IngestData extends Command
 
     protected $httpTimeout = 120000;
 
+    // Look at data between these dates to reduce processing
+    protected $fromDate = null;
+    protected $toDate = null;
+
     /**
      * Create a new command instance.
      *
@@ -57,6 +62,9 @@ class IngestData extends Command
         parent::__construct();
         $this->blockTimeService = $blockTimeService;
         $this->metabaseService = $metabaseService;
+
+        $this->fromDate = now()->subDays(1000)->timestamp;
+        $this->toDate = now()->addDays(1000)->timestamp;
     }
 
     /**
@@ -98,32 +106,35 @@ class IngestData extends Command
             $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
 
             $this->info("Processing rounds data for chain ID: {$chainId}...");
-            $this->updateRounds($chain);
+            $this->updateRounds($chain, $this->fromDate, $this->toDate);
 
-            $rounds = Round::where('chain_id', $chain->id)->get();
+            $rounds = Round::where('chain_id', $chain->id)
+                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->get();
+
             foreach ($rounds as $round) {
                 $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateProjects($round);
-            }
 
-            foreach ($rounds as $round) {
                 $this->info("Processing application data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
-            }
-        }
 
-        $this->info('Fetching application funding data...');
-        $applications = RoundApplication::whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
-        foreach ($applications as $application) {
-            $this->updateApplicationFunding($application);
+                $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
+                $applications = RoundApplication::where('round_id', $round->id)->whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
+                foreach ($applications as $application) {
+                    $this->updateApplicationFunding($application);
+                }
+            }
         }
     }
 
     // Split the long running tasks into a separate function so we can run them in the background
     private function longRunningTasks()
     {
-        //TODO::: Enable GPT summaries
-        // $this->updateProjectSummaries();
+        if (!app()->isLocal()) {
+            $this->updateProjectSummaries();
+        }
 
         // Loop through all the chains and update project owners
         $chains = Chain::all();
@@ -151,19 +162,15 @@ class IngestData extends Command
 
     private function updateApplicationFunding(RoundApplication $application)
     {
-
-        if ($application->donor_amount_usd && $application->match_amount_usd) {
-            $this->info("Application id: {$application->id} already has donor_amount_usd set. Skipping...");
-            return;
-        }
-        $this->info("Processing application id: {$application->id}");
+        $this->info("Processing application id: {$application->id} for project: {$application->project->title}");
 
         $round = $application->round;
         $chain = $round->chain;
 
         $metabase = $this->metabaseService->getMatchingDistribution($chain->chain_id, $application->project_addr, $application->application_id);
 
-        $application->donor_amount_usd = $metabase['donorAmountUSD'];
+        $donorAmountUSD = $this->metabaseService->getDonorAmountUSD($round->round_addr, $application->application_id);
+        $application->donor_amount_usd = $donorAmountUSD;
         $application->donor_contributions_count = $metabase['contributionsCount'];
         $application->match_amount_usd = $metabase['matchAmountUSD'];
         $application->save();
@@ -248,30 +255,38 @@ class IngestData extends Command
     }
 
 
-
-    private function updateRounds($chain)
+    /**
+     * Update rounds for a specific chain between two dates
+     */
+    private function updateRounds($chain, $fromDate, $toDate)
     {
 
-        $roundsData = GraphQL::query('
-        rounds(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
-            id
-            totalAmountDonatedInUsd
-            matchAmount
-            matchAmountInUsd
-            applicationsStartTime
-            applicationsEndTime
-            donationsStartTime
-            donationsEndTime
-            createdAtBlock
-            updatedAtBlock
-            roundMetadata
-            matchTokenAddress
-            uniqueDonorsCount
-            totalDonationsCount
-          }
-        ')->get();
+        $this->info("Processing rounds data for chain ID: {$chain->chain_id} between {$fromDate} and {$toDate}...");
 
+        $query = '
+rounds(filter: {
+    chainId: {equalTo: ' . $chain->chain_id . '},
+    applicationsStartTime: {greaterThan: "' . date('Y-m-d\TH:i:s', $fromDate) . '"},
+    donationsEndTime: {lessThan: "' . date('Y-m-d\TH:i:s', $toDate) . '"}
+}) {
+    id
+    totalAmountDonatedInUsd
+    matchAmount
+    matchAmountInUsd
+    applicationsStartTime
+    applicationsEndTime
+    donationsStartTime
+    donationsEndTime
+    createdAtBlock
+    updatedAtBlock
+    roundMetadata
+    matchTokenAddress
+    uniqueDonorsCount
+    totalDonationsCount
+  }
+';
 
+        $roundsData = GraphQL::query($query)->get();
 
         $roundsData = $roundsData['rounds'];
 
@@ -284,10 +299,8 @@ class IngestData extends Command
         }
 
         if (is_array($roundsData)) {
+            $this->info("Number of rounds to process: " . count($roundsData));
             foreach ($roundsData as $roundData) {
-                $this->info("Processing round ID: {$roundData['id']}...");
-
-                $this->info($roundData['applicationsStartTime']);
 
                 $round = Round::updateOrCreate(
                     ['round_addr' => Str::lower($roundData['id']), 'chain_id' => $chain->id],
@@ -298,10 +311,10 @@ class IngestData extends Command
                         'match_amount' => $roundData['matchAmount'],
                         'match_amount_in_usd' => $roundData['matchAmountInUsd'],
                         'unique_donors_count' => $roundData['uniqueDonorsCount'],
-                        'applications_start_time' => DateService::dateTimeConverter($roundData['applicationsStartTime']),
-                        'applications_end_time' => DateService::dateTimeConverter($roundData['applicationsEndTime']),
-                        'donations_start_time' => DateService::dateTimeConverter($roundData['donationsStartTime']),
-                        'donations_end_time' => DateService::dateTimeConverter($roundData['donationsEndTime']),
+                        'applications_start_time' => $roundData['applicationsStartTime'],
+                        'applications_end_time' => $roundData['applicationsEndTime'],
+                        'donations_start_time' => $roundData['donationsStartTime'],
+                        'donations_end_time' => $roundData['donationsEndTime'],
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
                         'round_metadata' => json_encode($roundData['roundMetadata']),

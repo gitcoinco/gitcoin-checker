@@ -5,7 +5,7 @@ Gitcoin Round: {{ $round->name }}
 @endsection
 
 @section('meta_description')
-The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
+The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 @endsection
 
 @section('breadcrumbExtra')
@@ -25,7 +25,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                 <h1 class="card-title">{{ $round->name }}</h1>
 
                 <div class="mb-4">
-                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}.
+                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->donations_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}.
                 </div>
 
                 <div class="mb-4 d-flex justify-content-between">
@@ -81,7 +81,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
 
                     <div>
                         <div class="mb-4">
-                            {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />
+                            {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}<br />
                             <span class="text-muted font-italic"> Round ended on
                             </span>
                         </div>
