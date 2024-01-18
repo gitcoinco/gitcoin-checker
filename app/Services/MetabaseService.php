@@ -26,8 +26,10 @@ class MetabaseService
         $this->database[$this->grantsDB]['id'] = $this->getDatabaseIdByName($this->grantsDB);
         $this->database[$this->grantsDB]['tables'] = $this->getTablesInDatabase($this->grantsDB);
 
-        foreach ($this->database[$this->grantsDB]['tables'] as $key => $value) {
-            $this->database[$this->grantsDB]['tables'][$key]['fields'] = $this->getFieldsInTable($this->grantsDB, $key);
+        if (isset($this->database[$this->grantsDB]['tables'])) {
+            foreach ($this->database[$this->grantsDB]['tables'] as $key => $value) {
+                $this->database[$this->grantsDB]['tables'][$key]['fields'] = $this->getFieldsInTable($this->grantsDB, $key);
+            }
         }
     }
 
