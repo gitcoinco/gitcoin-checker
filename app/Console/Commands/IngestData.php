@@ -65,6 +65,7 @@ class IngestData extends Command
 
         $this->fromDate = now()->subDays(1000)->timestamp;
         $this->toDate = now()->addDays(1000)->timestamp;
+        die('tmp');
     }
 
     /**
