@@ -39,7 +39,7 @@ return new class extends Migration
 
         $projectOwners = ProjectOwner::all();
         foreach ($projectOwners as $projectOwner) {
-            $projectOwner->owner_addr = Str::lower($projectOwner->owner_addr);
+            $projectOwner->eth_addr = Str::lower($projectOwner->eth_addr);
             $projectOwner->save();
         }
 
