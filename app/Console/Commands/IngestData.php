@@ -96,18 +96,26 @@ class IngestData extends Command
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
     {
-        $this->info('Fetching directory list...');
-
         // Chains are hardcoded for now but should be fetched from a dynamic source in the future
         $chainList = [1, 10, 137, 250, 42161, 424];
 
+        $this->info('Chains...');
+        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $this->info("Processing data for chain ID: {$chainId}...");
             $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
+        }
 
+        $this->info('Rounds...');
+        sleep(2);
+        foreach ($chainList as $key => $chainId) {
             $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain, $this->fromDate, $this->toDate);
+        }
 
+        $this->info('Projects...');
+        sleep(2);
+        foreach ($chainList as $key => $chainId) {
             $rounds = Round::where('chain_id', $chain->id)
                 ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
                 ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
@@ -116,25 +124,35 @@ class IngestData extends Command
             foreach ($rounds as $round) {
                 $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateProjects($round);
+            }
+        }
 
+
+        $this->info('Applications...');
+        sleep(2);
+        foreach ($chainList as $key => $chainId) {
+            foreach ($rounds as $round) {
                 $this->info("Processing applications data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
+            }
+        }
 
+        $this->info('Funding...');
+        sleep(2);
+        foreach ($chainList as $key => $chainId) {
+            foreach ($rounds as $round) {
                 $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
                 $applications = RoundApplication::where('round_id', $round->id)->whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
                 foreach ($applications as $application) {
                     $this->updateApplicationFunding($application);
                 }
             }
-
-            // Let's wait a bit to avoid rate limiting
-            $nrSecondsToWait = 10;
-            $this->info('Waiting ' . $nrSecondsToWait . ' seconds to avoid rate limiting...');
-            sleep($nrSecondsToWait);
         }
     }
 
-    // Split the long running tasks into a separate function so we can run them in the background
+    /**
+     * Split the long running tasks into a separate function so we can run them in the background
+     */
     private function longRunningTasks()
     {
         if (!app()->isLocal()) {
@@ -157,6 +175,9 @@ class IngestData extends Command
         }
     }
 
+    /**
+     * Update the project summaries for projects that don't have them
+     */
     private function updateProjectSummaries()
     {
         $projectController = new ProjectController();
@@ -168,6 +189,9 @@ class IngestData extends Command
         }
     }
 
+    /**
+     * Update the funding for a specific application
+     */
     private function updateApplicationFunding(RoundApplication $application)
     {
         if ($application->match_amount_usd) {
@@ -191,6 +215,9 @@ class IngestData extends Command
         $this->info("Successfully updated application id: {$application->id}");
     }
 
+    /**
+     * Update donations as they relate to a specific application
+     */
     private function updateDonations(Round $round)
     {
         $cacheName = 'IngestData::updateDonations(' . $round->id . ')';
@@ -250,6 +277,9 @@ class IngestData extends Command
         Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
+    /**
+     * Update the project owners for a specific project
+     */
     private function updateProjectOwnersForChain(Chain $chain)
     {
         $cacheName = 'IngestData::updateProjectOwnersForChain(' . $chain->id . ')';
@@ -433,6 +463,8 @@ rounds(filter: {
      */
     private function updateProjects($round)
     {
+        $cacheName = 'IngestData::updateProjects(' . $round->id . ')';
+
         $query = '
         applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
             id
@@ -445,6 +477,13 @@ rounds(filter: {
           }
         ';
         $applicationData = GraphQL::query($query)->get();
+
+        $hash = HashService::hashMultidimensionalArray($applicationData);
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Projects data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
 
         foreach ($applicationData['applications'] as $key => $data) {
             if (isset($data['project']) && count($data['project']) > 0) {
@@ -481,10 +520,14 @@ rounds(filter: {
                 $this->info("Successfully updated project: {$project->title}");
             }
         }
+
+        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
     private function updateApplications($round)
     {
+        $cacheName = 'IngestData::updateApplications(' . $round->id . ')';
+
         $chain = $round->chain;
 
         $query = '
@@ -503,6 +546,12 @@ rounds(filter: {
         ';
         $applicationData = GraphQL::query($query)->get();
 
+        $hash = HashService::hashMultidimensionalArray($applicationData);
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Applications data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
 
         if (isset($applicationData['applications']) && count($applicationData['applications']) > 0) {
 
@@ -562,5 +611,7 @@ rounds(filter: {
                 }
             }
         }
+
+        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 }
