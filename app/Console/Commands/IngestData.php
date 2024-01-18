@@ -74,24 +74,24 @@ class IngestData extends Command
      */
     public function handle(DirectoryParser $directoryParser)
     {
-        // $startTime = microtime(true);
+        $startTime = microtime(true);
 
-        // $longRunning = $this->option('longRunning') ?? false;
+        $longRunning = $this->option('longRunning') ?? false;
 
-        // if ($longRunning) {
-        //     $this->info('Long running tasks');
-        //     $this->longRunningTasks();
-        // } else {
-        //     $this->info('Short running tasks');
-        //     $this->shortRunningTasks($directoryParser);
-        // }
+        if ($longRunning) {
+            $this->info('Long running tasks');
+            $this->longRunningTasks();
+        } else {
+            $this->info('Short running tasks');
+            $this->shortRunningTasks($directoryParser);
+        }
 
-        // $endTime = microtime(true);
-        // $executionTime = ($endTime - $startTime);
-        // $this->info("Execution time of script = " . $executionTime . " sec");
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime);
+        $this->info("Execution time of script = " . $executionTime . " sec");
 
-        // $this->info('Data ingestion completed successfully.');
-        // return 0;
+        $this->info('Data ingestion completed successfully.');
+        return 0;
     }
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
@@ -146,7 +146,10 @@ class IngestData extends Command
         foreach ($chains as $chain) {
             $this->updateProjectOwnersForChain($chain);
 
-            $rounds = Round::where('chain_id', $chain->id)->get();
+            $rounds = Round::where('chain_id', $chain->id)
+                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->get();
             foreach ($rounds as $round) {
                 $this->info("Processing donations data for chain ID: {$chain->chain_id}, round ID: {$round->id}...");
                 $this->updateDonations($round);
@@ -190,6 +193,8 @@ class IngestData extends Command
 
     private function updateDonations(Round $round)
     {
+        $cacheName = 'IngestData::updateDonations(' . $round->id . ')';
+
         $query = '
         donations(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
             id
@@ -203,7 +208,16 @@ class IngestData extends Command
         ';
         $donationsData = GraphQL::query($query)->get();
 
+        $hash = HashService::hashMultidimensionalArray($donationsData);
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Donations data for round {$round->id} has not changed. Skipping...");
+            return;
+        }
+
+
         if (isset($donationsData['donations']) && count($donationsData['donations']) > 0) {
+            $this->info("Number of donations to process: " . count($donationsData['donations']));
             foreach ($donationsData['donations'] as $key => $donation) {
                 $projectAddr = Str::lower($donation['projectId']);
                 $project = Project::where('id_addr', $projectAddr)->first();
@@ -227,41 +241,61 @@ class IngestData extends Command
                             'block_number' => $donation['blockNumber'],
                         ]
                     );
+                } else {
+                    $this->info("Skipping donation {$donation['id']} because it has no project or application");
                 }
             }
         }
+
+        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
     private function updateProjectOwnersForChain(Chain $chain)
     {
+        $cacheName = 'IngestData::updateProjectOwnersForChain(' . $chain->id . ')';
 
         $this->info("Processing project owners for chain ID: {$chain->chain_id}...");
 
         $query = '
         projects(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
             id
-            ownerAddresses
+            roles {
+                address
+                role
+            }
           }
         ';
+
         $projectData = GraphQL::query($query)->get();
+
+        $hash = HashService::hashMultidimensionalArray($projectData);
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Project owners data for chain {$chain->id} has not changed. Skipping...");
+            return;
+        }
 
         if (isset($projectData['projects']) && count($projectData['projects']) > 0) {
             foreach ($projectData['projects'] as $key => $data) {
                 $projectAddress = Str::lower($data['id']);
-                $owners = $data['ownerAddresses'];
+                $roles = $data['roles'];
                 $project = Project::where('id_addr', $projectAddress)->first();
 
-                if ($project && count($owners)) {
+                if ($project && count($roles)) {
                     // Loop through and add all the owners
-                    foreach ($owners as $ownerAddress) {
-                        $ownerAddress = Str::lower($ownerAddress);
-                        $project->owners()->updateOrCreate(
-                            ['eth_addr' => $ownerAddress, 'project_id' => $project->id],
-                        );
+                    foreach ($roles as $role) {
+                        if ($role['role'] == 'OWNER') {
+                            $address = Str::lower($role['address']);
+                            $project->owners()->updateOrCreate(
+                                ['eth_addr' => $address, 'project_id' => $project->id],
+                            );
+                        }
                     }
                 }
             }
         }
+
+        Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
 
