@@ -16,9 +16,9 @@ class ProjectDonation extends Model
         'round_id',
         'amount_usd',
         'transaction_addr',
-        'voter_addr',
         'block_number',
-        'grant_addr',
+        'donor_address',
+        'recipient_address',
     ];
 
     public function application()

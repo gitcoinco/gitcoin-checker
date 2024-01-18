@@ -15,6 +15,7 @@ class DateService
     // Some dates appear to be in seconds while others are in milliseconds.  Deal with it.
     public static function dateTimeConverter($datetime)
     {
+        return $datetime;
         try {
             if (strlen($datetime) == 10) {
                 return date('Y-m-d H:i:s.v', $datetime);

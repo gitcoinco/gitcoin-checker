@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessControl;
 use App\Models\Project;
 use App\Models\Round;
 use App\Models\RoundApplication;
@@ -152,7 +153,7 @@ class RoundApplicationController extends Controller
 
         $applications = RoundApplication::with([
             'round' => function ($query) {
-                $query->select('id', 'uuid', 'name', 'round_start_time', 'round_end_time', 'round_addr', 'chain_id');
+                $query->select('id', 'uuid', 'name', 'applications_start_time', 'applications_end_time', 'round_addr', 'chain_id');
             },
             'round.chain' => function ($query) {
                 $query->select('id', 'uuid', 'name', 'chain_id');
@@ -483,15 +484,17 @@ class RoundApplicationController extends Controller
         $search[] = '{{ project.historic_applications }}';
         $replace[] = RoundApplicationController::getProjectHistory($application);
 
+        $metadata = json_decode($round->round_metadata, true);
+
         $search[] = '{{ round.eligibility.description }}';
-        $replace[] = $round->metadata['eligibility']['description'];
+        $replace[] = $metadata['eligibility']['description'];
 
         $search[] = '{{ round.name }}';
-        $replace[] = $round->metadata['name'];
+        $replace[] = $metadata['name'];
 
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
-        foreach ($round->metadata['eligibility']['requirements'] as $key => $requirement) {
+        foreach ($metadata['eligibility']['requirements'] as $key => $requirement) {
             $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
         }
         $replace[] = $requirements;

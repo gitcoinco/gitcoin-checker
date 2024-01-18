@@ -20,8 +20,8 @@ class RoundFactory extends Factory
             'name' => $this->faker->name(),
             'chain_id' => $this->faker->randomNumber(),
             'round_addr' => '0x123',
-            'amount_usd' => $this->faker->randomFloat(),
-            'votes' => $this->faker->randomNumber(),
+            'total_amount_donated_in_usd' => $this->faker->randomFloat(),
+            'total_donations_count' => $this->faker->randomNumber(),
         ];
     }
 }

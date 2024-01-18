@@ -105,7 +105,6 @@ class ProjectController extends Controller
     {
         $cacheTimeout = 60 * 60 * 24 * 7;
         $cacheName = 'ProjectController()->homePublic()';
-        //        $projects = Project::orderBy('id', 'desc')->paginate();
 
         $totalDonorAmountUSD = Cache::remember($cacheName . '->totalDonorAmountUSD', $cacheTimeout, function () {
             return RoundApplication::sum('donor_amount_usd');
@@ -114,7 +113,7 @@ class ProjectController extends Controller
             return RoundApplication::sum('match_amount_usd');
         });
         $totalUniqueDonors = Cache::remember($cacheName . '->totalUniqueDonors', $cacheTimeout, function () {
-            return ProjectDonation::distinct('voter_addr')->count('voter_addr');
+            return ProjectDonation::distinct('donor_address')->count('donor_address');
         });
 
         // Let's put one project in the spotlight.  Look for projects that have received over $500 of donor and match contributions
@@ -142,7 +141,7 @@ class ProjectController extends Controller
             });
 
             $spotlightProjectUniqueDonors = Cache::remember($cacheName . '->spotlightProjectUniqueDonors1', $cacheTimeout, function () use ($spotlightProject) {
-                return $spotlightProject->projectDonations()->distinct('voter_addr')->count('voter_addr');
+                return $spotlightProject->projectDonations()->distinct('donor_address')->count('donor_address');
             });
         }
 
@@ -258,9 +257,9 @@ class ProjectController extends Controller
 
         $projectsInterestType = 'donated-to';
         $projectsInterest = Cache::remember($cacheName . '-projectsAlsoDonatedTo', $cacheTimeout, function () use ($project) {
-            $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('voter_addr')->pluck('voter_addr')->toArray();
+            $donorsVoteAddr = ProjectDonation::where('project_id', $project->id)->distinct('donor_address')->pluck('donor_address')->toArray();
 
-            $donations = ProjectDonation::whereIn('voter_addr', $donorsVoteAddr)
+            $donations = ProjectDonation::whereIn('donor_address', $donorsVoteAddr)
                 ->where('project_id', '!=', $project->id)
                 ->select('project_id', 'amount_usd')
                 ->distinct()

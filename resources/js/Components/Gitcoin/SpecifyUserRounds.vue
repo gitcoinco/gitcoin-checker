@@ -104,7 +104,7 @@ onMounted(async () => {
                                     <span class="text-xs italic"
                                         >({{
                                             showDateInShortFormat(
-                                                round.round_start_time
+                                                round.donations_start_time
                                             )
                                         }}
                                         - {{ round.chain.name }})</span
@@ -135,7 +135,7 @@ onMounted(async () => {
                                             v-if="round?.chain?.chain_id"
                                             >({{
                                                 showDateInShortFormat(
-                                                    round.round_start_time
+                                                    round.donations_start_time
                                                 )
                                             }}
                                             {{ round.chain.name }})</span

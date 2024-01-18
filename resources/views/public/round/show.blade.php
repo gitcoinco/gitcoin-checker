@@ -5,7 +5,7 @@ Gitcoin Round: {{ $round->name }}
 @endsection
 
 @section('meta_description')
-The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
+The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 @endsection
 
 @section('breadcrumbExtra')
@@ -25,15 +25,21 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                 <h1 class="card-title">{{ $round->name }}</h1>
 
                 <div class="mb-4">
-                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->round_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}.
+                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->donations_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}.
                 </div>
+
+                <?php
+                $metadata = json_decode($round->round_metadata, true);
+                ?>
+
 
                 <div class="mb-4 d-flex justify-content-between">
                     <div>
                         <div class="mb-4">
-                            @if (isset($round->metadata['quadraticFundingConfig']['matchingFundsAvailable']))
-                            {{$roundToken}} {{ $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
-                            (${{ number_format($round->match_amount_usd, 2) }})<br />
+
+                            @if (isset($metadata['quadraticFundingConfig']['matchingFundsAvailable']))
+                            {{$roundToken}} {{ $metadata['quadraticFundingConfig']['matchingFundsAvailable'] }}<br />
+                            (${{ number_format($round->match_amount_in_usd, 2) }})<br />
                             <span class="text-muted font-italic">Matching pool</span>
                             @else
                             No matching funds available
@@ -48,7 +54,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                     </div>
                     <div>
                         <div class="mb-4">
-                            ${{ number_format($round->amount_usd, 2)}}<br />
+                            ${{ number_format($round->total_amount_donated_in_usd, 2)}}<br />
                             <span class="text-muted font-italic"> Total USD Crowdfunded
                             </span>
                         </div>
@@ -62,7 +68,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
                     <div>
                         <div class="mb-4">
                             @if ($matchingCap > 0)
-                            ${{ ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
+                            ${{ ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'] }} {{$roundToken}}<br />
                             <span class="text-muted font-italic"> Matching Cap
                             </span>
                             @else
@@ -81,7 +87,7 @@ The {{ $round->name }} round was ran on {{ $round->round_start_time }}.
 
                     <div>
                         <div class="mb-4">
-                            {{ \Carbon\Carbon::parse($round->round_end_time)->format('d M Y H:i') }}<br />
+                            {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}<br />
                             <span class="text-muted font-italic"> Round ended on
                             </span>
                         </div>

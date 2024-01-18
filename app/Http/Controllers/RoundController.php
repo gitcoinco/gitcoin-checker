@@ -43,7 +43,7 @@ class RoundController extends Controller
         $rounds = Round::where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('round_addr', 'like', '%' . $search . '%');
-        })->orderBy('flagged_at', 'desc')->orderBy('round_start_time', 'desc')->with('chain')->paginate();
+        })->orderBy('flagged_at', 'desc')->orderBy('donations_start_time', 'desc')->with('chain')->paginate();
         return $rounds;
     }
 
@@ -139,7 +139,7 @@ class RoundController extends Controller
             $rounds->load(['chain']);
             $rounds->loadCount('applications');
         } else {
-            $rounds = Round::orderBy('round_start_time', 'desc')
+            $rounds = Round::orderBy('donations_start_time', 'desc')
                 ->whereNotIn('id', $testIds)
                 ->whereHas('applications')
                 ->with(['chain'])
@@ -147,7 +147,7 @@ class RoundController extends Controller
                 ->paginate();
         }
 
-        $spotlightRound = Round::where('round_start_time', '<', Carbon::now())->where('round_end_time', '>', Carbon::now())->whereNotIn('id', $testIds)->inRandomOrder()->where('match_amount_usd', '>', 1000)->first();
+        $spotlightRound = Round::where('donations_start_time', '<', Carbon::now())->where('donations_end_time', '>', Carbon::now())->whereNotIn('id', $testIds)->inRandomOrder()->where('match_amount_in_usd', '>', 1000)->first();
 
         return view('public.round.list', [
             'rounds' => $rounds,
@@ -163,12 +163,14 @@ class RoundController extends Controller
         $projectAddr = $round->applications()->where('status', 'APPROVED')->pluck('project_addr')->toArray();
 
         $totalRoundDonatators = ProjectDonation::where('round_id', $round->id)->count();
-        $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('voter_addr')->count('voter_addr');
+        $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('donor_address')->count('donor_address');
 
         $matchingCap = 0;
 
-        if (isset($round->metadata['quadraticFundingConfig']['matchingCapAmount'])) {
-            $matchingCap = ($round->metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $round->metadata['quadraticFundingConfig']['matchingFundsAvailable'];
+        $metadata = json_decode($round->round_metadata, true);
+
+        if (isset($metadata['quadraticFundingConfig']['matchingCapAmount'])) {
+            $matchingCap = ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'];
         }
 
         $projects = RoundApplication::where('round_id', $round->id)
@@ -188,7 +190,7 @@ class RoundController extends Controller
             }
         }
 
-        $roundToken = AddressService::getTokenFromAddress($round->token);
+        $roundToken = AddressService::getTokenFromAddress($round->match_token_address);
 
         return view('public.round.show', [
             'round' => $round,
