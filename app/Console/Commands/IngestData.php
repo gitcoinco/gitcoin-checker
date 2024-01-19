@@ -41,7 +41,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache';
+    protected $cacheName = 'ingest-cache1';
 
     protected $blockTimeService;
     protected $metabaseService;
@@ -63,7 +63,7 @@ class IngestData extends Command
         $this->blockTimeService = $blockTimeService;
         $this->metabaseService = $metabaseService;
 
-        $this->fromDate = now()->subDays(1000)->timestamp;
+        $this->fromDate = now()->subDays(3000)->timestamp;
         $this->toDate = now()->addDays(1000)->timestamp;
     }
 
@@ -96,6 +96,7 @@ class IngestData extends Command
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
     {
+
         // Chains are hardcoded for now but should be fetched from a dynamic source in the future
         $chainList = [1, 10, 137, 250, 42161, 424];
 
@@ -109,6 +110,7 @@ class IngestData extends Command
         $this->info('Rounds...');
         sleep(2);
         foreach ($chainList as $key => $chainId) {
+            $chain = Chain::where('chain_id', $chainId)->first();
             $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain, $this->fromDate, $this->toDate);
         }
@@ -116,6 +118,7 @@ class IngestData extends Command
         $this->info('Projects...');
         sleep(2);
         foreach ($chainList as $key => $chainId) {
+            $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id)
                 ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
                 ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
@@ -131,6 +134,11 @@ class IngestData extends Command
         $this->info('Applications...');
         sleep(2);
         foreach ($chainList as $key => $chainId) {
+            $chain = Chain::where('chain_id', $chainId)->first();
+            $rounds = Round::where('chain_id', $chain->id)
+                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->get();
             foreach ($rounds as $round) {
                 $this->info("Processing applications data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
@@ -140,6 +148,11 @@ class IngestData extends Command
         $this->info('Funding...');
         sleep(2);
         foreach ($chainList as $key => $chainId) {
+            $chain = Chain::where('chain_id', $chainId)->first();
+            $rounds = Round::where('chain_id', $chain->id)
+                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->get();
             foreach ($rounds as $round) {
                 $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
                 $applications = RoundApplication::where('round_id', $round->id)->whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
@@ -220,7 +233,7 @@ class IngestData extends Command
      */
     private function updateDonations(Round $round)
     {
-        $cacheName = 'IngestData::updateDonations(' . $round->id . ')';
+        $cacheName = $this->cacheName . 'IngestData::updateDonations(' . $round->id . ')';
 
         $query = '
         donations(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
@@ -233,7 +246,7 @@ class IngestData extends Command
             blockNumber
           }
         ';
-        $donationsData = GraphQL::query($query)->get();
+        $donationsData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($donationsData);
 
@@ -269,7 +282,12 @@ class IngestData extends Command
                         ]
                     );
                 } else {
-                    $this->info("Skipping donation {$donation['id']} because it has no project or application");
+                    if (!$project) {
+                        $this->info("Skipping donation {$donation['id']} because it has no project");
+                    }
+                    if (!$application) {
+                        $this->info("Skipping donation {$donation['id']} because it has no application");
+                    }
                 }
             }
         }
@@ -282,7 +300,7 @@ class IngestData extends Command
      */
     private function updateProjectOwnersForChain(Chain $chain)
     {
-        $cacheName = 'IngestData::updateProjectOwnersForChain(' . $chain->id . ')';
+        $cacheName = $this->cacheName . 'IngestData::updateProjectOwnersForChain(' . $chain->id . ')';
 
         $this->info("Processing project owners for chain ID: {$chain->chain_id}...");
 
@@ -296,7 +314,7 @@ class IngestData extends Command
           }
         ';
 
-        $projectData = GraphQL::query($query)->get();
+        $projectData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($projectData);
 
@@ -360,7 +378,7 @@ rounds(filter: {
   }
 ';
 
-        $roundsData = GraphQL::query($query)->get();
+        $roundsData = $this->graphQLQuery($query);
 
         $roundsData = $roundsData['rounds'];
 
@@ -463,7 +481,7 @@ rounds(filter: {
      */
     private function updateProjects($round)
     {
-        $cacheName = 'IngestData::updateProjects(' . $round->id . ')';
+        $cacheName = $this->cacheName . 'IngestData::updateProjects(' . $round->id . ')';
 
         $query = '
         applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
@@ -476,7 +494,7 @@ rounds(filter: {
             }
           }
         ';
-        $applicationData = GraphQL::query($query)->get();
+        $applicationData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($applicationData);
 
@@ -524,9 +542,19 @@ rounds(filter: {
         Cache::put($cacheName, $hash, now()->addMonths(12));
     }
 
+    private function graphQLQuery($query)
+    {
+        $cacheName = $this->cacheName . 'IngestData::graphQLQuery(' . $query . ')';
+
+        $result = Cache::remember($cacheName, now()->addDay(), function () use ($query) {
+            return GraphQL::query($query)->get();
+        });
+        return $result;
+    }
+
     private function updateApplications($round)
     {
-        $cacheName = 'IngestData::updateApplications(' . $round->id . ')';
+        $cacheName = $this->cacheName . 'IngestData::updateApplications(' . $round->id . ')';
 
         $chain = $round->chain;
 
@@ -537,6 +565,7 @@ rounds(filter: {
             status
             createdAtBlock
             metadata
+            projectId
             project {
                 id
                 createdAtBlock
@@ -544,7 +573,8 @@ rounds(filter: {
             }
           }
         ';
-        $applicationData = GraphQL::query($query)->get();
+
+        $applicationData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($applicationData);
 
@@ -584,19 +614,17 @@ rounds(filter: {
                     throw new Exception("Unable to determine createdAt for application {$data['project']['id']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
                 }
 
-                if (!isset($data['project']['id'])) {
+                if (!isset($data['projectId'])) {
                     $this->info("Skipping application {$data['id']} because it has no project ID");
                     continue;
                 }
 
                 $roundApplication = RoundApplication::updateOrCreate(
-                    ['round_id' => $round->id, 'project_addr' => Str::lower($data['project']['id'])]
+                    ['round_id' => $round->id, 'project_addr' => Str::lower($data['projectId']), 'application_id' => $data['id']]
                 );
 
+
                 $roundApplication->update([
-                    'application_id' => $data['id'],
-                    'round_id' => $round->id,
-                    'project_addr' => $data['project']['id'],
                     'status' => $data['status'],
                     'metadata' => json_encode($metadata),
                     'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
