@@ -23,18 +23,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        ProjectDonation::all()->delete();
-        ProjectOwner::all()->delete();
-        Project::all()->delete();
-        RoundApplicationEvaluationAnswers::all()->delete();
-        RoundApplicationEvaluationQuestions::all()->delete();
-        RoundApplicationMetadata::all()->delete();
-        RoundApplicationPromptResult::all()->delete();
-        RoundApplication::all()->delete();
-        RoundPrompt::all()->delete();
-        RoundQuestion::all()->delete();
-        RoundRequirement::all()->delete();
-        Round::all()->delete();
+        ProjectDonation::query()->forceDelete();
+        ProjectOwner::query()->forceDelete();
+        Project::query()->forceDelete();
+        RoundApplicationEvaluationAnswers::query()->forceDelete();
+        RoundApplicationEvaluationQuestions::query()->forceDelete();
+        RoundApplicationMetadata::query()->forceDelete();
+        RoundApplicationPromptResult::query()->forceDelete();
+        RoundApplication::query()->forceDelete();
+        RoundPrompt::query()->forceDelete();
+        RoundQuestion::query()->forceDelete();
+        RoundRequirement::query()->delete();
+        Round::query()->forceDelete();
     }
 
     /**
