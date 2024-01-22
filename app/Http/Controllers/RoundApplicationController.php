@@ -205,7 +205,7 @@ class RoundApplicationController extends Controller
                 }
             })
             ->whereNotIn('id', $listOfApplicationIdsToExclude)
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->whereHas('project')
             ->paginate(5);

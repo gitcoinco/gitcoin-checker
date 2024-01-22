@@ -13,7 +13,7 @@ class MetabaseService
     protected $sessionToken;
 
     protected $grantsDB = 'Grants DB';
-    protected $database = []; // Hold a reference to the database details
+    protected $database = []; // Hold a reference to the database details so it's easier to see how a specific Table or Field maps to an id
 
     public function __construct()
     {

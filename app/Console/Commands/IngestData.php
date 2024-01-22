@@ -41,7 +41,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache1';
+    protected $cacheName = 'ingest-cache2';
 
     protected $blockTimeService;
     protected $metabaseService;
@@ -207,8 +207,14 @@ class IngestData extends Command
      */
     private function updateApplicationFunding(RoundApplication $application)
     {
+
         if ($application->match_amount_usd) {
             $this->info("Skipping application id: {$application->id} for project: {$application->project->title} because it already has a match amount");
+            return;
+        }
+
+        if (!isset($application->project->title)) {
+            $this->info("Skipping application id: {$application->id} because it has no project title");
             return;
         }
 
@@ -235,8 +241,10 @@ class IngestData extends Command
     {
         $cacheName = $this->cacheName . 'IngestData::updateDonations(' . $round->id . ')';
 
+        $chain = $round->chain;
+
         $query = '
-        donations(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
+        donations(filter: {roundId: {equalTo: "' . $round->round_addr . '"}, chainId: {equalTo: ' . $chain->chain_id . '}}) {
             id
             projectId
             applicationId
@@ -246,6 +254,7 @@ class IngestData extends Command
             blockNumber
           }
         ';
+
         $donationsData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($donationsData);
@@ -288,6 +297,10 @@ class IngestData extends Command
                     if (!$application) {
                         $this->info("Skipping donation {$donation['id']} because it has no application");
                     }
+                    $this->info("project_addr: {$projectAddr}");
+                    $this->info("application_id: {$donation['applicationId']}");
+                    $this->info("round_id: {$round->id}");
+                    sleep(10);
                 }
             }
         }
@@ -547,7 +560,14 @@ rounds(filter: {
         $cacheName = $this->cacheName . 'IngestData::graphQLQuery(' . $query . ')';
 
         $result = Cache::remember($cacheName, now()->addDay(), function () use ($query) {
-            return GraphQL::query($query)->get();
+            try {
+                $result = GraphQL::query($query)->get();
+            } catch (Exception $e) {
+                $this->info("GraphQL query failed. Trying again...");
+                print_r($query);
+                sleep(10);
+            }
+            return $result;
         });
         return $result;
     }
