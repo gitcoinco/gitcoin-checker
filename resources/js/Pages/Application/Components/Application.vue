@@ -175,7 +175,7 @@ const refreshApplication = (application) => {
                     :application="application"
                     @perform-gpt-evaluation="handleEvaluateApplication"
                     @user-evaluation-updated="refreshApplication"
-                    :loading-bar-in-seconds="averageGPTEvaluationTime"
+                    :loadingBarInSeconds="averageGPTEvaluationTime"
                 />
                 <div class="mt-2 flex justify-center">
                     <ResultsSummary :application="application" />
