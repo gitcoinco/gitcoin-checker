@@ -41,7 +41,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache3';
+    protected $cacheName = 'ingest-cache4';
 
     protected $blockTimeService;
     protected $metabaseService;
@@ -63,8 +63,8 @@ class IngestData extends Command
         $this->blockTimeService = $blockTimeService;
         $this->metabaseService = $metabaseService;
 
-        $this->fromDate = now()->subDays(30)->timestamp;
-        $this->toDate = now()->addDays(60)->timestamp;
+        $this->fromDate = now()->subDays(3000)->timestamp;
+        $this->toDate = now()->addDays(600)->timestamp;
     }
 
     /**
@@ -388,6 +388,7 @@ rounds(filter: {
     matchTokenAddress
     uniqueDonorsCount
     totalDonationsCount
+    applicationMetadata
   }
 ';
 
@@ -423,6 +424,7 @@ rounds(filter: {
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
                         'round_metadata' => json_encode($roundData['roundMetadata']),
+                        'application_metadata' => json_encode($roundData['applicationMetadata']),
                     ]
                 );
 

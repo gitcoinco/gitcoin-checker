@@ -32,6 +32,7 @@ class Round extends Model
         'created_at_block',
         'updated_at_block',
         'round_metadata',
+        'application_metadata',
         'name',
         'prompt_data',
     ];
