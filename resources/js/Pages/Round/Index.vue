@@ -163,11 +163,13 @@ const flagRound = async (round) => {
                                 </Link>
                             </td>
                             <td>
-                                {{
-                                    showDateInShortFormat(
-                                        round.last_application_at
-                                    )
-                                }}
+                                <span v-if="round.last_application_at">
+                                    {{
+                                        showDateInShortFormat(
+                                            round.last_application_at
+                                        )
+                                    }}
+                                </span>
                             </td>
                             <td>${{ round.total_amount_donated_in_usd }}</td>
                             <td>
