@@ -24,7 +24,7 @@ class ProjectController extends Controller
 
     public function search($search = null)
     {
-        $projects = Project::where('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate();
+        $projects = Project::search($search)->paginate();
         return $projects;
     }
 
