@@ -63,8 +63,8 @@ class IngestData extends Command
         $this->blockTimeService = $blockTimeService;
         $this->metabaseService = $metabaseService;
 
-        $this->fromDate = now()->subDays(3000)->timestamp;
-        $this->toDate = now()->addDays(1000)->timestamp;
+        $this->fromDate = now()->subDays(30)->timestamp;
+        $this->toDate = now()->addDays(60)->timestamp;
     }
 
     /**
