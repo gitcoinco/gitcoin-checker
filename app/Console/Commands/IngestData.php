@@ -41,7 +41,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache2';
+    protected $cacheName = 'ingest-cache3';
 
     protected $blockTimeService;
     protected $metabaseService;
@@ -559,15 +559,20 @@ rounds(filter: {
     {
         $cacheName = $this->cacheName . 'IngestData::graphQLQuery(' . $query . ')';
 
-        $result = Cache::remember($cacheName, now()->addDay(), function () use ($query) {
-            try {
-                $result = GraphQL::query($query)->get();
-            } catch (Exception $e) {
-                $this->info("GraphQL query failed. Trying again...");
-                print_r($query);
-                sleep(10);
+        $result = Cache::remember($cacheName, now()->addMinutes(10), function () use ($query) {
+            $attempts = 0;
+            while ($attempts < 3) {
+                try {
+                    $result = GraphQL::query($query)->get();
+                    return $result;
+                } catch (Exception $e) {
+                    $this->info("GraphQL query failed. Trying again in 30 seconds...");
+                    print_r($query);
+                    sleep(30);
+                    $attempts++;
+                }
             }
-            return $result;
+            throw new Exception("GraphQL query failed after 3 attempts.");
         });
         return $result;
     }
