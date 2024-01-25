@@ -11,6 +11,7 @@ import {
     shortenAddress,
     scoreTotal,
     shortenURL,
+    showDateInShortFormat,
 } from "@/utils.js";
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
@@ -158,6 +159,59 @@ function refreshApplications() {
         </template>
 
         <div class="py-6">
+            <div
+                class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-3 py-3"
+            >
+                <div
+                    class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex justify-between"
+                >
+                    <div>
+                        <div class="text-xl mr-6">
+                            Match amount: ${{ round.match_amount_in_usd }}
+                        </div>
+                        <div class="text-sm">
+                            Applications start:
+                            {{
+                                showDateInShortFormat(
+                                    round.applications_start_time,
+                                    true
+                                )
+                            }}
+                            <br />
+                            Applications end:
+                            {{
+                                showDateInShortFormat(
+                                    round.applications_end_time,
+                                    true
+                                )
+                            }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xl mr-6">
+                            Unique donors: {{ round.unique_donors_count }}
+                        </div>
+                        <div class="text-sm">
+                            Donations start:
+                            {{
+                                showDateInShortFormat(
+                                    round.donations_start_time,
+                                    true
+                                )
+                            }}
+                            <br />
+                            Donations end:
+                            {{
+                                showDateInShortFormat(
+                                    round.donations_end_time,
+                                    true
+                                )
+                            }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <Applications
