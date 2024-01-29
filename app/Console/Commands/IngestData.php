@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RoundApplicationController;
 use App\Http\Controllers\RoundPromptController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -22,6 +23,7 @@ use Illuminate\Support\Str;
 use App\Services\DateService;
 use App\Services\HashService;
 use App\Services\MetabaseService;
+use App\Services\NotificationService;
 use BendeckDavid\GraphqlClient\Facades\GraphQL;
 use Carbon\Carbon;
 
@@ -52,12 +54,14 @@ class IngestData extends Command
     protected $fromDate = null;
     protected $toDate = null;
 
+    public $notificationService;
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(BlockTimeService $blockTimeService, MetabaseService $metabaseService)
+    public function __construct(BlockTimeService $blockTimeService, MetabaseService $metabaseService, NotificationService $notificationService)
     {
         parent::__construct();
         $this->blockTimeService = $blockTimeService;
@@ -65,6 +69,8 @@ class IngestData extends Command
 
         $this->fromDate = now()->subDays(30)->timestamp;
         $this->toDate = now()->addDays(60)->timestamp;
+
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -664,9 +670,12 @@ rounds(filter: {
                     $round->last_application_at = $createdAt ? date('Y-m-d H:i:s', $createdAt) : $round->last_application_at;
                     $round->save();
                 }
-            }
-        }
 
-        Cache::put($cacheName, $hash, now()->addMonths(12));
+                // Do a GPT evaluation if it hasn't been done yet
+                $roundApplicationController = new RoundApplicationController($this->notificationService);
+                $roundApplicationController->checkAgainstChatGPT($roundApplication);
+            }
+            Cache::put($cacheName, $hash, now()->addMonths(12));
+        }
     }
 }

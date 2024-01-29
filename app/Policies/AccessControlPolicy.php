@@ -14,8 +14,13 @@ class AccessControlPolicy
         //
     }
 
-    public function update(User $user)
+    public function update(?User $user)
     {
+        // Check if running in CLI mode (Artisan command)
+        if (php_sapi_name() == 'cli') {
+            return true;
+        }
+
         $accessControl = $user->accessControl;
         return $accessControl && $accessControl->role === 'admin';
     }
