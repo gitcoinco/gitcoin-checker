@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessControl;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationEvaluationAnswers;
 use App\Models\RoundApplicationEvaluationQuestions;
@@ -10,6 +11,15 @@ use Illuminate\Support\Str;
 
 class RoundApplicationEvaluationAnswersController extends Controller
 {
+
+    public function delete(RoundApplicationEvaluationAnswers $answer)
+    {
+        $this->authorize('delete', $answer);
+        $answer->delete();
+
+        return true;
+    }
+
     public function upsert(RoundApplication $application)
     {
         $this->authorize('update', AccessControl::class);

@@ -214,35 +214,6 @@ const toggleModal = () => {
                     </div>
                 </form>
                 <div v-else>No questions specified</div>
-
-                <!-- <table
-                    class="table-auto w-full"
-                    v-if="userEvaluationAnswers.length > 0"
-                >
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>User</th>
-                            <th>Score</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(answer, index) in userEvaluationAnswers"
-                            :key="index"
-                        >
-                            <td>
-                                {{ showDateInShortFormat(answer.updated_at) }}
-                            </td>
-                            <td>{{ answer.user.name }}</td>
-                            <td>{{ answer.score }}</td>
-                            <td>
-                                {{ answer.notes }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table> -->
             </div>
         </Modal>
     </div>

@@ -100,11 +100,24 @@ const gptNrPercentage = (result) => {
     }
 };
 
-const clearResult = async () => {
+const clearGPTResult = async () => {
     try {
         await axios.delete(
             route("round.application.evaluation.results.destroy", {
                 application: props.application.uuid,
+            })
+        );
+        emit("user-evaluation-updated", props.application);
+    } catch (error) {
+        console.error("Error deleting result: ", error);
+    }
+};
+
+const clearHumanResult = async (answer) => {
+    try {
+        await axios.delete(
+            route("round.application.evaluation-answer.destroy", {
+                answer: answer.uuid,
             })
         );
         emit("user-evaluation-updated", props.application);
@@ -134,6 +147,7 @@ const clearResult = async () => {
                         <th>Who</th>
                         <th>Result</th>
                         <th>Notes</th>
+                        <th></th>
                     </tr>
                     <tr v-if="props.application?.results?.length > 0">
                         <td>
@@ -183,8 +197,9 @@ const clearResult = async () => {
                                 }}%
                             </a>
                         </td>
+                        <td></td>
                         <td>
-                            <SecondaryButton @click="clearResult">
+                            <SecondaryButton @click="clearGPTResult">
                                 Clear</SecondaryButton
                             >
                         </td>
@@ -245,10 +260,20 @@ const clearResult = async () => {
                         <td>
                             {{ answer.notes }}
                         </td>
+                        <td>
+                            <SecondaryButton
+                                v-if="
+                                    $page.props.auth_user_id == answer.user_id
+                                "
+                                @click="clearHumanResult(answer)"
+                            >
+                                Clear</SecondaryButton
+                            >
+                        </td>
                     </tr>
 
                     <tr>
-                        <td colspan="4" class="text-center">
+                        <td colspan="5" class="text-center">
                             <UserEvaluationButton
                                 :application="application"
                                 @evaluated-application="

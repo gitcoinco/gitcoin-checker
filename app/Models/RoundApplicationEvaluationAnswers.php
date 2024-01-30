@@ -37,7 +37,7 @@ class RoundApplicationEvaluationAnswers extends Model
 
     public function application()
     {
-        return $this->belongsTo(Application::class);
+        return $this->belongsTo(RoundApplication::class);
     }
 
     public function user()

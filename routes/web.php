@@ -113,6 +113,7 @@ Route::middleware([
             Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
             Route::post('/evaluate/chatgpt/{application}/list', [RoundApplicationController::class, 'checkAgainstChatGPTList'])->name('round.application.chatgpt.list');
             Route::delete('/evaluate/chatgpt/{application}/delete', [RoundApplicationController::class, 'deleteGPTResult'])->name('round.application.evaluation.results.destroy');
+            Route::delete('/evaluate/evaluation-answer/{answer}/delete', [RoundApplicationEvaluationAnswersController::class, 'delete'])->name('round.application.evaluation-answer.destroy');
         });
     });
 
