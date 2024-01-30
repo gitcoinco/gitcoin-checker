@@ -43,7 +43,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache4';
+    protected $cacheName = 'ingest-cache5';
 
     protected $blockTimeService;
     protected $metabaseService;

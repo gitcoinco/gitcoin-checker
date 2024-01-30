@@ -67,6 +67,11 @@ class GithubController extends Controller
                     $repos = json_decode($response, true);
 
                     foreach ($repos as $repo) {
+                        if (!is_array($repo)) {
+                            // Repo likely not found, so let's skip
+                            continue;
+                        }
+
                         $repoName = $repo['name'];
 
                         if (!array_key_exists($repoName, $return)) {
