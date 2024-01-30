@@ -204,7 +204,9 @@ class IngestData extends Command
         $projects = Project::whereNull('gpt_summary')->limit(100)->get();
         foreach ($projects as $project) {
             $this->info("Processing project: {$project->title}");
-            $projectController->doGPTSummary($project);
+            if (!app()->isLocal()) {
+                $projectController->doGPTSummary($project);
+            }
         }
     }
 
@@ -672,8 +674,10 @@ rounds(filter: {
                 }
 
                 // Do a GPT evaluation if it hasn't been done yet
-                $roundApplicationController = new RoundApplicationController($this->notificationService);
-                $roundApplicationController->checkAgainstChatGPT($roundApplication);
+                if (!app()->isLocal()) {
+                    $roundApplicationController = new RoundApplicationController($this->notificationService);
+                    $roundApplicationController->checkAgainstChatGPT($roundApplication);
+                }
             }
             Cache::put($cacheName, $hash, now()->addMonths(12));
         }
