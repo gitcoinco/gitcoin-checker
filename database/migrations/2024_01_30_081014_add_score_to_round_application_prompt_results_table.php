@@ -14,11 +14,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('round_application_prompt_results', function (Blueprint $table) {
-            $table->integer('score')->nullable()->after('prompt_data');
+            if (!Schema::hasColumn('round_application_prompt_results', 'score')) {
+                $table->integer('score')->nullable()->after('prompt_data');
+            }
         });
 
         Schema::table('round_applications', function (Blueprint $table) {
-            $table->integer('score')->after('status')->nullable();
+            if (!Schema::hasColumn('round_applications', 'score')) {
+                $table->integer('score')->after('status')->nullable();
+            }
         });
 
 
