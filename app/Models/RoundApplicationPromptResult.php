@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\RoundApplicationPromptResultController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\ShortUniqueUuidTrait;
@@ -21,7 +22,9 @@ class RoundApplicationPromptResult extends Model
         'system_prompt',
         'prompt_data',
         'results_data',
+        'score',
     ];
+
 
     public function application()
     {

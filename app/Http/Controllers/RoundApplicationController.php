@@ -405,6 +405,8 @@ class RoundApplicationController extends Controller
         $result->results_data = $answer;
         $result->save();
 
+        RoundApplicationPromptResultController::calculateScore($result);
+
         return $result;;
     }
 
