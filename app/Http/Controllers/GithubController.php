@@ -23,37 +23,74 @@ class GithubController extends Controller
         $return = [];
 
         if ($isProject) {
-            // Check activity for all repositories in a project (organization or user)
-            $url = "$baseUrl/users/$identifier/repos";
-            curl_setopt($ch, CURLOPT_URL, $url);
-            $response = curl_exec($ch);
 
-            if ($response) {
-                $repos = json_decode($response, true);
-                foreach ($repos as $repo) {
-                    $repoName = $repo['name'];
+            $specificRepo = null;
+            if (stristr($identifier, '/')) {
+                $identifierParts = explode('/', $identifier);
+                $specificRepo = $identifierParts[1];
+                $identifier = $identifierParts[0];
+            }
 
-                    if (!array_key_exists($repoName, $return)) {
-                        $return[$repoName] = [
-                            'recent_activity' => [
-                                'title' => 'Number of commits in the past 3 months',
-                                'count' => 0,
-                            ],
-                            'pull_request_data' => $this->fetchPullRequestsData($baseUrl, $identifier, $repoName, $ch),
-                            'issues_data' => $this->fetchIssuesData($baseUrl, $identifier, $repoName, $ch),
-                        ];
+            if ($specificRepo) {
+                if (!array_key_exists($specificRepo, $return)) {
+                    $return[$specificRepo] = [
+                        'recent_activity' => [
+                            'title' => 'Number of commits in the past 3 months',
+                            'count' => 0,
+                        ],
+                        'pull_request_data' => $this->fetchPullRequestsData($baseUrl, $identifier, $specificRepo, $ch),
+                        'issues_data' => $this->fetchIssuesData($baseUrl, $identifier, $specificRepo, $ch),
+                    ];
+                }
+
+                curl_setopt($ch, CURLOPT_URL, "$baseUrl/repos/$identifier/$specificRepo/commits");
+                $commitsResponse = curl_exec($ch);
+
+                if ($commitsResponse) {
+                    $commits = json_decode($commitsResponse, true);
+                    foreach ($commits as $commit) {
+                        if (isset($commit['commit']['committer']['date']) && strtotime($commit['commit']['committer']['date']) > $threeMonthsAgo) {
+                            $title = 'On Github.com, project ' . $identifier . ', repository ' . $specificRepo . ' has recent activity (within the last 3 months)';
+                            $return[$specificRepo]['recent_activity']['count']++;
+                        }
                     }
+                }
+            } else {
 
 
-                    curl_setopt($ch, CURLOPT_URL, "$baseUrl/repos/$identifier/$repoName/commits");
-                    $commitsResponse = curl_exec($ch);
+                // Check activity for all repositories in a project (organization or user)
+                $url = "$baseUrl/users/$identifier/repos";
+                curl_setopt($ch, CURLOPT_URL, $url);
+                $response = curl_exec($ch);
 
-                    if ($commitsResponse) {
-                        $commits = json_decode($commitsResponse, true);
-                        foreach ($commits as $commit) {
-                            if (isset($commit['commit']['committer']['date']) && strtotime($commit['commit']['committer']['date']) > $threeMonthsAgo) {
-                                $title = 'On Github.com, project ' . $identifier . ', repository ' . $repoName . ' has recent activity (within the last 3 months)';
-                                $return[$repoName]['recent_activity']['count']++;
+                if ($response) {
+                    $repos = json_decode($response, true);
+
+                    foreach ($repos as $repo) {
+                        $repoName = $repo['name'];
+
+                        if (!array_key_exists($repoName, $return)) {
+                            $return[$repoName] = [
+                                'recent_activity' => [
+                                    'title' => 'Number of commits in the past 3 months',
+                                    'count' => 0,
+                                ],
+                                'pull_request_data' => $this->fetchPullRequestsData($baseUrl, $identifier, $repoName, $ch),
+                                'issues_data' => $this->fetchIssuesData($baseUrl, $identifier, $repoName, $ch),
+                            ];
+                        }
+
+
+                        curl_setopt($ch, CURLOPT_URL, "$baseUrl/repos/$identifier/$repoName/commits");
+                        $commitsResponse = curl_exec($ch);
+
+                        if ($commitsResponse) {
+                            $commits = json_decode($commitsResponse, true);
+                            foreach ($commits as $commit) {
+                                if (isset($commit['commit']['committer']['date']) && strtotime($commit['commit']['committer']['date']) > $threeMonthsAgo) {
+                                    $title = 'On Github.com, project ' . $identifier . ', repository ' . $repoName . ' has recent activity (within the last 3 months)';
+                                    $return[$repoName]['recent_activity']['count']++;
+                                }
                             }
                         }
                     }
@@ -94,6 +131,7 @@ class GithubController extends Controller
 
         return $return;
     }
+
 
     private function fetchPullRequestsData($baseUrl, $identifier, $repoName, $ch)
     {
