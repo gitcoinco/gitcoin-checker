@@ -257,11 +257,11 @@ const handleRoundPrompt = (round) => {
                             v-model="selectedSearchProjects"
                             @keyup.enter.prevent="searchProjects"
                             placeholder="Search projects"
-                            class="p-0 mr-1 text-sm"
+                            class="p-0 px-1 mr-1 text-sm"
                         />
                         <select
                             v-model="selectedApplicationRoundTypeRef"
-                            class="flex-grow p-0 mr-1 pr-7 text-sm"
+                            class="border-gray-300 flex-grow p-0 mr-1 pr-7 text-sm rounded-md px-1"
                         >
                             <option value="all">All</option>
                             <option value="mine">My Rounds</option>
@@ -282,7 +282,7 @@ const handleRoundPrompt = (round) => {
 
                 <select
                     v-model="orderBy"
-                    class="flex-grow p-0 mr-1 pr-7 text-sm"
+                    class="border-gray-300 flex-grow p-0 mr-1 pr-7 text-sm rounded-md px-1"
                 >
                     <option value="created_at">Date</option>
                     <option value="score">Score</option>
@@ -290,7 +290,7 @@ const handleRoundPrompt = (round) => {
 
                 <select
                     v-model="orderByDirection"
-                    class="flex-grow p-0 mr-1 pr-7 text-sm"
+                    class="border-gray-300 flex-grow p-0 mr-1 pr-7 text-sm rounded-md px-1"
                 >
                     <option value="desc">Descending</option>
                     <option value="asc">Ascending</option>
