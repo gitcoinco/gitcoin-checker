@@ -14,6 +14,7 @@ use Inertia\Inertia;
 use Orhanerday\OpenAi\OpenAi;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class RoundApplicationController extends Controller
@@ -377,7 +378,15 @@ class RoundApplicationController extends Controller
         $open_ai = new OpenAi(env('OPENAI_API_KEY'));
 
         $evaluationQuestions = $application->round->evaluationQuestions;
-        $questions = json_decode($evaluationQuestions->questions, true);
+
+        try {
+            $questions = json_decode($evaluationQuestions->questions, true);
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Failed to decode evaluation questions: ' . $e->getMessage());
+            // Set questions to an empty array as a fallback
+            $questions = [];
+        }
 
         $messages = [
             [
@@ -437,10 +446,15 @@ class RoundApplicationController extends Controller
         ]);
 
         $gptResponse = json_decode($gptResponse);
-
-        $answer = ($gptResponse->choices[0]->message->content);
         $search = ['```json', '```'];
         $replace = ['', ''];
+
+        if (isset($gptResponse->choices[0]->message->content)) {
+            $answer = ($gptResponse->choices[0]->message->content);
+        } else {
+            // If we don't get a response, add an empty array
+            $answer = '[]';
+        }
 
         $answer = str_replace($search, $replace, $answer);
         $answer = json_decode($answer, true);

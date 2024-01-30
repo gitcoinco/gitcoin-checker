@@ -622,7 +622,7 @@ rounds(filter: {
 
             foreach ($applicationData['applications'] as $key => $data) {
 
-                $this->info("Processing application: {$data['id']}");
+                $this->info("Processing round {$round->round_addr}, application: {$data['id']}");
 
                 $createdAt = null;
                 // When was this application created?
