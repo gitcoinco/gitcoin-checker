@@ -29,7 +29,11 @@ class RoundApplicationPromptResultController extends Controller
             }
         }
 
-        $score = $score / $totalNrAnswers * 100;
+        if ($totalNrAnswers == 0) {
+            $score = 0;
+        } else {
+            $score = $score / $totalNrAnswers * 100;
+        }
         $roundApplicationPromptResult->score = $score;
         $roundApplicationPromptResult->save();
 
