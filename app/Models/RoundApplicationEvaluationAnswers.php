@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\RoundApplicationController;
 use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,15 @@ class RoundApplicationEvaluationAnswers extends Model
         'answers',
         'notes',
     ];
+
+    protected static function booted()
+    {
+        static::saved(function ($model) {
+            RoundApplicationController::updateScore($model->application);
+        });
+    }
+
+
 
     public function round()
     {

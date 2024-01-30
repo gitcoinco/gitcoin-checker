@@ -68,6 +68,46 @@ class RoundApplicationController extends Controller
         ]);
     }
 
+    /**
+     * Store the order in the user preferences
+     */
+    public function setOrder(Request $request)
+    {
+        $orderKeys = [
+            'roundApplicationOrderBy' => 'created_at',
+            'roundApplicationOrderByDirection' => 'desc',
+        ];
+
+        $orderData = [];
+
+        foreach ($orderKeys as $key => $default) {
+            if ($request->has($key)) {
+                $value = $request->input($key, $default);
+                if (!is_string($value)) {
+                    $value = '';
+                }
+
+                $userPreference = UserPreference::updateOrCreate([
+                    'user_id' => $request->user()->id,
+                    'key' => $key,
+                ], [
+                    'value' => json_encode($value)
+                ]);
+
+                $orderData[$key] = is_string($value) && Str::length($value) > 0 ? $value : json_decode($userPreference->value);
+            } else {
+                $userPreference = UserPreference::where('user_id', $request->user()->id)->where('key', $key)->first();
+
+                $orderData[$key] = $userPreference ? json_decode($userPreference->value) : $default;
+            }
+        }
+
+        return $orderData;
+    }
+
+    /**
+     * Store the filters in the user preferences
+     */
     public function setFilters(Request $request)
     {
         $filterKeys = [
@@ -110,6 +150,7 @@ class RoundApplicationController extends Controller
         if ($applyFilters) {
 
             $filterData = $this->setFilters($request);
+            $orderData = $this->setOrder($request);
 
             $status = $filterData['status'];
             $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
@@ -205,7 +246,7 @@ class RoundApplicationController extends Controller
                 }
             })
             ->whereNotIn('id', $listOfApplicationIdsToExclude)
-            ->orderBy('created_at', 'desc')
+            ->orderBy($orderData['roundApplicationOrderBy'], $orderData['roundApplicationOrderByDirection'])
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->whereHas('project')
             ->paginate(5);
@@ -224,6 +265,8 @@ class RoundApplicationController extends Controller
             'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
             'selectedSearchProjects' => $selectedSearchProjects,
             'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
+            'orderBy' => $orderData['roundApplicationOrderBy'],
+            'orderDirection' => $orderData['roundApplicationOrderByDirection'],
         ];
 
         return $data;
@@ -614,5 +657,30 @@ class RoundApplicationController extends Controller
         $historicApplicationsArray = array_values($historicApplicationsCreated);
 
         return response()->json($historicApplicationsArray);
+    }
+
+    /**
+     * Update the score based on the GPT scores and the Humasn scores
+     */
+    public static function updateScore(RoundApplication $application)
+    {
+        $roundApplicationPromptResult = $application->results()->where('prompt_type', 'chatgpt')->orderBy('created_at', 'desc')->first();
+        $roundApplicationevaluationAnswers = $application->evaluationAnswers()->orderBy('id', 'desc')->get();
+
+        $totalScores = 0;
+        $scores = 0;
+        foreach ($roundApplicationevaluationAnswers as $roundApplicationevaluationAnswer) {
+            $totalScores += 1;
+            $scores += $roundApplicationevaluationAnswer->score;
+        }
+        if ($roundApplicationPromptResult) {
+            $totalScores += 1;
+            $scores += $roundApplicationPromptResult->score;
+        }
+
+        if ($totalScores > 0) {
+            $application->score = $scores / $totalScores;
+            $application->save();
+        }
     }
 }

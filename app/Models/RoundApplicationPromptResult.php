@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\RoundApplicationController;
 use App\Http\Controllers\RoundApplicationPromptResultController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,12 @@ class RoundApplicationPromptResult extends Model
         'score',
     ];
 
+    protected static function booted()
+    {
+        static::saved(function ($model) {
+            RoundApplicationController::updateScore($model->application);
+        });
+    }
 
     public function application()
     {

@@ -64,6 +64,44 @@ const statusChanged = (newStatus) => {
         });
 };
 
+const orderByChanged = (newVal) => {
+    busyLoadingApplications.value = true;
+    axios
+        .get(
+            route("dashboard", {
+                roundApplicationOrderBy: newVal,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            applications.value = response.data.applications;
+        })
+        .finally(() => {
+            busyLoadingApplications.value = false;
+        });
+};
+
+const orderByDirectionChanged = (newVal) => {
+    busyLoadingApplications.value = true;
+    axios
+        .get(
+            route("dashboard", {
+                roundApplicationOrderByDirection: newVal,
+            }),
+            {
+                responseType: "json",
+            }
+        )
+        .then((response) => {
+            applications.value = response.data.applications;
+        })
+        .finally(() => {
+            busyLoadingApplications.value = false;
+        });
+};
+
 const roundType = (newStatus) => {
     busyLoadingApplications.value = true;
     axios
@@ -124,6 +162,8 @@ function refreshApplications() {
                         @refresh-applications="refreshApplications"
                         @user-rounds-changed="refreshApplications"
                         @search-projects="searchProjects"
+                        @order-by-changed="orderByChanged"
+                        @order-by-direction-changed="orderByDirectionChanged"
                     />
                 </div>
             </div>

@@ -16,6 +16,7 @@ class RoundApplication extends Model
         'application_id', // The id of the application from the applications.json file
         'project_addr',
         'status',
+        'score',
         'last_updated_on',
         'version',
         'metadata',

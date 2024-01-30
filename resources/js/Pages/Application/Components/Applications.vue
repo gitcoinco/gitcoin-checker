@@ -32,6 +32,8 @@ const emit = defineEmits([
     "refresh-applications",
     "user-rounds-changed",
     "search-projects",
+    "order-by-changed",
+    "order-by-direction-changed",
 ]);
 
 // Define the props the component accepts
@@ -48,7 +50,18 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    orderBy: {
+        type: String,
+        default: "created_at",
+    },
+    orderByDirection: {
+        type: String,
+        default: "desc",
+    },
 });
+
+const orderBy = ref(usePage().props.orderBy.valueOf());
+const orderByDirection = ref(usePage().props.orderByDirection.valueOf());
 
 const selectedApplicationStatus = ref(
     usePage().props.selectedApplicationStatus.valueOf()
@@ -75,6 +88,14 @@ const selectedApplicationRoundTypeRef = ref(selectedApplicationRoundType.value);
 const selectedApplicationRemoveTestsRef = ref(
     selectedApplicationRemoveTests.value
 );
+
+watch(orderBy, (newStatus) => {
+    emit("order-by-changed", newStatus);
+});
+
+watch(orderByDirection, (newStatus) => {
+    emit("order-by-direction-changed", newStatus);
+});
 
 watch(selectedApplicationRemoveTestsRef, (newStatus) => {
     emit("remove-tests", newStatus);
@@ -255,6 +276,25 @@ const handleRoundPrompt = (round) => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="bg-gray-200 p-1">
+                Order by:
+
+                <select
+                    v-model="orderBy"
+                    class="flex-grow p-0 mr-1 pr-7 text-sm"
+                >
+                    <option value="created_at">Date</option>
+                    <option value="score">Score</option>
+                </select>
+
+                <select
+                    v-model="orderByDirection"
+                    class="flex-grow p-0 mr-1 pr-7 text-sm"
+                >
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
             </div>
         </div>
 
