@@ -17,6 +17,11 @@ return new class extends Migration
             $table->integer('score')->nullable()->after('prompt_data');
         });
 
+        Schema::table('round_applications', function (Blueprint $table) {
+            $table->integer('score')->after('status')->nullable();
+        });
+
+
         $applications = RoundApplicationPromptResult::all();
 
         foreach ($applications as $application) {
@@ -30,6 +35,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('round_application_prompt_results', function (Blueprint $table) {
+            $table->dropColumn('score');
+        });
+
+        Schema::table('round_applications', function (Blueprint $table) {
             $table->dropColumn('score');
         });
     }
