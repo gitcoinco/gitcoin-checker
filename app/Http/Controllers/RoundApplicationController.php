@@ -149,7 +149,7 @@ class RoundApplicationController extends Controller
         return $filterData;
     }
 
-    public function getApplications(Request $request, Round $round = null, $applyFilters = true)
+    public function getApplications(Request $request, Round $round = null, $applyFilters = true, $paginate = 5)
     {
         if ($applyFilters) {
 
@@ -180,6 +180,8 @@ class RoundApplicationController extends Controller
                 }
             }
         } else {
+            $orderData = $this->setOrder($request);
+
             $status = 'all';
             $selectedApplicationRoundType = 'all';
             $selectedApplicationRoundUuidList = '[]';
@@ -253,7 +255,7 @@ class RoundApplicationController extends Controller
             ->orderBy($orderData['roundApplicationOrderBy'], $orderData['roundApplicationOrderByDirection'])
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->whereHas('project')
-            ->paginate(5);
+            ->paginate($paginate);
 
         $averageGPTEvaluationTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
             ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))

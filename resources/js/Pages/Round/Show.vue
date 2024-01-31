@@ -213,17 +213,45 @@ function refreshApplications() {
             </div>
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <Applications
-                        :displayFilter="false"
-                        :applications="applications"
-                        @status-changed="statusChanged"
-                        @remove-tests="removeTests"
-                        @round-type="roundType"
-                        @refresh-applications="refreshApplications"
-                        @user-rounds-changed="refreshApplications"
-                        @search-projects="searchProjects"
-                    />
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
+                    <div v-if="applications.data.length > 0">
+                        <table>
+                            <tr>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Reviews</th>
+                            </tr>
+                            <tr
+                                v-for="(
+                                    application, index
+                                ) in applications.data"
+                                :key="index"
+                            >
+                                <td>
+                                    <Link
+                                        v-if="application.project"
+                                        :href="
+                                            route('project.show', {
+                                                project:
+                                                    application.project.slug,
+                                            })
+                                        "
+                                        class="text-blue-500 hover:underline"
+                                    >
+                                        {{ application.project.title }}
+                                    </Link>
+                                </td>
+                                <td>{{ application.status.toLowerCase() }}</td>
+                                <td class="inline-block">
+                                    H:{{
+                                        application.evaluation_answers.length
+                                    }}
+                                    / AI:{{ application.results.length }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div v-else>No results</div>
                 </div>
             </div>
         </div>
