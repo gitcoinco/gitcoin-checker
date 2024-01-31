@@ -282,7 +282,7 @@ class RoundApplicationController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'indexData' => env('INDEXER_URL'),
+                'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $data['applications'],
                 'selectedApplicationStatus' => $data['status'],
                 'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
@@ -293,7 +293,7 @@ class RoundApplicationController extends Controller
             ]);
         } else {
             return Inertia::render('Application/Index', [
-                'indexData' => env('INDEXER_URL'),
+                'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $data['applications'],
                 'selectedApplicationStatus' => $data['status'],
                 'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],

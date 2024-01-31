@@ -49,7 +49,7 @@ class DashboardController extends Controller
             ]);
         } else {
             return Inertia::render('Dashboard', [
-                'indexData' => env('INDEXER_URL'),
+                'indexData' => env('GRAPHQL_ENDPOINT'),
                 'projectsCount' => $projectsCount,
                 'roundsCount' => $roundsCount,
                 'applications' => $applicationsReturn['applications'],
