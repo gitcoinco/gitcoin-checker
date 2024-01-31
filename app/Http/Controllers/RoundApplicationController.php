@@ -16,6 +16,9 @@ use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use RuntimeException;
+
 
 class RoundApplicationController extends Controller
 {
@@ -364,6 +367,12 @@ class RoundApplicationController extends Controller
         $result->round_id = $application->round_id;
 
         $project = $application->project;
+        if (!isset($project->id)) {
+            // Send the error to Bugsnag but continue processing
+            Bugsnag::notifyException(new RuntimeException('Project not found for application: ' . $application->id . ' - ' . $application->project_addr . ', round: ' . $application->round->id));
+            return false;
+        }
+
         $result->project_id = $project->id;
 
         $result->prompt_id = $latestPrompt->id;
@@ -472,6 +481,10 @@ class RoundApplicationController extends Controller
         $this->authorize('update', AccessControl::class);
 
         $result = $this->chatGPT($application);
+        if (!$result) {
+            return response()->json(['error' => 'Failed to evaluate application.']);
+        }
+
         $result = $application->results()->orderBy('id', 'desc')->first();
         return redirect()->route('round.application.evaluate', ['application' => $application->id, 'result' => $result]);
     }
@@ -482,6 +495,11 @@ class RoundApplicationController extends Controller
         $this->authorize('update', AccessControl::class);
 
         $result = $this->chatGPT($application);
+        if (!$result) {
+            return response()->json(['error' => 'Failed to evaluate application.']);
+        }
+
+
         $result = $application->results()->orderBy('id', 'desc')->first();
         $round = $application->round;
         $project = $round->projects()->where('projects.id', $application->project->id)->with(['applications' => function ($query) use ($round, $application) {
