@@ -29,13 +29,22 @@ class RoundController extends Controller
 
     public function index($search = null)
     {
-        $cacheName = 'RoundController->index(' . $search . ')';
+        $cacheName = 'RoundController->index(' . $search . ')' . time();
 
         $rounds = Cache::remember($cacheName, 60, function () {
             return Round::orderBy('flagged_at', 'desc')
                 ->orderBy('last_application_at', 'desc')
                 ->with('chain')
                 ->withCount('projects')
+                ->withCount(['applications as pending_applications_count' => function ($query) {
+                    $query->where('status', 'PENDING');
+                }])
+                ->withCount(['applications as approved_applications_count' => function ($query) {
+                    $query->where('status', 'APPROVED');
+                }])
+                ->withCount(['applications as rejected_applications_count' => function ($query) {
+                    $query->where('status', 'REJECTED');
+                }])
                 ->paginate();
         });
         return Inertia::render('Round/Index', [
