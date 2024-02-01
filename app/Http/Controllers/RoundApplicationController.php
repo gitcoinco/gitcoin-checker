@@ -246,7 +246,7 @@ class RoundApplicationController extends Controller
             ->when(count($listOfApplicationIdsToInclude) > 0, function ($query) use ($listOfApplicationIdsToInclude) {
                 $query->whereIn('id', $listOfApplicationIdsToInclude);
             })
-            ->when(count($selectedApplicationRoundUuidList) > 0, function ($query) use ($selectedApplicationRoundUuidList) {
+            ->when(is_array($selectedApplicationRoundUuidList) && count($selectedApplicationRoundUuidList) > 0, function ($query) use ($selectedApplicationRoundUuidList) {
                 $userPreference = UserPreference::where('user_id', auth()->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
                 if ($userPreference) {
                     $listOfRoundIds = Round::whereIn('uuid', $selectedApplicationRoundUuidList)->pluck('id');
