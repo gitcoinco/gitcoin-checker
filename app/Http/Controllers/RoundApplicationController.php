@@ -149,58 +149,8 @@ class RoundApplicationController extends Controller
         return $filterData;
     }
 
-    public function getApplications(Request $request, Round $round = null, $applyFilters = true, $paginate = 5)
+    public function getApplications(Request $request, Round $round = null, $applyFilters = true, $paginate = 25)
     {
-        if ($applyFilters) {
-            $filterData = $this->setFilters($request, $round);
-            if ($round) {
-                // If we're passing in a round, only show applications for that round
-                $filterData['selectedApplicationRoundUuidList'] = [$round->uuid];
-                $filterData['selectedApplicationRoundType'] = 'all';
-            }
-
-            $orderData = $this->setOrder($request);
-
-            $selectedApplicationStatus = $filterData['selectedApplicationStatus'];
-            $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
-
-            $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
-            $selectedApplicationRemoveTests = $filterData['selectedApplicationRemoveTests'];
-            $selectedSearchProjects = $filterData['selectedSearchProjects'];
-
-
-            $listOfApplicationIdsToExclude = [];
-            if ($selectedApplicationRemoveTests) {
-                $listOfTestRounds = Round::where('name', 'like', '%test%')->pluck('id');
-                $listOfApplicationIdsToExclude = RoundApplication::whereIn('round_id', $listOfTestRounds)->pluck('id');
-            }
-
-            $listOfApplicationIdsToInclude = [];
-            if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
-                $listOfApplicationIdsToInclude = RoundApplication::whereHas('project', function ($query) use ($selectedSearchProjects) {
-                    $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
-                })->pluck('id');
-                if (count($listOfApplicationIdsToInclude) == 0) {
-                    $listOfApplicationIdsToInclude = [-1];
-                }
-            }
-        } else {
-            $orderData = $this->setOrder($request);
-
-            $selectedApplicationStatus = 'all';
-            $selectedApplicationRoundType = 'all';
-            $selectedApplicationRoundUuidList = '[]';
-            $selectedApplicationRemoveTests = 0;
-            $selectedSearchProjects = '';
-
-            $listOfApplicationIdsToExclude = [];
-            if ($round) {
-
-                $listOfApplicationIdsToInclude = RoundApplication::where('round_id', $round->id)->pluck('id');
-            } else {
-                $listOfApplicationIdsToInclude = [];
-            }
-        }
 
 
         $applications = RoundApplication::with([
@@ -213,10 +163,7 @@ class RoundApplicationController extends Controller
             'round.evaluationQuestions' => function ($query) {
                 $query->select('id', 'uuid', 'round_id', 'questions');
             },
-            'project' => function ($query) use ($selectedSearchProjects) {
-                if ($selectedSearchProjects && Str::length($selectedSearchProjects) > 0) {
-                    $query->where('title', 'like', '%' . $selectedSearchProjects . '%');
-                }
+            'project' => function ($query) {
                 $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
             },
             'project.applications' => function ($query) {
@@ -240,23 +187,7 @@ class RoundApplicationController extends Controller
                 $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
             }
         ])
-            ->when($selectedApplicationStatus != 'all', function ($query) use ($selectedApplicationStatus) {
-                $query->where('status', strtolower($selectedApplicationStatus));
-            })
-            ->when(count($listOfApplicationIdsToInclude) > 0, function ($query) use ($listOfApplicationIdsToInclude) {
-                $query->whereIn('id', $listOfApplicationIdsToInclude);
-            })
-            ->when(is_array($selectedApplicationRoundUuidList) && count($selectedApplicationRoundUuidList) > 0, function ($query) use ($selectedApplicationRoundUuidList) {
-                $userPreference = UserPreference::where('user_id', auth()->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
-                if ($userPreference) {
-                    $listOfRoundIds = Round::whereIn('uuid', $selectedApplicationRoundUuidList)->pluck('id');
-                    $query->whereIn('round_id', $listOfRoundIds);
-                } else {
-                    $query->whereIn('round_id', []);
-                }
-            })
-            ->whereNotIn('id', $listOfApplicationIdsToExclude)
-            ->orderBy($orderData['roundApplicationOrderBy'], $orderData['roundApplicationOrderByDirection'])
+            ->orderBy('created_at', 'desc')
             ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
             ->whereHas('project')
             ->paginate($paginate);
@@ -269,14 +200,7 @@ class RoundApplicationController extends Controller
 
         $data = [
             'applications' => $applications,
-            'status' => $selectedApplicationStatus,
-            'selectedApplicationRoundType' => $selectedApplicationRoundType,
-            'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
-            'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
-            'selectedSearchProjects' => $selectedSearchProjects,
             'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
-            'orderBy' => $orderData['roundApplicationOrderBy'],
-            'orderDirection' => $orderData['roundApplicationOrderByDirection'],
         ];
 
         return $data;
@@ -290,22 +214,12 @@ class RoundApplicationController extends Controller
             return response()->json([
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $data['applications'],
-                'selectedApplicationStatus' => $data['status'],
-                'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
-                'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
-                'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
-                'selectedSearchProjects' => $data['selectedSearchProjects'],
 
             ]);
         } else {
             return Inertia::render('Application/Index', [
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $data['applications'],
-                'selectedApplicationStatus' => $data['status'],
-                'selectedApplicationRoundType' => $data['selectedApplicationRoundType'],
-                'selectedApplicationRoundUuidList' => $data['selectedApplicationRoundUuidList'],
-                'selectedApplicationRemoveTests' => $data['selectedApplicationRemoveTests'],
-                'selectedSearchProjects' => $data['selectedSearchProjects'],
             ]);
         }
     }

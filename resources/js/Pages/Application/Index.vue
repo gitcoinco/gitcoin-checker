@@ -16,75 +16,20 @@ const props = defineProps({
 const cleanedIndexData = computed(() => {
     return props.indexData.replace("https://", "");
 });
-
-const removeTests = (newStatus) => {
-    router.visit(
-        route("round.application.index", {
-            selectedApplicationRemoveTests: newStatus,
-        })
-    );
-};
-
-const statusChanged = (newStatus) => {
-    router.visit(
-        route("round.application.index", {
-            status: newStatus,
-        })
-    );
-};
-
-const roundType = (newStatus) => {
-    // Refresh applications using ajax
-    axios
-        .get(
-            route("user-preferences.rounds.selectedApplicationRoundType", {
-                selectedApplicationRoundType: newStatus,
-            }),
-            {
-                responseType: "json",
-            }
-        )
-        .then((response) => {
-            refreshApplications();
-        });
-};
-
-function refreshApplications() {
-    axios
-        .get(route("dashboard", {}), {
-            responseType: "json",
-        })
-        .then((response) => {
-            applications.value = response.data.applications;
-        });
-}
 </script>
 
 <template>
     <AppLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dashboard -
-                <span class="text-sm"
-                    >Index data from
-                    <a :href="props.indexData" target="_blank">{{
-                        cleanedIndexData
-                    }}</a></span
-                >
+                Applications
             </h2>
         </template>
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <Applications
-                        :applications="applications"
-                        @status-changed="statusChanged"
-                        @remove-tests="removeTests"
-                        @round-type="roundType"
-                        @refresh-applications="refreshApplications"
-                        @user-rounds-changed="refreshApplications"
-                    />
+                    <Applications :applications="applications" />
                 </div>
             </div>
         </div>

@@ -71,8 +71,10 @@ Route::middleware([
 
     Route::get('/gpt/models', [GPTController::class, 'models'])->name('gpt.models');
 
+
+    Route::get('applications', [RoundApplicationController::class, 'index'])->name('round.application.index');
+
     Route::prefix('application')->group(function () {
-        Route::get('/', [RoundApplicationController::class, 'index'])->name('round.application.index');
         Route::get('/set/filters', [RoundApplicationController::class, 'setFilters'])->name('round.application.set.filters');
         Route::prefix('application')->group(function () {
             Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
