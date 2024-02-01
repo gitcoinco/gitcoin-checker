@@ -21,24 +21,25 @@ import Modal from "@/Components/Modal.vue";
 import Tooltip from "@/Components/Tooltip.vue";
 import Applications from "@/Pages/Application/Components/Applications.vue";
 
+const page = usePage();
+
 const round = ref(usePage().props.round.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
-let selectedApplicationStatus = ref(
-    usePage().props.selectedApplicationStatus.valueOf()
-);
 
-const latestPrompt = ref(
-    usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
-);
+const queryParams = new URLSearchParams(window.location.search);
+const status = ref(queryParams.get("status") || "all");
 
-watch(selectedApplicationStatus, (newStatus) => {
+watch(status, (newStatus) => {
     router.visit(
         route("round.show", {
             round: round.value.uuid,
-            selectedApplicationStatus: newStatus,
+            status: newStatus,
         })
     );
 });
+const latestPrompt = ref(
+    usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
+);
 
 const openModalId = ref(null);
 function toggleModal(projectId) {
@@ -318,9 +319,7 @@ const refreshApplication = async (application) => {
                                 <tr>
                                     <th>Date</th>
                                     <th>
-                                        <select
-                                            v-model="selectedApplicationStatus"
-                                        >
+                                        <select v-model="status">
                                             <option value="all">All</option>
                                             <option value="pending">
                                                 Pending
@@ -445,9 +444,9 @@ const refreshApplication = async (application) => {
                                         <a
                                             :href="
                                                 'https://manager.gitcoin.co/#/round/' +
-                                                application.round.round_addr.toLowerCase() +
+                                                round.round_addr.toLowerCase() +
                                                 '/application/' +
-                                                application.round.round_addr.toLowerCase() +
+                                                round.round_addr.toLowerCase() +
                                                 '-' +
                                                 application.application_id.toLowerCase()
                                             "

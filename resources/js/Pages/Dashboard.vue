@@ -7,7 +7,7 @@ import { usePage, router } from "@inertiajs/vue3";
 
 import { defineProps, computed, ref } from "vue";
 
-const applications = ref(usePage().props.applications.valueOf());
+// const applications = ref(usePage().props.applications.valueOf());
 const busyLoadingApplications = ref(false);
 
 const props = defineProps({
@@ -150,7 +150,7 @@ function refreshApplications() {
             </h2>
         </template>
 
-        <div class="py-6">
+        <!-- <div class="py-6">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <Applications
@@ -167,7 +167,7 @@ function refreshApplications() {
                     />
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

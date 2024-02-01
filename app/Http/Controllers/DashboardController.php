@@ -31,36 +31,36 @@ class DashboardController extends Controller
 
         $roundApplicationController = new RoundApplicationController($this->notificationService);
 
-        $applicationsReturn = $roundApplicationController->getApplications($request);
+        // $applicationsReturn = $roundApplicationController->getApplications($request);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'projectsCount' => $projectsCount,
                 'roundsCount' => $roundsCount,
-                'applications' => $applicationsReturn['applications'],
-                'selectedApplicationStatus' => $applicationsReturn['status'],
-                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
-                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
-                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
-                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
-                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
-                'orderBy' => $applicationsReturn['orderBy'],
-                'orderByDirection' => $applicationsReturn['orderDirection'],
+                // 'applications' => $applicationsReturn['applications'],
+                // 'selectedApplicationStatus' => $applicationsReturn['status'],
+                // 'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                // 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                // 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                // 'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                // 'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
+                // 'orderBy' => $applicationsReturn['orderBy'],
+                // 'orderByDirection' => $applicationsReturn['orderDirection'],
             ]);
         } else {
             return Inertia::render('Dashboard', [
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'projectsCount' => $projectsCount,
                 'roundsCount' => $roundsCount,
-                'applications' => $applicationsReturn['applications'],
-                'selectedApplicationStatus' => $applicationsReturn['status'],
-                'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
-                'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
-                'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
-                'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
-                'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
-                'orderBy' => $applicationsReturn['orderBy'],
-                'orderByDirection' => $applicationsReturn['orderDirection'],
+                // 'applications' => $applicationsReturn['applications'],
+                // 'selectedApplicationStatus' => $applicationsReturn['status'],
+                // 'selectedApplicationRoundType' => $applicationsReturn['selectedApplicationRoundType'],
+                // 'selectedApplicationRoundUuidList' => $applicationsReturn['selectedApplicationRoundUuidList'],
+                // 'selectedApplicationRemoveTests' => $applicationsReturn['selectedApplicationRemoveTests'],
+                // 'selectedSearchProjects' => $applicationsReturn['selectedSearchProjects'],
+                // 'averageGPTEvaluationTime' => $applicationsReturn['averageGPTEvaluationTime'],
+                // 'orderBy' => $applicationsReturn['orderBy'],
+                // 'orderByDirection' => $applicationsReturn['orderDirection'],
             ]);
         }
     }
