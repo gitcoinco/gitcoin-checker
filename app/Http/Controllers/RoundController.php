@@ -60,10 +60,9 @@ class RoundController extends Controller
 
         $applicationsReturn = $roundApplicationController->getApplications($request, $round, true, 100);
 
-
         if ($request->wantsJson()) {
             return response()->json([
-                'round' => $round->with('chain')->first(),
+                'round' => $round->load('chain'),
                 'projectsCount' => $projectsCount,
                 'roundsCount' => $roundsCount,
                 'applications' => $applicationsReturn['applications'],
@@ -76,7 +75,7 @@ class RoundController extends Controller
             ]);
         } else {
             return Inertia::render('Round/Show', [
-                'round' => $round->with('chain')->first(),
+                'round' => $round->load('chain'),
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'projectsCount' => $projectsCount,
                 'roundsCount' => $roundsCount,
