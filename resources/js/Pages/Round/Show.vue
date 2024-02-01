@@ -332,7 +332,7 @@ const refreshApplication = async (application) => {
                                         </select>
                                     </th>
                                     <th>Project</th>
-                                    <th>Approved in prior rounds</th>
+                                    <th>Prior approvals</th>
                                     <th>Results</th>
                                     <th>Manager</th>
                                 </tr>
@@ -406,6 +406,7 @@ const refreshApplication = async (application) => {
                                                 </Link>
                                             </div>
                                         </div>
+                                        <div v-else>No</div>
                                     </td>
                                     <td>
                                         <Evaluation

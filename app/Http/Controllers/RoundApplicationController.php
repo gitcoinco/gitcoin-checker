@@ -152,10 +152,16 @@ class RoundApplicationController extends Controller
     public function getApplications(Request $request, Round $round = null, $applyFilters = true, $paginate = 5)
     {
         if ($applyFilters) {
-            $filterData = $this->setFilters($request);
+            $filterData = $this->setFilters($request, $round);
+            if ($round) {
+                // If we're passing in a round, only show applications for that round
+                $filterData['selectedApplicationRoundUuidList'] = [$round->uuid];
+                $filterData['selectedApplicationRoundType'] = 'all';
+            }
+
             $orderData = $this->setOrder($request);
 
-            $status = $filterData['selectedApplicationStatus'];
+            $selectedApplicationStatus = $filterData['selectedApplicationStatus'];
             $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
 
             $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];
@@ -181,7 +187,7 @@ class RoundApplicationController extends Controller
         } else {
             $orderData = $this->setOrder($request);
 
-            $status = 'all';
+            $selectedApplicationStatus = 'all';
             $selectedApplicationRoundType = 'all';
             $selectedApplicationRoundUuidList = '[]';
             $selectedApplicationRemoveTests = 0;
@@ -234,16 +240,15 @@ class RoundApplicationController extends Controller
                 $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
             }
         ])
-            ->when($status != 'all', function ($query) use ($status) {
-                $query->where('status', strtolower($status));
+            ->when($selectedApplicationStatus != 'all', function ($query) use ($selectedApplicationStatus) {
+                $query->where('status', strtolower($selectedApplicationStatus));
             })
             ->when(count($listOfApplicationIdsToInclude) > 0, function ($query) use ($listOfApplicationIdsToInclude) {
                 $query->whereIn('id', $listOfApplicationIdsToInclude);
             })
-            ->when($selectedApplicationRoundType != 'all', function ($query) {
+            ->when(count($selectedApplicationRoundUuidList) > 0, function ($query) use ($selectedApplicationRoundUuidList) {
                 $userPreference = UserPreference::where('user_id', auth()->user()->id)->where('key', 'selectedApplicationRoundUuidList')->first();
                 if ($userPreference) {
-                    $selectedApplicationRoundUuidList = json_decode($userPreference->value, true);
                     $listOfRoundIds = Round::whereIn('uuid', $selectedApplicationRoundUuidList)->pluck('id');
                     $query->whereIn('round_id', $listOfRoundIds);
                 } else {
@@ -264,7 +269,7 @@ class RoundApplicationController extends Controller
 
         $data = [
             'applications' => $applications,
-            'status' => $status,
+            'status' => $selectedApplicationStatus,
             'selectedApplicationRoundType' => $selectedApplicationRoundType,
             'selectedApplicationRoundUuidList' => $selectedApplicationRoundUuidList,
             'selectedApplicationRemoveTests' => $selectedApplicationRemoveTests,
