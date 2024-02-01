@@ -187,12 +187,12 @@ const handleEvaluateApplication = async (application) => {
         );
 
         // Find the application index in the applications array
-        const index = applications.data.findIndex(
+        const index = applications.value.data.findIndex(
             (app) => app.id === application.id
         );
 
         // Assuming response.data.project.applications[0].results[0] contains the updated results you want to insert.
-        applications.data[index].results.unshift(
+        applications.value.data[index].results.unshift(
             response.data.project.applications[0].results[0]
         );
     } catch (error) {
