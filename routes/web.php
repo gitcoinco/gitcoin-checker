@@ -92,6 +92,7 @@ Route::middleware([
         Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
     });
 
+    Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
 
     Route::prefix('round')->group(function () {
         Route::get('/evaluation/{round}', [RoundEvaluationController::class, 'show'])->name('round.evaluation.show');
@@ -101,7 +102,6 @@ Route::middleware([
         Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
         Route::get('/evaluation/gpt/reset/{round}', [RoundPromptController::class, 'reset'])->name('round.prompt.reset');
 
-        Route::get('/', [RoundController::class, 'index'])->name('round.index');
         Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
         Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
