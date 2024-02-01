@@ -46,7 +46,9 @@ class RoundController extends Controller
         $rounds = Round::where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('round_addr', 'like', '%' . $search . '%');
-        })->orderBy('flagged_at', 'desc')->orderBy('donations_start_time', 'desc')->with('chain')->paginate();
+        })->orderBy('flagged_at', 'desc')->orderBy('donations_start_time', 'desc')->with(['chain'])->withCount('projects')->paginate();
+
+
         return $rounds;
     }
 
