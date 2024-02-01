@@ -13,6 +13,8 @@ import {
     scoreTotal,
     shortenURL,
     showDateInShortFormat,
+    applicationStatusIcon,
+    formatDate,
 } from "@/utils.js";
 import axios from "axios";
 import Modal from "@/Components/Modal.vue";
@@ -323,8 +325,8 @@ const refreshApplication = async (application) => {
                                             <option value="pending">
                                                 Pending
                                             </option>
-                                            <option value="accepted">
-                                                Accepted
+                                            <option value="approved">
+                                                Approved
                                             </option>
                                             <option value="rejected">
                                                 Rejected
@@ -352,7 +354,19 @@ const refreshApplication = async (application) => {
                                         }}
                                     </td>
                                     <td>
-                                        {{ application.status.toLowerCase() }}
+                                        <span>
+                                            <span
+                                                v-html="
+                                                    applicationStatusIcon(
+                                                        application.status
+                                                    )
+                                                "
+                                                class="mr-1"
+                                            ></span>
+                                            {{
+                                                application.status.toLowerCase()
+                                            }}
+                                        </span>
                                     </td>
                                     <td>
                                         <Link
