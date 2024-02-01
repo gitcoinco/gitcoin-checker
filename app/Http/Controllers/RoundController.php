@@ -29,12 +29,15 @@ class RoundController extends Controller
 
     public function index($search = null)
     {
-        $rounds = Round::orderBy('flagged_at', 'desc')
-            ->orderBy('last_application_at', 'desc')
-            ->with('chain')
-            ->withCount('projects')
-            ->paginate();
+        $cacheName = 'RoundController->index(' . $search . ')';
 
+        $rounds = Cache::remember($cacheName, 60, function () {
+            return Round::orderBy('flagged_at', 'desc')
+                ->orderBy('last_application_at', 'desc')
+                ->with('chain')
+                ->withCount('projects')
+                ->paginate();
+        });
         return Inertia::render('Round/Index', [
             'rounds' => $rounds
         ]);
@@ -54,62 +57,72 @@ class RoundController extends Controller
 
     public function show(Request $request, Round $round)
     {
+        // has of request inputs
+        $requestHash = md5(json_encode($request->all()));
 
+        $cacheName = 'RoundController->show(' . $requestHash . ',' . $round->uuid . ')';
 
-        $applications = $round->applications()->with([
-            'round' => function ($query) {
-                $query->select('id', 'uuid', 'name', 'applications_start_time', 'applications_end_time', 'round_addr', 'chain_id');
-            },
-            'round.evaluationQuestions' => function ($query) {
-                $query->select('id', 'uuid', 'round_id', 'questions');
-            },
-            'project' => function ($query) {
-                $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
-            },
-            'project.applications' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-                $query->select('id', 'uuid', 'application_id', 'round_id', 'project_addr', 'status', 'created_at');
-            },
-            'project.applications.round' => function ($query) {
-                $query->select('id', 'uuid', 'name');
-            },
-            'evaluationAnswers' => function ($query) {
-                $query->orderBy('id', 'desc');
-            },
-            'evaluationAnswers.user' => function ($query) {
-                $query->select('id', 'uuid', 'name');
-            },
-            'latestPrompt' => function ($query) {
-                $query->orderBy('id', 'desc')->limit(1);
-                $query->select('id', 'uuid');
-            },
-            'results' => function ($query) {
-                $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
-            }
-        ])
-            ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
-            ->whereHas('project')
-            ->when(request('status', 'all') !== 'all', function ($query) {
-                $query->where('status', strtolower(request('status')));
-            })
+        $applications = Cache::remember($cacheName . '-applications', 60, function () use ($round) {
+            return $round->applications()->with([
+                'round' => function ($query) {
+                    $query->select('id', 'uuid', 'name', 'applications_start_time', 'applications_end_time', 'round_addr', 'chain_id');
+                },
+                'round.evaluationQuestions' => function ($query) {
+                    $query->select('id', 'uuid', 'round_id', 'questions');
+                },
+                'project' => function ($query) {
+                    $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
+                },
+                'project.applications' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                    $query->select('id', 'uuid', 'application_id', 'round_id', 'project_addr', 'status', 'created_at');
+                },
+                'project.applications.round' => function ($query) {
+                    $query->select('id', 'uuid', 'name');
+                },
+                'evaluationAnswers' => function ($query) {
+                    $query->orderBy('id', 'desc');
+                },
+                'evaluationAnswers.user' => function ($query) {
+                    $query->select('id', 'uuid', 'name');
+                },
+                'latestPrompt' => function ($query) {
+                    $query->orderBy('id', 'desc')->limit(1);
+                    $query->select('id', 'uuid');
+                },
+                'results' => function ($query) {
+                    $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
+                }
+            ])
+                ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
+                ->whereHas('project')
+                ->when(request('status', 'all') !== 'all', function ($query) {
+                    $query->where('status', strtolower(request('status')));
+                })
+                ->paginate(100);
+        });
 
-            ->paginate(100);
-
-        $averageGPTEvaluationTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))
-            ->first()
-            ->average_time);
+        $averageGPTEvaluationTime = Cache::remember($cacheName . '-gpt', 60, function () {
+            return intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
+                ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))
+                ->first()
+                ->average_time);
+        });
         $averageGPTEvaluationTime = min($averageGPTEvaluationTime, 300);
+
+        $round = Cache::remember($cacheName . '-round', 60, function () use ($round) {
+            return $round->load('chain');
+        });
 
         if ($request->wantsJson()) {
             return response()->json([
-                'round' => $round->load('chain'),
+                'round' => $round,
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
             ]);
         } else {
             return Inertia::render('Round/Show', [
-                'round' => $round->load('chain'),
+                'round' => $round,
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
