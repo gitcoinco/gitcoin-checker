@@ -35,6 +35,8 @@ const averageGPTEvaluationTime = usePage().props.averageGPTEvaluationTime;
                         <tr>
                             <th>Date</th>
                             <th>Chain</th>
+                            <th>Round</th>
+                            <th>Application</th>
                             <th>Project</th>
                             <th>Status</th>
                         </tr>
@@ -56,6 +58,19 @@ const averageGPTEvaluationTime = usePage().props.averageGPTEvaluationTime;
                             <td>
                                 {{ application.round.chain.name }}
                             </td>
+                            <td>
+                                <Link
+                                    :href="
+                                        route('round.show', {
+                                            round: application.round.uuid,
+                                        })
+                                    "
+                                    class="text-blue-500 hover:underline mr-1"
+                                >
+                                    {{ application.round.name }}
+                                </Link>
+                            </td>
+                            <td>{{ application.application_id }}</td>
                             <td>
                                 <Link
                                     v-if="application.project"
