@@ -116,7 +116,7 @@ class RoundApplicationController extends Controller
     {
         $filterKeys = [
             'selectedSearchProjects' => '',
-            'status' => 'all',
+            'selectedApplicationStatus' => 'all',
             'selectedApplicationRoundType' => 'all',
             'selectedApplicationRoundUuidList' => '[]',
             'selectedApplicationRemoveTests' => 0
@@ -152,11 +152,10 @@ class RoundApplicationController extends Controller
     public function getApplications(Request $request, Round $round = null, $applyFilters = true, $paginate = 5)
     {
         if ($applyFilters) {
-
             $filterData = $this->setFilters($request);
             $orderData = $this->setOrder($request);
 
-            $status = $filterData['status'];
+            $status = $filterData['selectedApplicationStatus'];
             $selectedApplicationRoundType = $filterData['selectedApplicationRoundType'];
 
             $selectedApplicationRoundUuidList = $filterData['selectedApplicationRoundUuidList'];

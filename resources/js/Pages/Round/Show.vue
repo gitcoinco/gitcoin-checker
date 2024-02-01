@@ -1,12 +1,9 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Evaluation from "@/Pages/Application/Components/Evaluation.vue";
 import ResultsSummary from "@/Pages/Application/Components/ResultsSummary.vue";
-import TextInput from "@/Components/TextInput.vue";
-import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
+import { useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
 
@@ -24,9 +21,22 @@ import Applications from "@/Pages/Application/Components/Applications.vue";
 
 const round = ref(usePage().props.round.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
+let selectedApplicationStatus = ref(
+    usePage().props.selectedApplicationStatus.valueOf()
+);
+
 const latestPrompt = ref(
     usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
 );
+
+watch(selectedApplicationStatus, (newStatus) => {
+    router.visit(
+        route("round.show", {
+            round: round.value.uuid,
+            selectedApplicationStatus: newStatus,
+        })
+    );
+});
 
 const openModalId = ref(null);
 function toggleModal(projectId) {
@@ -300,124 +310,155 @@ const refreshApplication = async (application) => {
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
-                    <div v-if="applications.data.length > 0">
+                    <div>
                         <table>
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Project</th>
-                                <th>Approved in prior rounds</th>
-                                <th>Results</th>
-                                <th>Manager</th>
-                            </tr>
-                            <tr
-                                v-for="(
-                                    application, index
-                                ) in applications.data"
-                                :key="index"
-                            >
-                                <td>
-                                    {{
-                                        showDateInShortFormat(
-                                            application.created_at
-                                        )
-                                    }}
-                                </td>
-                                <td>{{ application.status.toLowerCase() }}</td>
-                                <td>
-                                    <Link
-                                        v-if="application.project"
-                                        :href="
-                                            route('project.show', {
-                                                project:
-                                                    application.project.slug,
-                                            })
-                                        "
-                                        class="text-blue-500 hover:underline mr-1"
-                                    >
-                                        {{ application.project.title }}
-                                    </Link>
-
-                                    <ApplicationAnswers
-                                        :applicationUuid="application.uuid"
-                                    />
-                                </td>
-                                <td>
-                                    <div
-                                        v-if="
-                                            previousApplicationSummary(
-                                                application
-                                            ).approved.length > 0
-                                        "
-                                    >
-                                        Approved in:
-                                        <div
-                                            v-for="(
-                                                approvedApplication, index
-                                            ) in previousApplicationSummary(
-                                                application
-                                            ).approved"
-                                            :key="index"
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>
+                                        <select
+                                            v-model="selectedApplicationStatus"
                                         >
-                                            <Link
-                                                :href="
-                                                    route('round.show', {
-                                                        round: approvedApplication
-                                                            .round.uuid,
-                                                    })
-                                                "
-                                                class="text-blue-500 hover:underline"
-                                            >
-                                                {{
-                                                    approvedApplication.round
-                                                        .name
-                                                }}
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <Evaluation
-                                        :application="application"
-                                        @perform-gpt-evaluation="
-                                            handleEvaluateApplication
-                                        "
-                                        @user-evaluation-updated="
-                                            refreshApplication
-                                        "
-                                        :loadingBarInSeconds="
-                                            averageGPTEvaluationTime
-                                        "
-                                    />
-                                    <div class="mt-2 flex justify-center">
-                                        <ResultsSummary
-                                            :application="application"
+                                            <option value="all">All</option>
+                                            <option value="pending">
+                                                Pending
+                                            </option>
+                                            <option value="accepted">
+                                                Accepted
+                                            </option>
+                                            <option value="rejected">
+                                                Rejected
+                                            </option>
+                                        </select>
+                                    </th>
+                                    <th>Project</th>
+                                    <th>Approved in prior rounds</th>
+                                    <th>Results</th>
+                                    <th>Manager</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="applications.data.length > 0">
+                                <tr
+                                    v-for="(
+                                        application, index
+                                    ) in applications.data"
+                                    :key="index"
+                                >
+                                    <td>
+                                        {{
+                                            showDateInShortFormat(
+                                                application.created_at
+                                            )
+                                        }}
+                                    </td>
+                                    <td>
+                                        {{ application.status.toLowerCase() }}
+                                    </td>
+                                    <td>
+                                        <Link
+                                            v-if="application.project"
+                                            :href="
+                                                route('project.show', {
+                                                    project:
+                                                        application.project
+                                                            .slug,
+                                                })
+                                            "
+                                            class="text-blue-500 hover:underline mr-1"
+                                        >
+                                            {{ application.project.title }}
+                                        </Link>
+
+                                        <ApplicationAnswers
+                                            :applicationUuid="application.uuid"
                                         />
-                                    </div>
-                                </td>
-                                <td>
-                                    <a
-                                        :href="
-                                            'https://manager.gitcoin.co/#/round/' +
-                                            application.round.round_addr.toLowerCase() +
-                                            '/application/' +
-                                            application.round.round_addr.toLowerCase() +
-                                            '-' +
-                                            application.application_id.toLowerCase()
-                                        "
-                                        target="_blank"
-                                        class="text-blue-500 underline"
-                                    >
-                                        <i
-                                            class="fa fa-external-link"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <div
+                                            v-if="
+                                                previousApplicationSummary(
+                                                    application
+                                                ).approved.length > 0
+                                            "
+                                        >
+                                            Approved in:
+                                            <div
+                                                v-for="(
+                                                    approvedApplication, index
+                                                ) in previousApplicationSummary(
+                                                    application
+                                                ).approved"
+                                                :key="index"
+                                            >
+                                                <Link
+                                                    :href="
+                                                        route('round.show', {
+                                                            round: approvedApplication
+                                                                .round.uuid,
+                                                        })
+                                                    "
+                                                    class="text-blue-500 hover:underline"
+                                                >
+                                                    {{
+                                                        approvedApplication
+                                                            .round.name
+                                                    }}
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <Evaluation
+                                            :application="application"
+                                            @perform-gpt-evaluation="
+                                                handleEvaluateApplication
+                                            "
+                                            @user-evaluation-updated="
+                                                refreshApplication
+                                            "
+                                            :loadingBarInSeconds="
+                                                averageGPTEvaluationTime
+                                            "
+                                        />
+                                        <div class="mt-2 flex justify-center">
+                                            <ResultsSummary
+                                                :application="application"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a
+                                            :href="
+                                                'https://manager.gitcoin.co/#/round/' +
+                                                application.round.round_addr.toLowerCase() +
+                                                '/application/' +
+                                                application.round.round_addr.toLowerCase() +
+                                                '-' +
+                                                application.application_id.toLowerCase()
+                                            "
+                                            target="_blank"
+                                            class="text-blue-500 underline"
+                                        >
+                                            <i
+                                                class="fa fa-external-link"
+                                                aria-hidden="true"
+                                            ></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="6">No results</td>
+                                </tr>
+                            </tbody>
                         </table>
+
+                        <Pagination
+                            :links="applications.links"
+                            @pagination-changed="applications = $event"
+                        />
                     </div>
-                    <div v-else>No results</div>
                 </div>
             </div>
         </div>

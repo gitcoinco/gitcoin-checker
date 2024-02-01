@@ -50,7 +50,7 @@ const statusChanged = (newStatus) => {
     axios
         .get(
             route("dashboard", {
-                status: newStatus,
+                selectedApplicationStatus: newStatus,
             }),
             {
                 responseType: "json",

@@ -58,7 +58,7 @@ class RoundController extends Controller
 
         $roundApplicationController = new RoundApplicationController($this->notificationService);
 
-        $applicationsReturn = $roundApplicationController->getApplications($request, $round, false, 100);
+        $applicationsReturn = $roundApplicationController->getApplications($request, $round, true, 100);
 
 
         if ($request->wantsJson()) {
