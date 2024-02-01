@@ -87,23 +87,48 @@ const flagRound = async (round) => {
                                 />
                             </th>
                             <th>
-                                Last application date
                                 <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="This is the last application date for the round"
-                                    ></i>
+                                    Applications
                                     <template #content>
-                                        The date the last application for the
-                                        round as received.
+                                        When are applications open
+                                    </template>
+                                </Tooltip>
+                            </th>
+                            <th>
+                                <Tooltip>
+                                    Round
+                                    <template #content>
+                                        When does the round run
                                     </template>
                                 </Tooltip>
                             </th>
                             <th>Amount</th>
                             <th>Chain</th>
                             <th class="nowrap"># Projects</th>
-                            <th></th>
+                            <th>
+                                <Tooltip>
+                                    Pending
+                                    <template #content>
+                                        Pending applications
+                                    </template>
+                                </Tooltip>
+                            </th>
+                            <th>
+                                <Tooltip>
+                                    Approved
+                                    <template #content>
+                                        Approved applications
+                                    </template>
+                                </Tooltip>
+                            </th>
+                            <th>
+                                <Tooltip>
+                                    Rejected
+                                    <template #content>
+                                        Rejected applications
+                                    </template>
+                                </Tooltip>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,14 +142,48 @@ const flagRound = async (round) => {
                                 </Link>
                             </td>
                             <td>
-                                <span v-if="round.last_application_at">
+                                <span
+                                    v-if="
+                                        round.applications_start_time &&
+                                        round.applications_end_time
+                                    "
+                                    class="text-xs"
+                                >
                                     {{
                                         showDateInShortFormat(
-                                            round.last_application_at
+                                            round.applications_start_time
+                                        )
+                                    }}
+                                    <br />
+                                    {{
+                                        showDateInShortFormat(
+                                            round.applications_end_time
                                         )
                                     }}
                                 </span>
                             </td>
+                            <td>
+                                <span
+                                    v-if="
+                                        round.donations_start_time &&
+                                        round.donations_end_time
+                                    "
+                                    class="text-xs"
+                                >
+                                    {{
+                                        showDateInShortFormat(
+                                            round.donations_start_time
+                                        )
+                                    }}
+                                    <br />
+                                    {{
+                                        showDateInShortFormat(
+                                            round.donations_end_time
+                                        )
+                                    }}
+                                </span>
+                            </td>
+
                             <td>${{ round.total_amount_donated_in_usd }}</td>
                             <td>
                                 {{ round.chain.name }}
@@ -140,11 +199,40 @@ const flagRound = async (round) => {
                             <td>
                                 <Link
                                     :href="
-                                        route('round.evaluation.show', round)
+                                        route('round.show', {
+                                            round: round,
+                                            status: 'pending',
+                                        })
                                     "
                                     class="text-blue-500 hover:underline"
                                 >
-                                    Round Evaluation
+                                    {{ round.pending_applications_count }}
+                                </Link>
+                            </td>
+                            <td>
+                                <Link
+                                    :href="
+                                        route('round.show', {
+                                            round: round,
+                                            status: 'approved',
+                                        })
+                                    "
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    {{ round.approved_applications_count }}
+                                </Link>
+                            </td>
+                            <td>
+                                <Link
+                                    :href="
+                                        route('round.show', {
+                                            round: round,
+                                            status: 'rejected',
+                                        })
+                                    "
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    {{ round.rejected_applications_count }}
                                 </Link>
                             </td>
                         </tr>

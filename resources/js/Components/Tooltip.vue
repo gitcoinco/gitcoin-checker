@@ -5,8 +5,9 @@
         @mouseleave="startHideTimeout"
     >
         <!-- Slot for the triggering element -->
-        <slot></slot>
-
+        <span class="underline dotted">
+            <slot></slot>
+        </span>
         <!-- Tooltip content -->
         <div
             v-if="isVisible"
