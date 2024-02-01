@@ -234,7 +234,7 @@ const refreshApplication = async (application) => {
                     <h2
                         class="font-semibold text-xl text-gray-800 leading-tight"
                     >
-                        {{ round.name }}
+                        {{ round.name }} on {{ round.chain.name }}
                         <span class="text-sm">
                             {{ shortenAddress(round.round_addr) }}
 
