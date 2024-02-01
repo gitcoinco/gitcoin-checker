@@ -80,19 +80,6 @@ const flagRound = async (round) => {
                     <thead>
                         <tr>
                             <th>
-                                <Tooltip>
-                                    <i
-                                        class="fa fa-question-circle-o"
-                                        aria-hidden="true"
-                                        title="Flagged rounds are rounds that have been flagged by the community as potentially fraudulent. Flagged rounds are not included in the calculation of the total amount of funding available."
-                                    ></i>
-                                    <template #content>
-                                        Pinned rounds will always stay at the
-                                        top.
-                                    </template>
-                                </Tooltip>
-                            </th>
-                            <th>
                                 <TextInput
                                     v-model="searchTerm"
                                     placeholder="Search..."
@@ -121,39 +108,6 @@ const flagRound = async (round) => {
                     </thead>
                     <tbody>
                         <tr v-for="(round, index) in rounds.data" :key="index">
-                            <td @click="flagRound(round)" class="pointer">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-6 w-6 text-green-500"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    v-if="round.flagged_at"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-6 w-6 text-gray-500"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    v-else
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                            </td>
-
                             <td>
                                 <Link
                                     :href="route('round.show', round)"
