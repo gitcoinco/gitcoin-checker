@@ -61,7 +61,8 @@ const totalEvaluationAverage = () => {
         totalNrAnswers += gpt.totalNrAnswers;
     }
 
-    return parseInt((nrYesAnswers / totalNrAnswers) * 100);
+    const score = parseInt((nrYesAnswers / totalNrAnswers) * 100);
+    return isNaN(score) ? null : score;
 };
 </script>
 <template>

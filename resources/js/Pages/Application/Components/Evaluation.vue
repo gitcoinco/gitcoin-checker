@@ -125,12 +125,20 @@ const clearHumanResult = async (answer) => {
         console.error("Error deleting result: ", error);
     }
 };
+
+const nrResults = (application) => {
+    return application.results.length + application.evaluation_answers.length;
+};
 </script>
 <template>
     <div>
         <SecondaryButton @click="showModal = true">
-            <i class="fa fa-list mr-1" aria-hidden="true"></i>
-            Evaluation</SecondaryButton
+            <div class="" style="min-width: 100px">
+                {{ nrResults(application) }} Evaluation<span
+                    v-if="nrResults(application) > 1"
+                    >s</span
+                >
+            </div></SecondaryButton
         >
         <Modal :show="showModal">
             <div class="bg-white p-5 w-full">
@@ -242,6 +250,7 @@ const clearHumanResult = async (answer) => {
                             </span>
                             <span v-else> Evaluation not done yet </span>
                         </td>
+                        <td></td>
                     </tr>
                     <tr
                         v-for="(

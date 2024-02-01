@@ -3,9 +3,13 @@ import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
+import Evaluation from "@/Pages/Application/Components/Evaluation.vue";
+import ResultsSummary from "@/Pages/Application/Components/ResultsSummary.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
+import ApplicationAnswers from "@/Components/Gitcoin/Application/ApplicationAnswers.vue";
+
 import {
     copyToClipboard,
     shortenAddress,
@@ -32,6 +36,8 @@ function toggleModal(projectId) {
         openModalId.value = projectId; // Open the modal for the clicked project
     }
 }
+
+const averageGPTEvaluationTime = usePage().props.averageGPTEvaluationTime;
 
 const form = useForm([]);
 
@@ -126,6 +132,86 @@ function refreshApplications() {
             applications.value = response.data.applications;
         });
 }
+
+const previousApplicationSummary = (application) => {
+    let summary = {
+        approved: [],
+        rejected: [],
+    };
+
+    if (application.project.applications) {
+        const previousApplications = application.project.applications.filter(
+            (a) => {
+                return a.id !== application.id;
+            }
+        );
+
+        if (previousApplications) {
+            Array.isArray(previousApplications) &&
+                previousApplications.forEach((a) => {
+                    if (a.status === "APPROVED") {
+                        summary.approved.push(a);
+                    } else if (a.status === "REJECTED") {
+                        summary.rejected.push(a);
+                    }
+                });
+        }
+    }
+
+    return summary;
+};
+
+// Methods to handle events emitted by the GptEvaluationButton component
+const handleEvaluateApplication = async (application) => {
+    // Start loading for this specific project
+    loadingStates.value[application.id] = true;
+
+    try {
+        const response = await axios.post(
+            route("round.application.chatgpt.list", {
+                application: application.uuid,
+            })
+        );
+
+        // Find the application index in the applications array
+        const index = applications.data.findIndex(
+            (app) => app.id === application.id
+        );
+
+        // Assuming response.data.project.applications[0].results[0] contains the updated results you want to insert.
+        applications.data[index].results.unshift(
+            response.data.project.applications[0].results[0]
+        );
+    } catch (error) {
+        // Handle error properly, maybe set an error message to display in the UI
+        console.error("An error occurred:", error);
+    } finally {
+        // Stop loading for this specific project
+        delete loadingStates.value[application.id];
+    }
+};
+
+const refreshApplication = async (application) => {
+    try {
+        const response = await axios.get(
+            route("round.application.show", {
+                application: application.uuid,
+            })
+        );
+
+        // Find the application index in the applications array
+        const index = applications.value.data.findIndex(
+            (app) => app.id === application.id
+        );
+        applications.value.data[index] = response.data.application;
+    } catch (error) {
+        // Handle error properly, maybe set an error message to display in the UI
+        console.error("An error occurred:", error);
+    } finally {
+        // Stop loading for this specific project
+        delete loadingStates.value[application.id];
+    }
+};
 </script>
 
 <template>
@@ -217,9 +303,12 @@ function refreshApplications() {
                     <div v-if="applications.data.length > 0">
                         <table>
                             <tr>
-                                <th>Project</th>
+                                <th>Date</th>
                                 <th>Status</th>
-                                <th>Reviews</th>
+                                <th>Project</th>
+                                <th>Approved in prior rounds</th>
+                                <th>Results</th>
+                                <th>Manager</th>
                             </tr>
                             <tr
                                 v-for="(
@@ -227,6 +316,14 @@ function refreshApplications() {
                                 ) in applications.data"
                                 :key="index"
                             >
+                                <td>
+                                    {{
+                                        showDateInShortFormat(
+                                            application.created_at
+                                        )
+                                    }}
+                                </td>
+                                <td>{{ application.status.toLowerCase() }}</td>
                                 <td>
                                     <Link
                                         v-if="application.project"
@@ -236,17 +333,86 @@ function refreshApplications() {
                                                     application.project.slug,
                                             })
                                         "
-                                        class="text-blue-500 hover:underline"
+                                        class="text-blue-500 hover:underline mr-1"
                                     >
                                         {{ application.project.title }}
                                     </Link>
+
+                                    <ApplicationAnswers
+                                        :applicationUuid="application.uuid"
+                                    />
                                 </td>
-                                <td>{{ application.status.toLowerCase() }}</td>
-                                <td class="inline-block">
-                                    H:{{
-                                        application.evaluation_answers.length
-                                    }}
-                                    / AI:{{ application.results.length }}
+                                <td>
+                                    <div
+                                        v-if="
+                                            previousApplicationSummary(
+                                                application
+                                            ).approved.length > 0
+                                        "
+                                    >
+                                        Approved in:
+                                        <div
+                                            v-for="(
+                                                approvedApplication, index
+                                            ) in previousApplicationSummary(
+                                                application
+                                            ).approved"
+                                            :key="index"
+                                        >
+                                            <Link
+                                                :href="
+                                                    route('round.show', {
+                                                        round: approvedApplication
+                                                            .round.uuid,
+                                                    })
+                                                "
+                                                class="text-blue-500 hover:underline"
+                                            >
+                                                {{
+                                                    approvedApplication.round
+                                                        .name
+                                                }}
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <Evaluation
+                                        :application="application"
+                                        @perform-gpt-evaluation="
+                                            handleEvaluateApplication
+                                        "
+                                        @user-evaluation-updated="
+                                            refreshApplication
+                                        "
+                                        :loadingBarInSeconds="
+                                            averageGPTEvaluationTime
+                                        "
+                                    />
+                                    <div class="mt-2 flex justify-center">
+                                        <ResultsSummary
+                                            :application="application"
+                                        />
+                                    </div>
+                                </td>
+                                <td>
+                                    <a
+                                        :href="
+                                            'https://manager.gitcoin.co/#/round/' +
+                                            application.round.round_addr.toLowerCase() +
+                                            '/application/' +
+                                            application.round.round_addr.toLowerCase() +
+                                            '-' +
+                                            application.application_id.toLowerCase()
+                                        "
+                                        target="_blank"
+                                        class="text-blue-500 underline"
+                                    >
+                                        <i
+                                            class="fa fa-external-link"
+                                            aria-hidden="true"
+                                        ></i>
+                                    </a>
                                 </td>
                             </tr>
                         </table>
