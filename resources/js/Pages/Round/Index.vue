@@ -141,7 +141,7 @@ const flagRound = async (round) => {
                                     {{ round.name }}
                                 </Link>
                             </td>
-                            <td>
+                            <td class="whitespace-nowrap">
                                 <span
                                     v-if="
                                         round.applications_start_time &&
@@ -162,7 +162,7 @@ const flagRound = async (round) => {
                                     }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="whitespace-nowrap">
                                 <span
                                     v-if="
                                         round.donations_start_time &&
