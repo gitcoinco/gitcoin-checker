@@ -19,6 +19,15 @@ class RoundEvaluationController extends Controller
     }
 
 
+    public function setup(Round $round)
+    {
+        $round->load(['chain']);
+
+        return Inertia::render('Round/Setup', [
+            'round' => $round,
+        ]);
+    }
+
     public function show(Round $round)
     {
         $round->load(['chain']);

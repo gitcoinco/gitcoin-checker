@@ -70,7 +70,7 @@ const round = ref(usePage().props.round.valueOf());
                             you specify.
                         </p>
                     </div>
-                    <div>
+                    <div class="mb-5">
                         <Link
                             :href="route('round.evaluation.show.qa', round)"
                             class="text-blue-500 hover:underline"
@@ -83,6 +83,23 @@ const round = ref(usePage().props.round.valueOf());
                             criteria inherited from the eligibility criteria of
                             the round. You can also set your own criteria by
                             overriding the default questions.
+                        </p>
+                    </div>
+                    <div class="mb-5">
+                        <Link
+                            :href="route('round.evaluation.setup', round)"
+                            class="text-blue-500 hover:underline"
+                        >
+                            <i class="fa fa-user mr-1" aria-hidden="true"></i>
+                            How good is the setup of this round?
+                        </Link>
+                        <p>
+                            Rounds have two major pieces of information that
+                            contributes to how easy or difficult it is for
+                            Checker to evaluate applications. One is the round
+                            eligibility criteria, and the other is the
+                            application questions. These two need to have a
+                            reasonable balance.
                         </p>
                     </div>
                 </div>
