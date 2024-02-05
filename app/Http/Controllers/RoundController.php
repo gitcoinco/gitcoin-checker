@@ -108,6 +108,7 @@ class RoundController extends Controller
                 ->when(request('status', 'all') !== 'all', function ($query) {
                     $query->where('status', strtolower(request('status')));
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(100);
         });
 
