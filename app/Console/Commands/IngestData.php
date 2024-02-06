@@ -578,7 +578,10 @@ rounds(filter: {
                 } catch (Exception $e) {
                     $this->info("GraphQL query failed. Trying again in 30 seconds...");
                     print_r($query);
-                    sleep(30);
+
+                    print_r($e->getMessage());
+
+                    sleep(10);
                     $attempts++;
                 }
             }
