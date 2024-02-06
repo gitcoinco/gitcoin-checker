@@ -24,6 +24,15 @@ services:
             - sail
         depends_on:
             - mysql
+
+    mailhog:
+        image: mailhog/mailhog
+        ports:
+            - "8025:8025"
+            - "1025:1025"
+        networks:
+            - sail
+
     mysql:
         container_name: checker.mysql
         image: 'mysql/mysql-server:8.0'
