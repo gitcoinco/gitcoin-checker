@@ -11,6 +11,7 @@ use App\Http\Controllers\ChainController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Controllers\GPTController;
+use App\Http\Controllers\NotificationSetupController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 
@@ -75,6 +76,7 @@ Route::middleware([
     Route::get('applications', [RoundApplicationController::class, 'index'])->name('round.application.index');
 
     Route::prefix('application')->group(function () {
+        Route::get('/{application}', [RoundApplicationController::class, 'show'])->name('application.show');
         Route::get('/set/filters', [RoundApplicationController::class, 'setFilters'])->name('round.application.set.filters');
         Route::prefix('application')->group(function () {
             Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
@@ -94,6 +96,11 @@ Route::middleware([
         Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
     });
 
+    Route::get('notificationsetup', [NotificationSetupController::class, 'index'])->name('notificationsetup.index');
+    Route::post('notificationsetup', [NotificationSetupController::class, 'upsert'])->name('notificationsetup.upsert');
+    Route::delete('notificationsetup/{notificationSetup}', [NotificationSetupController::class, 'delete'])->name('notificationsetup.delete');
+
+
     Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
 
     Route::prefix('round')->group(function () {
@@ -111,7 +118,6 @@ Route::middleware([
         Route::post('/flag/{id}', [RoundController::class, 'flag']);
         Route::prefix('application')->group(function () {
             Route::get('/{application}/details', [RoundApplicationController::class, 'details'])->name('round.application.details');
-            Route::get('/{application}/show', [RoundApplicationController::class, 'show'])->name('round.application.show');
             Route::get('/evaluate-all/{round}', [RoundApplicationController::class, 'evaluateAllShow'])->name('round.evaluate.all.show');
             Route::get('/evaluate/{application}', [RoundApplicationController::class, 'evaluate'])->name('round.application.evaluate');
             Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
@@ -125,6 +131,10 @@ Route::middleware([
         Route::get('/', [ProjectController::class, 'index'])->name('project.index');
         Route::get('/show/{project}', [ProjectController::class, 'show'])->name('project.show');
         Route::get('/search/{search?}', [ProjectController::class, 'search'])->name('project.search');
+    });
+
+    Route::prefix('api')->group(function () {
+        Route::get('/application/{application}/show', [RoundApplicationController::class, 'apiShow'])->name('api.round.application.show');
     });
 
 

@@ -27,6 +27,7 @@
         "meilisearch/meilisearch-php": "^1.5",
         "orhanerday/open-ai": "^4.9",
         "simplito/elliptic-php": "^1.0",
+        "snowfire/beautymail": "^1.1",
         "symfony/dom-crawler": "^6.3",
         "tightenco/ziggy": "^1.7"
     },

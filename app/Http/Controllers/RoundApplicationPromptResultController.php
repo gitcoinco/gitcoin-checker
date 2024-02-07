@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\RoundApplicationPromptResult;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RoundApplicationPromptResultController extends Controller
 {
@@ -41,5 +43,23 @@ class RoundApplicationPromptResultController extends Controller
             'message' => 'Score calculated successfully',
             'data' => $roundApplicationPromptResult,
         ]);
+    }
+
+    public static function averageGPTResponseTime()
+    {
+        $cacheName = 'RoundApplicationPromptResultController->averageGPTResponseTime()';
+
+        $averageGPTEvaluationTime = Cache::remember($cacheName, 60, function () {
+            $averageTime = intval(RoundApplicationPromptResult::where('prompt_type', 'chatgpt')
+                ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as average_time'))
+                ->first()
+                ->average_time);
+
+            $averageTime = min($averageTime, 300);
+
+            return $averageTime;
+        });
+
+        return $averageGPTEvaluationTime;
     }
 }

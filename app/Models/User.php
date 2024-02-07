@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(UserPreference::class);
     }
 
+    public function notificationSetups()
+    {
+        return $this->hasMany(NotificationSetup::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'uuid';

@@ -43,7 +43,7 @@ class IngestData extends Command
      */
     protected $description = 'Ingest data from the indexer and populate the database';
 
-    protected $cacheName = 'ingest-cache5';
+    protected $cacheName = 'ingest-cachex';
 
     protected $blockTimeService;
     protected $metabaseService;
@@ -102,7 +102,6 @@ class IngestData extends Command
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
     {
-
         // Chains are hardcoded for now but should be fetched from a dynamic source in the future
         $chainList = [1, 10, 137, 250, 42161, 424];
 
@@ -118,7 +117,7 @@ class IngestData extends Command
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $this->info("Processing rounds data for chain ID: {$chainId}...");
-            $this->updateRounds($chain, $this->fromDate, $this->toDate);
+            $this->updateRounds($chain);
         }
 
         $this->info('Projects...');
@@ -126,8 +125,8 @@ class IngestData extends Command
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
-                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->where('applications_start_time', '<=', Carbon::now())
+                ->where('donations_end_time', '>=', Carbon::now())
                 ->get();
 
             foreach ($rounds as $round) {
@@ -142,8 +141,8 @@ class IngestData extends Command
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
-                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->where('applications_start_time', '<=', Carbon::now())
+                ->where('donations_end_time', '>=', Carbon::now())
                 ->get();
             foreach ($rounds as $round) {
                 $this->info("Processing applications data for chain: {$chainId}, round: {$round->round_addr}.");
@@ -156,8 +155,8 @@ class IngestData extends Command
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
-                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->where('applications_start_time', '<=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '>=', Carbon::createFromTimestamp($this->toDate))
                 ->get();
             foreach ($rounds as $round) {
                 $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
@@ -313,7 +312,7 @@ class IngestData extends Command
             }
         }
 
-        Cache::put($cacheName, $hash, now()->addMonths(12));
+        Cache::put($cacheName, $hash, now()->addHours(1));
     }
 
     /**
@@ -364,24 +363,22 @@ class IngestData extends Command
             }
         }
 
-        Cache::put($cacheName, $hash, now()->addMonths(12));
+        Cache::put($cacheName, $hash, now()->addHours(1));
     }
 
 
     /**
      * Update rounds for a specific chain between two dates
      */
-    private function updateRounds($chain, $fromDate, $toDate)
+    private function updateRounds($chain, $limit = 100)
     {
 
-        $this->info("Processing rounds data for chain ID: {$chain->chain_id} between {$fromDate} and {$toDate}...");
+        $this->info("Processing rounds data for chain ID:");
 
         $query = '
 rounds(filter: {
     chainId: {equalTo: ' . $chain->chain_id . '},
-    applicationsStartTime: {greaterThan: "' . date('Y-m-d\TH:i:s', $fromDate) . '"},
-    donationsEndTime: {lessThan: "' . date('Y-m-d\TH:i:s', $toDate) . '"}
-}) {
+}, orderBy: CREATED_AT_BLOCK_DESC, first: ' . $limit . ') {
     id
     totalAmountDonatedInUsd
     matchAmount
@@ -495,7 +492,7 @@ rounds(filter: {
                 }
             }
 
-            Cache::put($cacheName, $hash, now()->addMonths(12));
+            Cache::put($cacheName, $hash, now()->addHours(1));
         }
     }
 
@@ -562,7 +559,7 @@ rounds(filter: {
             }
         }
 
-        Cache::put($cacheName, $hash, now()->addMonths(12));
+        Cache::put($cacheName, $hash, now()->addHours(1));
     }
 
     private function graphQLQuery($query)
@@ -578,7 +575,10 @@ rounds(filter: {
                 } catch (Exception $e) {
                     $this->info("GraphQL query failed. Trying again in 30 seconds...");
                     print_r($query);
-                    sleep(30);
+
+                    print_r($e->getMessage());
+
+                    sleep(10);
                     $attempts++;
                 }
             }
@@ -679,7 +679,7 @@ rounds(filter: {
                     $roundApplicationController->checkAgainstChatGPT($roundApplication);
                 }
             }
-            Cache::put($cacheName, $hash, now()->addMonths(12));
+            Cache::put($cacheName, $hash, now()->addHours(1));
         }
     }
 }
