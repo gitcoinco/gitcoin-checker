@@ -20,11 +20,11 @@ class NotificationSetupController extends Controller
     {
         // Find all the notifications that should be sent out now
         $notificationSetups = NotificationSetup::where('time_type', 'specific')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->where('time_of_the_day', 'like', '%' . now()->format('H:i') . ':00%')->get();
-        $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'minute')->get());
+        $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'minute')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->get());
 
         // Check hourly sends
         if (now()->format('i') == '00') {
-            $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'hour')->get());
+            $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'hour')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->get());
         }
 
         foreach ($notificationSetups as $notificationSetup) {
