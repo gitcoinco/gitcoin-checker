@@ -156,3 +156,7 @@ export function matchProbability(str1, str2) {
     let intersection = new Set([...words1].filter((word) => words2.has(word)));
     return intersection.size / new Set([...words1, ...words2]).size;
 }
+
+export function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}

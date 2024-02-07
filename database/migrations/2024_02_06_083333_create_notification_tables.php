@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notification_setup', function (Blueprint $table) {
+        Schema::create('notification_setups', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->string('medium')->default('email');
-            $table->text('additional_emails')->nullable();
-            $table->string('details');  // individual (for each new record) or summary
-            $table->boolean('include_applications')->default(true);
-            $table->boolean('include_rounds')->default(true);
-            $table->string('summary_frequency')->nullable();
+            $table->json('additional_emails')->nullable();
+            $table->boolean('include_applications')->default(true); // include new applications
+            $table->boolean('include_rounds')->default(false); // include new rounds
+            $table->json('days_of_the_week')->nullable(); // 1-7, 1 = Monday
+            $table->string('time_of_the_day')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,7 +29,7 @@ return new class extends Migration
         // The list of rounds to include in the notification
         Schema::create('notification_setup_rounds', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('notification_id')->constrained('notification_setup')->onDelete('cascade');
+            $table->foreignId('notification_setup_id')->constrained('notification_setups')->onDelete('cascade');
             $table->unsignedBigInteger('round_id');
             $table->timestamps();
             $table->softDeletes();
@@ -37,7 +37,7 @@ return new class extends Migration
 
         Schema::create('notification_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('notification_id')->constrained('notification_setup')->onDelete('cascade');
+            $table->foreignId('notification_id')->constrained('notification_setups')->onDelete('cascade');
             $table->string('subject');
             $table->text('message');
             $table->timestamps();
@@ -66,9 +66,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('notification_log_rounds');
         Schema::dropIfExists('notification_log_applications');
         Schema::dropIfExists('notification_logs');
         Schema::dropIfExists('notification_setup_rounds');
-        Schema::dropIfExists('notification_setup');
+        Schema::dropIfExists('notification_setups');
     }
 };

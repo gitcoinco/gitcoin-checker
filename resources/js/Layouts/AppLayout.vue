@@ -85,6 +85,16 @@ const logout = () => {
                                 >
                                     Users
                                 </NavLink>
+                                <NavLink
+                                    :href="route('notificationsetup.index')"
+                                    :active="
+                                        route().current(
+                                            'notificationsetup.index'
+                                        )
+                                    "
+                                >
+                                    Notifications
+                                </NavLink>
                             </div>
                         </div>
 

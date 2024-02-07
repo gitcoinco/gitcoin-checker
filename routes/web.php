@@ -11,6 +11,7 @@ use App\Http\Controllers\ChainController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Controllers\GPTController;
+use App\Http\Controllers\NotificationSetupController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 
@@ -93,6 +94,11 @@ Route::middleware([
         Route::get('/', [ChainController::class, 'index'])->name('chain.index');
         Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
     });
+
+    Route::get('notificationsetup', [NotificationSetupController::class, 'index'])->name('notificationsetup.index');
+    Route::post('notificationsetup', [NotificationSetupController::class, 'upsert'])->name('notificationsetup.upsert');
+    Route::delete('notificationsetup/{notificationSetup}', [NotificationSetupController::class, 'delete'])->name('notificationsetup.delete');
+
 
     Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
 

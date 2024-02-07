@@ -2,28 +2,34 @@
 
 namespace App\Models;
 
+use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NotificationSetup extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, ShortUniqueUuidTrait;
 
     protected $fillable = [
         'user_id',
         'title',
-        'medium',
         'additional_emails',
         'details',
         'include_applications',
         'include_rounds',
-        'summary_frequency',
+        'days_of_the_week',
+        'time_of_the_day',
     ];
 
     public function logs()
     {
         return $this->hasMany(NotificationLog::class, 'notification_id');
+    }
+
+    public function notificationSetupRounds()
+    {
+        return $this->hasMany(NotificationSetupRound::class, 'notification_setup_id');
     }
 
     public function applications()
@@ -39,5 +45,31 @@ class NotificationSetup extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getDaysOfTheWeekAttribute($value)
+    {
+        return json_decode($value);
+    }
+
+
+    public function setDaysOfTheWeekAttribute($value)
+    {
+        $this->attributes['days_of_the_week'] = json_encode($value);
+    }
+
+    public function getAdditionalEmailsAttribute($value)
+    {
+        return json_decode($value);
+    }
+
+    public function setAdditionalEmailsAttribute($value)
+    {
+        $this->attributes['additional_emails'] = json_encode($value);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }
