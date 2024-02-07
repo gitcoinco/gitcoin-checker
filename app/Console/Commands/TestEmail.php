@@ -33,10 +33,10 @@ class TestEmail extends Command
         $email = $this->ask('Please enter the email to send to:');
 
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.test', [], function ($message) {
+        $beautymail->send('emails.test', [], function ($message) use ($email) {
             $message
-                ->from('bar@example.com')
-                ->to('foo@example.com', 'John Smith')
+                ->from('noreply@checker.gitcoin.co')
+                ->to($email)
                 ->subject('Welcome!');
         });
 
