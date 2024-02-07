@@ -11,10 +11,13 @@ const props = defineProps({
         default: () => ({
             uuid: null,
             title: "",
+            email_subject: "",
             additional_emails: [],
             days_of_the_week: [],
+            time_type: "",
             time_of_the_day: "",
             notification_setup_rounds: [],
+            nr_summaries_per_email: 25,
         }),
     },
     rounds: {
@@ -58,6 +61,8 @@ const notificationSetupRounds = ref(
         (value) => value.round_id
     )
 );
+const timeType = ref(props.notificationSetup.time_type);
+
 // Days of the week for checkboxes
 const weekDays = [
     "Monday",
@@ -97,15 +102,19 @@ const submitNotificationSetup = () => {
         notificationSetupRounds.value;
 
     props.notificationSetup.time_of_the_day = localTimeOfTheDay.value;
+    props.notificationSetup.time_type = timeType.value;
 
     const setup = {
         uuid: props.notificationSetup.uuid,
         title: props.notificationSetup.title,
+        email_subject: props.notificationSetup.email_subject,
         additional_emails: props.notificationSetup.additional_emails,
         days_of_the_week: props.notificationSetup.days_of_the_week,
+        time_type: props.notificationSetup.time_type,
         time_of_the_day: props.notificationSetup.time_of_the_day,
         notification_setup_rounds:
             props.notificationSetup.notification_setup_rounds,
+        nr_summaries_per_email: props.notificationSetup.nr_summaries_per_email,
         // rounds: selectedRounds.value,
     };
     emit("update-notification-setup", setup);
@@ -133,6 +142,8 @@ const submitNotificationSetup = () => {
                         @submit.prevent="submitNotificationSetup"
                         class="space-y-4"
                     >
+                        <h2>Get notified about applications</h2>
+
                         <div>
                             <label
                                 for="title"
@@ -143,6 +154,20 @@ const submitNotificationSetup = () => {
                                 v-model="notificationSetup.title"
                                 type="text"
                                 id="title"
+                                required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="email_subject"
+                                class="block text-sm font-medium text-gray-700"
+                                >Email Subject:</label
+                            >
+                            <input
+                                v-model="notificationSetup.email_subject"
+                                type="text"
+                                id="email_subject"
                                 required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             />
@@ -170,7 +195,28 @@ const submitNotificationSetup = () => {
                                 </div>
                             </div>
                         </div>
+
                         <div>
+                            <label
+                                for="time_type"
+                                class="block text-sm font-medium text-gray-700"
+                                >Time Type:</label
+                            >
+                            <select
+                                v-model="timeType"
+                                id="time_type"
+                                required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            >
+                                <option disabled value="">
+                                    Please select a time type
+                                </option>
+                                <option value="specific">Specific</option>
+                                <option value="hour">Every Hourly</option>
+                                <option value="minute">Every Minute</option>
+                            </select>
+                        </div>
+                        <div v-if="timeType == 'specific'">
                             <label
                                 for="timeOfTheDay"
                                 class="block text-sm font-medium text-gray-700"
@@ -180,6 +226,23 @@ const submitNotificationSetup = () => {
                                 v-model="localTimeOfTheDay"
                                 type="time"
                                 id="timeOfTheDay"
+                                required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="nr_summaries_per_email"
+                                class="block text-sm font-medium text-gray-700"
+                                >Number of summaries per email:</label
+                            >
+                            <input
+                                v-model="
+                                    notificationSetup.nr_summaries_per_email
+                                "
+                                type="number"
+                                id="nr_summaries_per_email"
                                 required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             />
@@ -242,7 +305,7 @@ const submitNotificationSetup = () => {
                                     :value="round.id"
                                     :key="round.id"
                                 >
-                                    {{ round.name }} - {{ round.id }}
+                                    {{ round.name }}
                                 </option>
                             </select>
                         </div>

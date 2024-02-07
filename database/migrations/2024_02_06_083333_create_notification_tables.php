@@ -16,11 +16,15 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
+            $table->string('email_subject');
             $table->string('medium')->default('email');
             $table->json('additional_emails')->nullable();
             $table->boolean('include_applications')->default(true); // include new applications
             $table->boolean('include_rounds')->default(false); // include new rounds
             $table->json('days_of_the_week')->nullable(); // 1-7, 1 = Monday
+            $table->string('time_type')->nullable(); // specific, hour, minute
+            $table->integer('nr_summaries_per_email')->nullable();
+
             $table->string('time_of_the_day')->nullable();
             $table->timestamps();
             $table->softDeletes();

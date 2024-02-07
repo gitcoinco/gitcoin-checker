@@ -86,15 +86,22 @@ const deleteMe = (notificationSetup) => {
                                     <td>
                                         {{ notificationSetup.days_of_the_week
                                         }}<br />
-                                        {{
-                                            new Date(
-                                                notificationSetup.time_of_the_day
-                                            ).toLocaleTimeString("en-US", {
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                                hour12: false,
-                                            })
-                                        }}<br />
+                                        <span
+                                            v-if="
+                                                notificationSetups.time_type ==
+                                                'specific'
+                                            "
+                                        >
+                                            {{
+                                                new Date(
+                                                    notificationSetup.time_of_the_day
+                                                ).toLocaleTimeString("en-US", {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    hour12: false,
+                                                })
+                                            }}<br />
+                                        </span>
                                         {{
                                             notificationSetup.additional_emails.join(
                                                 ", "

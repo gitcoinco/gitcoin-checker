@@ -14,12 +14,15 @@ class NotificationSetup extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'email_subject',
         'additional_emails',
         'details',
         'include_applications',
         'include_rounds',
         'days_of_the_week',
+        'time_type',
         'time_of_the_day',
+        'nr_summaries_per_email',
     ];
 
     public function logs()
