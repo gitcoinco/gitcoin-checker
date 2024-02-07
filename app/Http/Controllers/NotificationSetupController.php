@@ -2,15 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NotificationLog;
+use App\Models\NotificationLogApplications;
 use App\Models\NotificationSetup;
 use App\Models\NotificationSetupRound;
 use App\Models\Round;
+use App\Models\RoundApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Snowfire\Beautymail\Beautymail;
 
 class NotificationSetupController extends Controller
 {
+
+    public function sendNotifications()
+    {
+        // Find all the notifications that should be sent out now
+        // $notificationSetups = NotificationSetup::where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->where('time_of_the_day', 'like', '%' . now()->format('H:i') . ':00%')->get();
+
+        $notificationSetups = NotificationSetup::get();
+
+        foreach ($notificationSetups as $notificationSetup) {
+            // Find all the applications that should be included in the notification
+            $rounds = $notificationSetup->notificationSetupRounds()->pluck('round_id');
+
+            $ignoreAlreadyCommunicatedApplications = $notificationSetup->notificationLogApplications()->pluck('application_id');
+            $applications = RoundApplication::whereIn('round_id', $rounds)
+                ->whereNotIn('id', $ignoreAlreadyCommunicatedApplications)
+                ->orderBy('created_at', 'asc')
+                ->limit(3)
+                ->get();
+
+
+            // Exclude any applications that have already been sent for this user
+            $applications = $applications->whereNotIn('id', $notificationSetup->notificationLogApplications()->pluck('application_id'));
+
+            if ($applications->count() === 0) {
+                echo 'No applications to send for ' . $notificationSetup->title . PHP_EOL;
+                continue;
+            }
+
+            $notificationLog = new NotificationLog();
+            $notificationLog->notification_setup_id = $notificationSetup->id;
+            $notificationLog->subject = $notificationSetup->title;
+            $notificationLog->message = 'This is a test message';
+            $notificationLog->save();
+
+            foreach ($applications as $application) {
+                $notificationLogApplication = new NotificationLogApplications();
+                $notificationLogApplication->notification_log_id = $notificationLog->id;
+                $notificationLogApplication->notification_setup_id = $notificationSetup->id;
+                $notificationLogApplication->user_id = $notificationSetup->user_id;
+                $notificationLogApplication->application_id = $application->id;
+                $notificationLogApplication->save();
+            }
+
+            // Send the notification
+            $beautymail = app()->make(Beautymail::class);
+            $beautymail->send('emails.notification', [
+                'notificationLog' => $notificationLog,
+            ], function ($message) use ($notificationLog) {
+                $user = $notificationLog->setup->user;
+
+                $message
+                    ->from('noreply@checker.gitcoin.co')
+                    ->to($user->email, $user->firstname . ' ' . $user->lastname)
+                    ->subject($notificationLog->subject);
+            });
+        }
+    }
+
+
     public function delete(NotificationSetup $notificationSetup)
     {
         $this->authorize('delete', $notificationSetup);

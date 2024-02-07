@@ -27,20 +27,32 @@ class NotificationSetup extends Model
         return $this->hasMany(NotificationLog::class, 'notification_id');
     }
 
+    public function notificationLogApplications()
+    {
+        return $this->hasMany(NotificationLogApplications::class, 'notification_setup_id');
+    }
+
+    public function notificationLogRounds()
+    {
+        return $this->hasMany(NotificationLogRound::class, 'notification_setup_id');
+    }
+
+
+
     public function notificationSetupRounds()
     {
         return $this->hasMany(NotificationSetupRound::class, 'notification_setup_id');
     }
 
-    public function applications()
-    {
-        return $this->belongsToMany(RoundApplication::class, 'notification_log_applications');
-    }
+    // public function applications()
+    // {
+    //     return $this->belongsToMany(RoundApplication::class, 'notification_log_applications');
+    // }
 
-    public function rounds()
-    {
-        return $this->belongsToMany(Round::class, 'notification_log_rounds');
-    }
+    // public function rounds()
+    // {
+    //     return $this->belongsToMany(Round::class, 'notification_log_rounds');
+    // }
 
     public function user()
     {

@@ -26,12 +26,17 @@ const props = defineProps({
 // Convert time_of_the_day from UTC to current locale
 const convertTimeToLocale = (utcTime) => {
     let date = new Date(utcTime);
-
-    return date.toLocaleTimeString("en-US", {
+    let ret = date.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
     });
+
+    if (ret == "24:00") {
+        ret = "00:00";
+    }
+
+    return ret;
 };
 
 const emit = defineEmits(["update-notification-setup"]);
@@ -40,6 +45,7 @@ const showModal = ref(false);
 
 const utcTimeOfTheDay = ref(props.notificationSetup.time_of_the_day);
 let localTimeOfTheDay = ref(convertTimeToLocale(utcTimeOfTheDay.value));
+console.log("a" + localTimeOfTheDay.value);
 
 watch(utcTimeOfTheDay, (newTime) => {
     localTimeOfTheDay.value = convertTimeToLocale(newTime);
@@ -225,9 +231,6 @@ const submitNotificationSetup = () => {
                                 class="block text-sm font-medium text-gray-700"
                                 >Rounds to Include:</label
                             >
-
-                            notificationSetupRounds:
-                            {{ notificationSetupRounds }}
 
                             <select
                                 v-model="notificationSetupRounds"

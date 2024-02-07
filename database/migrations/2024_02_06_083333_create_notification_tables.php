@@ -37,7 +37,7 @@ return new class extends Migration
 
         Schema::create('notification_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('notification_id')->constrained('notification_setups')->onDelete('cascade');
+            $table->foreignId('notification_setup_id')->constrained('notification_setups')->onDelete('cascade');
             $table->string('subject');
             $table->text('message');
             $table->timestamps();
@@ -47,6 +47,8 @@ return new class extends Migration
         Schema::create('notification_log_applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('notification_log_id')->constrained('notification_logs')->onDelete('cascade');
+            $table->foreignId('notification_setup_id')->constrained('notification_setups')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('application_id');
             $table->timestamps();
             $table->softDeletes();
@@ -55,6 +57,8 @@ return new class extends Migration
         Schema::create('notification_log_rounds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('notification_log_id')->constrained('notification_logs')->onDelete('cascade');
+            $table->foreignId('notification_setup_id')->constrained('notification_setups')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('round_id');
             $table->timestamps();
             $table->softDeletes();

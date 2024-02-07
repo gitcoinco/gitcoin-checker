@@ -13,6 +13,8 @@ class NotificationLogRound extends Model
     protected $fillable = [
         'notification_log_id',
         'round_id',
+        'notification_id',
+        'user_id',
     ];
 
     public function notificationLog()
