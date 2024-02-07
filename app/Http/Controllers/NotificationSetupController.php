@@ -114,7 +114,7 @@ class NotificationSetupController extends Controller
             // 'details' => 'required',
             // 'include_applications' => 'required',
             // 'include_rounds' => 'required',
-            'days_of_the_week' => 'required',
+            // 'days_of_the_week' => 'required',
             'time_type' => 'required',
             'time_of_the_day' => 'required',
         ]);
