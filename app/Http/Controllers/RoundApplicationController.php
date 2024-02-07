@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 
@@ -55,8 +56,36 @@ class RoundApplicationController extends Controller
 
     public function show(RoundApplication $application)
     {
+        $cacheName = 'RoundApplicationController->show(' . $application->id . ')';
+
+        $this->authorize('update', AccessControl::class);
+
+        $application->load([
+            'round.evaluationQuestions',
+            'round.chain',
+            'project',
+            'project.applications',
+            'project.applications.round',
+            'evaluationAnswers',
+            'evaluationAnswers.user',
+            'latestPrompt',
+            'results',
+
+        ]);
+
+
+        return Inertia::render('Application/Show', [
+            'application' => $application,
+            'round' => $application->round,
+            'averageGPTEvaluationTime' => RoundApplicationPromptResultController::averageGPTResponseTime(),
+        ]);
+    }
+
+    public function apiShow(RoundApplication $application)
+    {
         $application->load([
             'round',
+            'round.chain',
             'round.evaluationQuestions',
             'project',
             'project.applications',
@@ -64,7 +93,7 @@ class RoundApplicationController extends Controller
             'evaluationAnswers',
             'evaluationAnswers.user',
             'latestPrompt',
-            'results'
+            'results',
         ]);
 
         return response()->json([

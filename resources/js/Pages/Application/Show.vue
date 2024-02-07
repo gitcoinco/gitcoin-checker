@@ -23,20 +23,11 @@ import Applications from "@/Pages/Application/Components/Applications.vue";
 
 const page = usePage();
 
+const application = ref(usePage().props.application.valueOf());
 const round = ref(usePage().props.round.valueOf());
-const applications = ref(usePage().props.applications.valueOf());
 
 const queryParams = new URLSearchParams(window.location.search);
-const status = ref(queryParams.get("status") || "all");
 
-watch(status, (newStatus) => {
-    router.visit(
-        route("round.show", {
-            round: round.value.uuid,
-            status: newStatus,
-        })
-    );
-});
 const latestPrompt = ref(
     usePage().props.latestPrompt ? usePage().props.latestPrompt.valueOf() : null
 );
@@ -93,59 +84,6 @@ async function evaluateApplication(event, application) {
         });
 }
 
-const searchProjects = (newStatus) => {
-    router.visit(
-        route("round.show", {
-            round: round.uuid,
-            selectedSearchProjects: newStatus,
-        })
-    );
-};
-
-const removeTests = (newStatus) => {
-    router.visit(
-        route("round.show", {
-            round: round.uuid,
-            selectedApplicationRemoveTests: newStatus,
-        })
-    );
-};
-
-const statusChanged = (newStatus) => {
-    router.visit(
-        route("round.show", {
-            round: round.uuid,
-            status: newStatus,
-        })
-    );
-};
-
-const roundType = (newStatus) => {
-    // Refresh applications using ajax
-    axios
-        .get(
-            route("user-preferences.rounds.selectedApplicationRoundType", {
-                selectedApplicationRoundType: newStatus,
-            }),
-            {
-                responseType: "json",
-            }
-        )
-        .then((response) => {
-            refreshApplications();
-        });
-};
-
-function refreshApplications() {
-    axios
-        .get(route("round.show", {}), {
-            responseType: "json",
-        })
-        .then((response) => {
-            applications.value = response.data.applications;
-        });
-}
-
 const previousApplicationSummary = (application) => {
     let summary = {
         approved: [],
@@ -186,15 +124,7 @@ const handleEvaluateApplication = async (application) => {
             })
         );
 
-        // Find the application index in the applications array
-        const index = applications.value.data.findIndex(
-            (app) => app.id === application.id
-        );
-
-        // Assuming response.data.project.applications[0].results[0] contains the updated results you want to insert.
-        applications.value.data[index].results.unshift(
-            response.data.project.applications[0].results[0]
-        );
+        refreshApplication(application);
     } catch (error) {
         // Handle error properly, maybe set an error message to display in the UI
         console.error("An error occurred:", error);
@@ -207,16 +137,11 @@ const handleEvaluateApplication = async (application) => {
 const refreshApplication = async (application) => {
     try {
         const response = await axios.get(
-            route("round.application.show", {
+            route("api.round.application.show", {
                 application: application.uuid,
             })
         );
-
-        // Find the application index in the applications array
-        const index = applications.value.data.findIndex(
-            (app) => app.id === application.id
-        );
-        applications.value.data[index] = response.data.application;
+        Object.assign(application, response.data.application);
     } catch (error) {
         // Handle error properly, maybe set an error message to display in the UI
         console.error("An error occurred:", error);
@@ -318,49 +243,21 @@ const refreshApplication = async (application) => {
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>
-                                        <select v-model="status">
-                                            <option value="all">All</option>
-                                            <option value="pending">
-                                                Pending
-                                            </option>
-                                            <option value="approved">
-                                                Approved
-                                            </option>
-                                            <option value="rejected">
-                                                Rejected
-                                            </option>
-                                        </select>
-                                    </th>
+                                    <th>Status</th>
                                     <th>Project</th>
                                     <th>Prior approvals</th>
                                     <th>Results</th>
                                     <th>Manager</th>
                                 </tr>
                             </thead>
-                            <tbody v-if="applications.data.length > 0">
-                                <tr
-                                    v-for="(
-                                        application, index
-                                    ) in applications.data"
-                                    :key="index"
-                                >
+                            <tbody>
+                                <tr>
                                     <td>
-                                        <Link
-                                            :href="
-                                                route('application.show', {
-                                                    application:
-                                                        application.uuid,
-                                                })
-                                            "
-                                            class="text-blue-500 hover:underline"
-                                        >
-                                            {{
-                                                showDateInShortFormat(
-                                                    application.created_at
-                                                )
-                                            }}
-                                        </Link>
+                                        {{
+                                            showDateInShortFormat(
+                                                application.created_at
+                                            )
+                                        }}
                                     </td>
                                     <td>
                                         <span>
@@ -471,17 +368,7 @@ const refreshApplication = async (application) => {
                                     </td>
                                 </tr>
                             </tbody>
-                            <tbody v-else>
-                                <tr>
-                                    <td colspan="6">No results</td>
-                                </tr>
-                            </tbody>
                         </table>
-
-                        <Pagination
-                            :links="applications.links"
-                            @pagination-changed="applications = $event"
-                        />
                     </div>
                 </div>
             </div>
