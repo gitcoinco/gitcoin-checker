@@ -51,13 +51,19 @@ const deleteMe = (notificationSetup) => {
     <AppLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Notification Setups
+                Notifications
             </h2>
         </template>
 
         <div class="py-6">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                    <div class="mb-5">
+                        Get notified of new applications by setting up
+                        notifications below. You can specify the frequency of
+                        notifications
+                    </div>
+
                     <div
                         v-if="
                             notificationSetups &&

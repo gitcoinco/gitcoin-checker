@@ -45,7 +45,7 @@ import { Link } from "@inertiajs/vue3";
             <div>
                 <div class="flex items-center">
                     <i
-                        class="fa fa-circle-o text-gray-400 fa-lg"
+                        class="fa fa-circle-o-notch text-gray-400 fa-lg"
                         aria-hidden="true"
                     ></i>
                     <h2 class="ml-3 text-xl font-semibold text-gray-900">

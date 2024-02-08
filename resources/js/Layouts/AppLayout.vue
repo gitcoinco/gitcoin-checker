@@ -63,18 +63,21 @@ const logout = () => {
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
+                                    <i class="fa fa-tachometer mr-1"></i>
                                     Dashboard
                                 </NavLink>
                                 <NavLink
                                     :href="route('project.index')"
                                     :active="route().current('project.index')"
                                 >
+                                    <i class="fa fa-folder-open-o mr-1"></i>
                                     Projects
                                 </NavLink>
                                 <NavLink
                                     :href="route('round.index')"
                                     :active="route().current('round.index')"
                                 >
+                                    <i class="fa fa-circle-o-notch mr-1"></i>
                                     Rounds
                                 </NavLink>
                                 <NavLink
@@ -83,6 +86,7 @@ const logout = () => {
                                         route().current('access-control.index')
                                     "
                                 >
+                                    <i class="fa fa-users mr-1"></i>
                                     Users
                                 </NavLink>
                                 <NavLink
@@ -93,6 +97,7 @@ const logout = () => {
                                         )
                                     "
                                 >
+                                    <i class="fa fa-bell-o mr-1"></i>
                                     Notifications
                                 </NavLink>
                             </div>
@@ -300,7 +305,48 @@ const logout = () => {
                                         <DropdownLink
                                             :href="route('profile.show')"
                                         >
+                                            <i class="fa fa-user mr-1"></i>
                                             Profile
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('dashboard')"
+                                        >
+                                            <i
+                                                class="fa fa-tachometer mr-1"
+                                            ></i>
+                                            Dashboard
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('project.index')"
+                                        >
+                                            <i
+                                                class="fa fa-folder-open-o mr-1"
+                                            ></i>
+                                            Projects
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('round.index')"
+                                        >
+                                            <i
+                                                class="fa fa-circle-o-notch mr-1"
+                                            ></i>
+                                            Rounds
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="
+                                                route('access-control.index')
+                                            "
+                                        >
+                                            <i class="fa fa-users mr-1"></i>
+                                            Users
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="
+                                                route('notificationsetup.index')
+                                            "
+                                        >
+                                            <i class="fa fa-bell-o mr-1"></i>
+                                            Notifications
                                         </DropdownLink>
 
                                         <DropdownLink
