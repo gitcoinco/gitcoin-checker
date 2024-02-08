@@ -75,7 +75,7 @@ const deleteMe = (notificationSetup) => {
                                 <tr>
                                     <th>Title</th>
                                     <th>Details</th>
-                                    <th></th>
+                                    <th>Nr. Emails sent</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -116,6 +116,21 @@ const deleteMe = (notificationSetup) => {
                                     </td>
 
                                     <td>
+                                        <span
+                                            v-if="
+                                                notificationSetup.notification_logs &&
+                                                notificationSetup
+                                                    .notification_logs.length >
+                                                    0
+                                            "
+                                        >
+                                            {{
+                                                notificationSetup
+                                                    .notification_logs[0].count
+                                            }}
+                                        </span>
+                                    </td>
+                                    <td class="nowrap flex">
                                         <NotificationSetups
                                             :rounds="rounds"
                                             :notificationSetup="
@@ -127,24 +142,12 @@ const deleteMe = (notificationSetup) => {
                                             @update-notification-setup="
                                                 upsertNotificationSetup
                                             "
+                                            class="mr-1"
                                         >
                                             <SecondaryButton
                                                 >Edit</SecondaryButton
                                             >
                                         </NotificationSetups>
-
-                                        <!-- <PrimaryButton
-                                            :href="
-                                                route(
-                                                    'notificationsetup.edit',
-                                                    notificationSetup
-                                                )
-                                            "
-                                        >
-                                            Edit
-                                        </PrimaryButton> -->
-                                    </td>
-                                    <td class="nowrap">
                                         <SecondaryButton
                                             @click="deleteMe(notificationSetup)"
                                             >Delete</SecondaryButton

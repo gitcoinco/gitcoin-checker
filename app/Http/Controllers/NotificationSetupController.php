@@ -179,7 +179,11 @@ class NotificationSetupController extends Controller
 
         $rounds = Round::where('created_at', '>=', now()->subYear())->orderBy('created_at', 'desc')->get();
 
-        $notificationSetups = $user->notificationSetups()->with(['notificationSetupRounds'])->paginate();
+        $notificationSetups = $user->notificationSetups()->with(['notificationSetupRounds', 'notificationLogs' => function ($query) {
+            $query->selectRaw('notification_setup_id, count(*) as count')->groupBy('notification_setup_id');
+        }])->paginate();
+
+
         return Inertia::render('NotificationSetup/Index', [
             'notificationSetups' => $notificationSetups,
             'rounds' => $rounds

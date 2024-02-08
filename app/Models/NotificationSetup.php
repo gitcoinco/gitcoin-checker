@@ -47,6 +47,11 @@ class NotificationSetup extends Model
         return $this->hasMany(NotificationSetupRound::class, 'notification_setup_id');
     }
 
+    public function notificationLogs()
+    {
+        return $this->hasMany(NotificationLog::class, 'notification_setup_id');
+    }
+
     // public function applications()
     // {
     //     return $this->belongsToMany(RoundApplication::class, 'notification_log_applications');
