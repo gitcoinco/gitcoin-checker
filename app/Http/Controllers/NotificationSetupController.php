@@ -24,7 +24,7 @@ class NotificationSetupController extends Controller
         $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'minute')->where('days_of_the_week', 'like', '%' . date('l') . '%')->get());
 
         // Check hourly sends
-        if (now()->format('i') == '00') {
+        if (now()->minute == 0) {
             $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'hour')->where('days_of_the_week', 'like', '%' . date('l') . '%')->get());
         }
 
