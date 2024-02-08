@@ -19,12 +19,13 @@ class NotificationSetupController extends Controller
     public function sendNotifications()
     {
         // Find all the notifications that should be sent out now
-        $notificationSetups = NotificationSetup::where('time_type', 'specific')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->where('time_of_the_day', 'like', '%' . now()->format('H:i') . ':00%')->get();
-        $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'minute')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->get());
+
+        $notificationSetups = NotificationSetup::where('time_type', 'specific')->where('days_of_the_week', 'like', '%' . date('l') . '%')->where('time_of_the_day', 'like', '%' . now()->format('H:i') . ':00%')->get();
+        $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'minute')->where('days_of_the_week', 'like', '%' . date('l') . '%')->get());
 
         // Check hourly sends
         if (now()->format('i') == '00') {
-            $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'hour')->where('days_of_the_week', 'like', '%' . now()->dayOfWeek . '%')->get());
+            $notificationSetups = $notificationSetups->merge(NotificationSetup::where('time_type', 'hour')->where('days_of_the_week', 'like', '%' . date('l') . '%')->get());
         }
 
         foreach ($notificationSetups as $notificationSetup) {
@@ -34,11 +35,11 @@ class NotificationSetupController extends Controller
             $ignoreAlreadyCommunicatedApplications = $notificationSetup->notificationLogApplications()->pluck('application_id');
             $applications = RoundApplication::whereIn('round_id', $rounds)
                 ->whereNotIn('id', $ignoreAlreadyCommunicatedApplications)
+                ->where('created_at', '>=', $notificationSetup->created_at)
                 ->orderBy('created_at', 'asc')
                 ->limit($notificationSetup->nr_summaries_per_email)
                 ->where('status', 'PENDING')
                 ->get();
-
 
             // Exclude any applications that have already been sent for this user
             $applications = $applications->whereNotIn('id', $notificationSetup->notificationLogApplications()->pluck('application_id'));
