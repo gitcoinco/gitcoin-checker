@@ -44,7 +44,7 @@ class GPTEvaluations extends Command
                 break;
             }
 
-            echo "Checking application {$application->id} against ChatGPT" . PHP_EOL;
+            echo $batchSize . " - Checking application {$application->id} against ChatGPT" . PHP_EOL;
             $roundApplicationController = new RoundApplicationController($this->notificationService);
             $roundApplicationController->checkAgainstChatGPT($application);
 
