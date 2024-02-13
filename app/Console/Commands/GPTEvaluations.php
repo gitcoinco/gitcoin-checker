@@ -36,13 +36,20 @@ class GPTEvaluations extends Command
      */
     public function handle()
     {
+        $batchSize = 500;
+
         $applications = RoundApplication::whereDoesntHave('results')->get();
         foreach ($applications as $application) {
+            if ($batchSize <= 0) {
+                break;
+            }
+
             echo "Checking application {$application->id} against ChatGPT" . PHP_EOL;
             $roundApplicationController = new RoundApplicationController($this->notificationService);
             $roundApplicationController->checkAgainstChatGPT($application);
 
             if ($application->results->count() > 0) {
+                $batchSize -= 1;
                 echo "Application {$application->id} has been evaluated by ChatGPT" . PHP_EOL;
                 $result = $application->results()->orderBy('id', 'desc')->first();
                 if ($result->results_data !== '[]') {
