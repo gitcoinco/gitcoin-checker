@@ -30,6 +30,47 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    private function getAvgGPTScores()
+    {
+        $applicationStats = [
+            'approved' => ['count' => 0, 'avgGPTScore' => 0],
+            'rejected' => ['count' => 0, 'avgGPTScore' => 0],
+            'pending' => ['count' => 0, 'avgGPTScore' => 0],
+        ];
+
+        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'APPROVED')->get();
+        foreach ($applications as $application) {
+            $applicationStats['approved']['count']++;
+            $applicationStats['approved']['avgGPTScore'] += $application->results()->first()->score;
+        }
+
+        $applicationStats['approved']['avgGPTScore'] = $applicationStats['approved']['avgGPTScore'] / ($applicationStats['approved']['count']);
+
+
+
+        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'REJECTED')->get();
+        foreach ($applications as $application) {
+            $applicationStats['rejected']['count']++;
+            $applicationStats['rejected']['avgGPTScore'] += $application->results()->first()->score;
+        }
+
+        $applicationStats['rejected']['avgGPTScore'] = $applicationStats['rejected']['avgGPTScore'] / ($applicationStats['rejected']['count']);
+
+        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'PENDING')->get();
+
+        foreach ($applications as $application) {
+            $applicationStats['pending']['count']++;
+            $applicationStats['pending']['avgGPTScore'] += $application->results()->first()->score;
+        }
+
+        $applicationStats['pending']['avgGPTScore'] = $applicationStats['pending']['avgGPTScore'] / ($applicationStats['pending']['count']);
+
+
+
+        return $applicationStats;
+    }
+
+
     public function deleteGPTResult(RoundApplication $application)
     {
         $this->authorize('update', AccessControl::class);
@@ -637,7 +678,14 @@ class RoundApplicationController extends Controller
         // To ensure JSON array format instead of JSON object, use array_values to discard the original keys.
         $historicApplicationsArray = array_values($historicApplicationsCreated);
 
-        return response()->json($historicApplicationsArray);
+        $gptStats = $this->getAvgGPTScores();
+
+        return response()->json(
+            [
+                'history' => $historicApplicationsArray,
+                'gptStats' => $gptStats,
+            ]
+        );
     }
 
     /**

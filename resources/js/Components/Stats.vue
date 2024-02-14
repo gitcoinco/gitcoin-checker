@@ -7,10 +7,13 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import VueApexCharts from "vue3-apexcharts";
+import { formatDecimals } from "@/utils";
 
 const apexchart = VueApexCharts;
 
 const { projectsCount, roundsCount } = usePage().props;
+let gptStats = usePage().props.gptStats;
+
 const chartOptions = ref({
     colors: ["#28A745", "#DC3545", "#007BFF"],
     chart: {
@@ -76,12 +79,14 @@ onMounted(async () => {
         //     y: item.rejected,
         // }));
 
-        const avgHoursToApproval = response.data.map((item) => ({
+        gptStats = response.data.gptStats;
+
+        const avgHoursToApproval = response.data.history.map((item) => ({
             x: new Date(item.date).getTime(),
             y: item.avgHoursToApproval,
         }));
 
-        const avgHoursToRejection = response.data.map((item) => ({
+        const avgHoursToRejection = response.data.history.map((item) => ({
             x: new Date(item.date).getTime(),
             y: item.avgHoursToRejection,
         }));
@@ -108,6 +113,39 @@ onMounted(async () => {
                 Bits of data from the index, which is converted into a
                 relational database.
             </p>
+        </div>
+
+        <div class="py-6" v-if="gptStats">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div>
+                    <div class="mb-3">
+                        Historic applications that have been approved:
+                        {{ gptStats.approved.count }}<br />
+                        AVG GPT Score:
+                        {{
+                            formatDecimals(gptStats.approved.avgGPTScore)
+                        }}%<br />
+                    </div>
+
+                    <div class="mb-3">
+                        Historic applications that have been rejected:
+                        {{ gptStats.rejected.count }}<br />
+                        AVG GPT Score:
+                        {{
+                            formatDecimals(gptStats.rejected.avgGPTScore)
+                        }}%<br />
+                    </div>
+
+                    <div class="mb-3">
+                        Historic applications that are pending:
+                        {{ gptStats.pending.count }}<br />
+                        AVG GPT Score:
+                        {{
+                            formatDecimals(gptStats.pending.avgGPTScore)
+                        }}%<br />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="p-6 lg:p-8 bg-white border-b border-gray-200">

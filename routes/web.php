@@ -145,6 +145,6 @@ Route::middleware([
     });
 
     Route::prefix('access-control')->group(function () {
-        Route::get('/pothole/stats/history', [RoundApplicationController::class, 'statsHistory'])->name('api.applications.stats.history');
+        Route::get('/stats/history', [RoundApplicationController::class, 'statsHistory'])->name('api.applications.stats.history');
     });
 });

@@ -160,3 +160,7 @@ export function matchProbability(str1, str2) {
 export function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+export function formatDecimals(value, decimals = 2) {
+    return parseFloat(value).toFixed(decimals);
+}
