@@ -32,44 +32,43 @@ class RoundApplicationController extends Controller
 
     private function getAvgGPTScores()
     {
-        $applicationStats = [
-            'approved' => ['count' => 0, 'avgGPTScore' => 0],
-            'rejected' => ['count' => 0, 'avgGPTScore' => 0],
-            'pending' => ['count' => 0, 'avgGPTScore' => 0],
-        ];
 
-        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'APPROVED')->get();
-        foreach ($applications as $application) {
-            $applicationStats['approved']['count']++;
-            $applicationStats['approved']['avgGPTScore'] += $application->results()->first()->score;
-        }
+        $cacheName = 'RoundApplicationController->getAvgGPTScores()';
+        return Cache::remember($cacheName, 60 * 24, function () {
+            $applicationStats = [
+                'approved' => ['count' => 0, 'avgGPTScore' => 0],
+                'rejected' => ['count' => 0, 'avgGPTScore' => 0],
+                'pending' => ['count' => 0, 'avgGPTScore' => 0],
+            ];
 
-        $applicationStats['approved']['avgGPTScore'] = $applicationStats['approved']['avgGPTScore'] / ($applicationStats['approved']['count']);
+            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'APPROVED')->get();
+            foreach ($applications as $application) {
+                $applicationStats['approved']['count']++;
+                $applicationStats['approved']['avgGPTScore'] += $application->results()->first()->score;
+            }
 
+            $applicationStats['approved']['avgGPTScore'] = $applicationStats['approved']['avgGPTScore'] / ($applicationStats['approved']['count']);
 
+            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'REJECTED')->get();
+            foreach ($applications as $application) {
+                $applicationStats['rejected']['count']++;
+                $applicationStats['rejected']['avgGPTScore'] += $application->results()->first()->score;
+            }
 
-        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'REJECTED')->get();
-        foreach ($applications as $application) {
-            $applicationStats['rejected']['count']++;
-            $applicationStats['rejected']['avgGPTScore'] += $application->results()->first()->score;
-        }
+            $applicationStats['rejected']['avgGPTScore'] = $applicationStats['rejected']['avgGPTScore'] / ($applicationStats['rejected']['count']);
 
-        $applicationStats['rejected']['avgGPTScore'] = $applicationStats['rejected']['avgGPTScore'] / ($applicationStats['rejected']['count']);
+            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'PENDING')->get();
 
-        $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'PENDING')->get();
+            foreach ($applications as $application) {
+                $applicationStats['pending']['count']++;
+                $applicationStats['pending']['avgGPTScore'] += $application->results()->first()->score;
+            }
 
-        foreach ($applications as $application) {
-            $applicationStats['pending']['count']++;
-            $applicationStats['pending']['avgGPTScore'] += $application->results()->first()->score;
-        }
+            $applicationStats['pending']['avgGPTScore'] = $applicationStats['pending']['avgGPTScore'] / ($applicationStats['pending']['count']);
 
-        $applicationStats['pending']['avgGPTScore'] = $applicationStats['pending']['avgGPTScore'] / ($applicationStats['pending']['count']);
-
-
-
-        return $applicationStats;
+            return $applicationStats;
+        });
     }
-
 
     public function deleteGPTResult(RoundApplication $application)
     {
