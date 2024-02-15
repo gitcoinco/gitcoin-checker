@@ -6,7 +6,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import Tooltip from "@/Components/Tooltip.vue";
-import { showDateInShortFormat } from "@/utils.js";
+import { showDateInShortFormat, formatDecimals } from "@/utils.js";
 
 const rounds = ref(usePage().props.rounds.valueOf());
 
@@ -194,6 +194,18 @@ const flagRound = async (round) => {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.projects_count }}
+                                    <span
+                                        class="text-xs"
+                                        v-if="round.applications_rejected"
+                                    >
+                                        <br />
+                                        GPT Avg:
+                                        {{
+                                            formatDecimals(
+                                                round.applications_rejected
+                                            )
+                                        }}%
+                                    </span>
                                 </Link>
                             </td>
                             <td>
@@ -207,6 +219,18 @@ const flagRound = async (round) => {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.pending_applications_count }}
+                                    <span
+                                        class="text-xs"
+                                        v-if="round.applications_pending"
+                                    >
+                                        <br />
+                                        GPT Avg:
+                                        {{
+                                            formatDecimals(
+                                                round.applications_pending
+                                            )
+                                        }}%
+                                    </span>
                                 </Link>
                             </td>
                             <td>
@@ -220,6 +244,18 @@ const flagRound = async (round) => {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.approved_applications_count }}
+                                    <span
+                                        class="text-xs"
+                                        v-if="round.applications_approved"
+                                    >
+                                        <br />
+                                        GPT Avg:
+                                        {{
+                                            formatDecimals(
+                                                round.applications_approved
+                                            )
+                                        }}%
+                                    </span>
                                 </Link>
                             </td>
                             <td>
