@@ -32,39 +32,33 @@ class RoundApplicationController extends Controller
 
     private function getAvgGPTScores()
     {
-
         $cacheName = 'RoundApplicationController->getAvgGPTScores()';
         return Cache::remember($cacheName, 60 * 24, function () {
-            $applicationStats = [
-                'approved' => ['count' => 0, 'avgGPTScore' => 0],
-                'rejected' => ['count' => 0, 'avgGPTScore' => 0],
-                'pending' => ['count' => 0, 'avgGPTScore' => 0],
-            ];
+            $statuses = ['APPROVED', 'REJECTED', 'PENDING'];
+            $applicationStats = collect($statuses)->mapWithKeys(function ($status) {
+                return [$status => ['count' => 0, 'avgGPTScore' => 0]];
+            })->toArray();
 
-            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'APPROVED')->get();
-            foreach ($applications as $application) {
-                $applicationStats['approved']['count']++;
-                $applicationStats['approved']['avgGPTScore'] += $application->results()->first()->score;
-            }
-
-            $applicationStats['approved']['avgGPTScore'] = $applicationStats['approved']['avgGPTScore'] / ($applicationStats['approved']['count']);
-
-            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'REJECTED')->get();
-            foreach ($applications as $application) {
-                $applicationStats['rejected']['count']++;
-                $applicationStats['rejected']['avgGPTScore'] += $application->results()->first()->score;
-            }
-
-            $applicationStats['rejected']['avgGPTScore'] = $applicationStats['rejected']['avgGPTScore'] / ($applicationStats['rejected']['count']);
-
-            $applications = RoundApplication::whereHas('results')->with('results')->where('status', 'PENDING')->get();
+            $applications = RoundApplication::whereHas('results')
+                ->with(['results' => function ($query) {
+                    $query->selectRaw('round_application_id, AVG(score) as avgScore, COUNT(*) as count')
+                        ->groupBy('round_application_id');
+                }])
+                ->get();
 
             foreach ($applications as $application) {
-                $applicationStats['pending']['count']++;
-                $applicationStats['pending']['avgGPTScore'] += $application->results()->first()->score;
+                $status = strtoupper($application->status);
+                if (array_key_exists($status, $applicationStats) && !empty($application->results->first())) {
+                    $applicationStats[$status]['count'] += $application->results->first()->count;
+                    $applicationStats[$status]['avgGPTScore'] += $application->results->first()->avgScore * $application->results->first()->count;
+                }
             }
 
-            $applicationStats['pending']['avgGPTScore'] = $applicationStats['pending']['avgGPTScore'] / ($applicationStats['pending']['count']);
+            foreach ($statuses as $status) {
+                if ($applicationStats[$status]['count'] > 0) {
+                    $applicationStats[$status]['avgGPTScore'] /= $applicationStats[$status]['count'];
+                }
+            }
 
             return $applicationStats;
         });
