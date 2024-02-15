@@ -194,18 +194,6 @@ const flagRound = async (round) => {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.projects_count }}
-                                    <span
-                                        class="text-xs"
-                                        v-if="round.applications_rejected"
-                                    >
-                                        <br />
-                                        GPT Avg:
-                                        {{
-                                            formatDecimals(
-                                                round.applications_rejected
-                                            )
-                                        }}%
-                                    </span>
                                 </Link>
                             </td>
                             <td>
@@ -269,6 +257,18 @@ const flagRound = async (round) => {
                                     class="text-blue-500 hover:underline"
                                 >
                                     {{ round.rejected_applications_count }}
+                                    <span
+                                        class="text-xs"
+                                        v-if="round.applications_rejected"
+                                    >
+                                        <br />
+                                        GPT Avg:
+                                        {{
+                                            formatDecimals(
+                                                round.applications_rejected
+                                            )
+                                        }}%
+                                    </span>
                                 </Link>
                             </td>
                         </tr>
