@@ -120,28 +120,28 @@ onMounted(async () => {
                 <div>
                     <div class="mb-3">
                         Historic applications that have been approved:
-                        {{ gptStats.approved.count }}<br />
+                        {{ gptStats.APPROVED.count }}<br />
                         AVG GPT Score:
                         {{
-                            formatDecimals(gptStats.approved.avgGPTScore)
+                            formatDecimals(gptStats.APPROVED.avgGPTScore)
                         }}%<br />
                     </div>
 
                     <div class="mb-3">
                         Historic applications that have been rejected:
-                        {{ gptStats.rejected.count }}<br />
+                        {{ gptStats.REJECTED.count }}<br />
                         AVG GPT Score:
                         {{
-                            formatDecimals(gptStats.rejected.avgGPTScore)
+                            formatDecimals(gptStats.REJECTED.avgGPTScore)
                         }}%<br />
                     </div>
 
                     <div class="mb-3">
                         Historic applications that are pending:
-                        {{ gptStats.pending.count }}<br />
+                        {{ gptStats.PENDING.count }}<br />
                         AVG GPT Score:
                         {{
-                            formatDecimals(gptStats.pending.avgGPTScore)
+                            formatDecimals(gptStats.PENDING.avgGPTScore)
                         }}%<br />
                     </div>
                 </div>

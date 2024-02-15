@@ -41,8 +41,8 @@ class RoundApplicationController extends Controller
 
             $applications = RoundApplication::whereHas('results')
                 ->with(['results' => function ($query) {
-                    $query->selectRaw('round_application_id, AVG(score) as avgScore, COUNT(*) as count')
-                        ->groupBy('round_application_id');
+                    $query->selectRaw('application_id, AVG(score) as avgScore, COUNT(*) as count')
+                        ->groupBy('application_id');
                 }])
                 ->get();
 
