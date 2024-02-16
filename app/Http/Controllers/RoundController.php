@@ -34,7 +34,7 @@ class RoundController extends Controller
         $rounds = Cache::remember($cacheName, 60, function () {
             return Round::orderBy('flagged_at', 'desc')
                 ->orderBy('last_application_at', 'desc')
-                ->with('chain')
+                ->with(['chain', 'gptRoundEligibilityScores'])
                 ->withCount('projects')
                 ->withCount(['applications as pending_applications_count' => function ($query) {
                     $query->where('status', 'PENDING');

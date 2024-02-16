@@ -11,6 +11,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('app:notifications')->everyMinute()->withoutOverlapping();
         $schedule->command('ingest:data')->hourly()->withoutOverlapping();
+        $schedule->command('gpt:roundscore')->hourly()->withoutOverlapping();
+
 
         // Regular maintenance command, safe to run daily
         $schedule->command('telescope:prune')->daily();

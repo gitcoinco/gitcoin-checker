@@ -129,6 +129,15 @@ const flagRound = async (round) => {
                                     </template>
                                 </Tooltip>
                             </th>
+                            <th>
+                                <Tooltip>
+                                    Round score
+                                    <template #content>
+                                        How well is this round setup in terms of
+                                        eligibility vs. application questions
+                                    </template>
+                                </Tooltip>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -270,6 +279,20 @@ const flagRound = async (round) => {
                                         }}%
                                     </span>
                                 </Link>
+                            </td>
+                            <td>
+                                <span
+                                    v-if="
+                                        round.gpt_round_eligibility_scores
+                                            .length > 0
+                                    "
+                                    class="text-xs"
+                                >
+                                    {{
+                                        round.gpt_round_eligibility_scores[0]
+                                            .score
+                                    }}
+                                </span>
                             </td>
                         </tr>
                     </tbody>
