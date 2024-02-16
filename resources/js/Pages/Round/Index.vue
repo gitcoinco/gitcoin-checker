@@ -298,7 +298,7 @@ const flagRound = async (round) => {
                                             {{
                                                 round
                                                     .gpt_round_eligibility_scores[0]
-                                                    .description
+                                                    .reason
                                             }}
                                         </template>
                                     </tooltip>
