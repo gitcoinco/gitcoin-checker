@@ -288,10 +288,20 @@ const flagRound = async (round) => {
                                     "
                                     class="text-xs"
                                 >
-                                    {{
-                                        round.gpt_round_eligibility_scores[0]
-                                            .score
-                                    }}
+                                    <tooltip>
+                                        {{
+                                            round
+                                                .gpt_round_eligibility_scores[0]
+                                                .score
+                                        }}
+                                        <template #content>
+                                            {{
+                                                round
+                                                    .gpt_round_eligibility_scores[0]
+                                                    .description
+                                            }}
+                                        </template>
+                                    </tooltip>
                                 </span>
                             </td>
                         </tr>
