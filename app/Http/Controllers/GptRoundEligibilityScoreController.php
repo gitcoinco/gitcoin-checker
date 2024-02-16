@@ -17,7 +17,7 @@ class GptRoundEligibilityScoreController extends Controller
         $open_ai = new OpenAi(env('OPENAI_API_KEY'));
 
         // Get all rounds
-        $rounds = Round::with('applications')->whereDoesntHave('gptRoundEligibilityScores')->get();
+        $rounds = Round::where('name', 'not like', '%test%')->with('applications')->whereDoesntHave('gptRoundEligibilityScores')->get();
         // Loop through each round
         foreach ($rounds as $round) {
 
