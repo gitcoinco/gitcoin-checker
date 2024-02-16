@@ -24,6 +24,10 @@ class GptRoundEligibilityScoreController extends Controller
             $eligibilityMetadata = json_decode($round->round_metadata, true);
             $applicationMetadata = json_decode($round->application_metadata, true);
 
+            if (!$eligibilityMetadata || !$applicationMetadata) {
+                continue;
+            }
+
             $eligibility = $eligibilityMetadata['eligibility'];
             $application = $applicationMetadata['applicationSchema']['questions'];
 
