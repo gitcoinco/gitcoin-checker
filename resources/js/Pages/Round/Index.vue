@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -9,31 +9,51 @@ import Tooltip from "@/Components/Tooltip.vue";
 import { showDateInShortFormat, formatDecimals } from "@/utils.js";
 
 const rounds = ref(usePage().props.rounds.valueOf());
-
 const searchTerm = ref("");
+
+let url = new URL(window.location.href);
+const showTestRounds = ref(url.searchParams.get("showTestRounds") === "true");
+
+watch(showTestRounds, (newValue) => {
+    // Create a new URL object
+    let url = new URL(window.location.href);
+
+    // Check if showTestRounds already exists in the URL
+    if (url.searchParams.has("showTestRounds")) {
+        // If it exists, update the value
+        url.searchParams.set("showTestRounds", newValue);
+    } else {
+        // If it doesn't exist, add it
+        url.searchParams.append("showTestRounds", newValue);
+    }
+
+    // Refresh the page with the updated URL
+    window.location.href = url.toString();
+});
 
 const search = async () => {
     try {
         const response = await axios.get("/round/search/" + searchTerm.value);
         rounds.value = response.data;
 
-        // Check if the URL already contains a ?
-        var urlContainsQuestionMark = window.location.href.indexOf("?") !== -1;
+        // Create a new URL object
+        let url = new URL(window.location.href);
 
-        // Append the search term to the URL if it doesn't already exist.
-        if (window.location.href.indexOf("?search=") === -1) {
-            var separator = urlContainsQuestionMark ? "&" : "?";
-            window.history.pushState(
-                {},
-                "",
-                window.location.href + separator + "search=" + searchTerm.value
-            );
+        // Check if search already exists in the URL
+        if (url.searchParams.has("search")) {
+            // If it exists, update the value
+            url.searchParams.set("search", searchTerm.value);
+        } else {
+            // If it doesn't exist, add it
+            url.searchParams.append("search", searchTerm.value);
         }
+
+        // Update the URL without reloading the page
+        window.history.pushState({}, "", url.toString());
     } catch (error) {
         console.error("Error fetching search results:", error);
     }
 };
-
 const resetSearch = () => {
     // remove all url parameters
     window.history.pushState({}, "", window.location.href.split("?")[0]);
@@ -76,6 +96,14 @@ const flagRound = async (round) => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                <div class="mb-4 text-right">
+                    <input
+                        type="checkbox"
+                        id="showTestRounds"
+                        v-model="showTestRounds"
+                    />
+                    <label for="showTestRounds">Show test rounds</label>
+                </div>
                 <table v-if="rounds && rounds.data.length > 0">
                     <thead>
                         <tr>

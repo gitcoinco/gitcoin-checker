@@ -29,9 +29,11 @@ class RoundController extends Controller
 
     public function index($search = null)
     {
-        $cacheName = 'RoundController->index(' . $search . ')' . time();
+        $showTestRounds = filter_var(request('showTestRounds', false), FILTER_VALIDATE_BOOLEAN);
 
-        $rounds = Cache::remember($cacheName, 60, function () {
+        $cacheName = 'RoundController->index(' . $search . ')' . $showTestRounds;
+
+        $rounds = Cache::remember($cacheName, 60, function () use ($showTestRounds) {
             return Round::orderBy('flagged_at', 'desc')
                 ->orderBy('last_application_at', 'desc')
                 ->with(['chain', 'gptRoundEligibilityScores'])
@@ -54,6 +56,10 @@ class RoundController extends Controller
                 ->withAvg(['applications as applications_pending' => function ($query) {
                     $query->where('status', 'PENDING');
                 }], 'score')
+                ->when(!$showTestRounds, function ($query) {
+
+                    $query->where('name', 'not like', '%test%');
+                })
                 ->paginate();
         });
         return Inertia::render('Round/Index', [
@@ -64,6 +70,8 @@ class RoundController extends Controller
 
     public function search($search = null)
     {
+        $showTestRounds = filter_var(request('showTestRounds', false), FILTER_VALIDATE_BOOLEAN);
+
         $rounds = Round::where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('round_addr', 'like', '%' . $search . '%');
