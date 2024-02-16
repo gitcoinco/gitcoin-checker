@@ -100,9 +100,8 @@ class GptRoundEligibilityScoreController extends Controller
             ], [
                 'gpt_prompt' => json_encode($messages),
                 'gpt_response' => json_encode($gptResponse),
-                'score' => $content['score'],
-                'reason' => $content['reason'],
-
+                'score' => isset($content['score']) ? $content['score'] : null,
+                'reason' => isset($content['reason']) ? $content['reason'] : null,
             ]);
 
             if (!app()->environment('production')) {
