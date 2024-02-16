@@ -18,6 +18,12 @@ class GptRoundEligibilityScoreController extends Controller
 
         // Get all rounds
         $rounds = Round::where('name', 'not like', '%test%')->with('applications')->whereDoesntHave('gptRoundEligibilityScores')->get();
+
+        if (!$rounds->count()) {
+            // include the test rounds
+            $rounds = Round::with('applications')->whereDoesntHave('gptRoundEligibilityScores')->get();
+        }
+
         // Loop through each round
         foreach ($rounds as $round) {
 
