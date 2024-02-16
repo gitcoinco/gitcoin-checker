@@ -67,7 +67,25 @@ class RoundController extends Controller
         $rounds = Round::where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('round_addr', 'like', '%' . $search . '%');
-        })->orderBy('flagged_at', 'desc')->orderBy('donations_start_time', 'desc')->with(['chain', 'gptRoundEligibilityScores'])->withCount('projects')->paginate();
+        })->orderBy('flagged_at', 'desc')->orderBy('donations_start_time', 'desc')->with(['chain', 'gptRoundEligibilityScores'])->withCount('projects')->withCount(['applications as pending_applications_count' => function ($query) {
+            $query->where('status', 'PENDING');
+        }])
+            ->withAvg(['applications as applications_approved' => function ($query) {
+                $query->where('status', 'APPROVED');
+            }], 'score')
+            ->withCount(['applications as approved_applications_count' => function ($query) {
+                $query->where('status', 'APPROVED');
+            }])
+            ->withAvg(['applications as applications_rejected' => function ($query) {
+                $query->where('status', 'REJECTED');
+            }], 'score')
+            ->withCount(['applications as rejected_applications_count' => function ($query) {
+                $query->where('status', 'REJECTED');
+            }])
+            ->withAvg(['applications as applications_pending' => function ($query) {
+                $query->where('status', 'PENDING');
+            }], 'score')
+            ->paginate();
 
 
         return $rounds;
