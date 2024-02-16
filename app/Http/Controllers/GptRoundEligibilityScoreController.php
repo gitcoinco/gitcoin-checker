@@ -28,6 +28,11 @@ class GptRoundEligibilityScoreController extends Controller
                 continue;
             }
 
+            if (isset($eligibilityMetadata['eligibility']) && isset($applicationMetadata['applicationSchema']['questions'])) {
+            } else {
+                continue;
+            }
+
             $eligibility = $eligibilityMetadata['eligibility'];
             $application = $applicationMetadata['applicationSchema']['questions'];
 
