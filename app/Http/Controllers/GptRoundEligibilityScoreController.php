@@ -91,9 +91,10 @@ class GptRoundEligibilityScoreController extends Controller
 
             $gptResponse = json_decode($gptResponse, true);
 
-            $content = str_replace(['```json', '```'], ['', ''], $gptResponse['choices'][0]['message']['function_call']);
-
-            $content = json_decode($content['arguments'], true);
+            if (isset($gptResponse['choices'][0]['message']['function_call'])) {
+                $content = str_replace(['```json', '```'], ['', ''], $gptResponse['choices'][0]['message']['function_call']);
+                $content = json_decode($content['arguments'], true);
+            }
 
             $gptRoundEligibilityScore = GptRoundEligibilityScore::firstOrCreate([
                 'round_id' => $round->id,
