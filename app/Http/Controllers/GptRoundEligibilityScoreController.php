@@ -41,7 +41,7 @@ class GptRoundEligibilityScoreController extends Controller
 
 
             $roundId = $round->id;
-            $cacheKey = "GptRoundEligibilityScoreController::scoreRounds_{$roundId}" . HashService::hashMultidimensionalArray($messages);
+            $cacheKey = "GptRoundEligibilityScoreController::scoreRounds1_{$roundId}" . HashService::hashMultidimensionalArray($messages);
 
             if (Cache::has($cacheKey)) {
                 $gptResponse = Cache::get($cacheKey);
@@ -53,14 +53,38 @@ class GptRoundEligibilityScoreController extends Controller
                     'max_tokens' => 1000,
                     'frequency_penalty' => 0,
                     'presence_penalty' => 0,
+                    // We should really get an array of objects back, however, this is not working yet.
+                    'functions' => [
+                        [
+                            'name'        => 'gpt_evaluation',
+                            'description' => 'The format in which answers should be returned.',
+                            'parameters'  => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'score' => [
+                                        'type'        => 'integer',
+                                        'description' => 'The score between 0 and 100 where 0 is a big mismatch and 100 is evaluation criteria very much in line with application questions.',
+                                    ],
+                                    'reason' => [
+                                        'type'        => 'string',
+                                        'description' => 'A specific reason for the score.',
+                                    ],
+                                ],
+                                'required'   => ['score', 'reason'],
+                            ],
+                        ],
+                    ],
+
+
                 ]);
                 Cache::put($cacheKey, $gptResponse, 60 * 24);
             }
 
             $gptResponse = json_decode($gptResponse, true);
 
-            $content = str_replace(['```json', '```'], ['', ''], $gptResponse['choices'][0]['message']['content']);
-            $content = json_decode($content, true);
+            $content = str_replace(['```json', '```'], ['', ''], $gptResponse['choices'][0]['message']['function_call']);
+
+            $content = json_decode($content['arguments'], true);
 
             $gptRoundEligibilityScore = GptRoundEligibilityScore::firstOrCreate([
                 'round_id' => $round->id,
