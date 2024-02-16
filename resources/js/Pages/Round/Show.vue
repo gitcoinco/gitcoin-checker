@@ -309,6 +309,44 @@ const refreshApplication = async (application) => {
                         </div>
                     </div>
                 </div>
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-3">
+                    <div
+                        class="mb-3"
+                        v-if="
+                            JSON.parse(round.round_metadata).eligibility
+                                .description
+                        "
+                    >
+                        <div class="text-xl mr-6">Eligibility description:</div>
+                        <div class="text-xs">
+                            {{
+                                JSON.parse(round.round_metadata).eligibility
+                                    .description
+                            }}
+                        </div>
+                    </div>
+                    <div
+                        v-if="
+                            JSON.parse(round.round_metadata).eligibility
+                                .requirements.length > 0
+                        "
+                    >
+                        <div class="text-xl mr-6">
+                            Eligibility requirements:
+                        </div>
+                        <div class="text-xs">
+                            {{
+                                JSON.parse(round.round_metadata)
+                                    .eligibility.requirements.map(
+                                        (requirement) =>
+                                            "- " + requirement.requirement
+                                    )
+                                    .join(", ")
+                            }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
