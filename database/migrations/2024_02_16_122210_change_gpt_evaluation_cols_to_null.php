@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('gpt_round_eligibility_scores', function (Blueprint $table) {
             $table->string('score')->nullable()->change();
             $table->string('reason')->nullable()->change();
-            $table->string('response')->nullable()->change();
         });
     }
 
@@ -26,7 +25,6 @@ return new class extends Migration
         Schema::table('gpt_round_eligibility_scores', function (Blueprint $table) {
             $table->string('score')->nullable(false)->change();
             $table->string('reason')->nullable(false)->change();
-            $table->string('response')->nullable(false)->change();
         });
     }
 };
