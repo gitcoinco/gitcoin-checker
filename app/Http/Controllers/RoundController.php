@@ -31,7 +31,7 @@ class RoundController extends Controller
     {
         $showTestRounds = filter_var(request('showTestRounds', false), FILTER_VALIDATE_BOOLEAN);
 
-        $cacheName = 'RoundController->index(' . $search . ')' . $showTestRounds;
+        $cacheName = 'RoundController->index(' . $search . ')' . request()->getRequestUri();
 
         $rounds = Cache::remember($cacheName, 60, function () use ($showTestRounds) {
             return Round::orderBy('flagged_at', 'desc')
