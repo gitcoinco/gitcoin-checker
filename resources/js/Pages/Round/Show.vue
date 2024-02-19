@@ -207,7 +207,7 @@ const handleEvaluateApplication = async (application) => {
 const refreshApplication = async (application) => {
     try {
         const response = await axios.get(
-            route("round.application.show", {
+            route("api.round.application.show", {
                 application: application.uuid,
             })
         );
