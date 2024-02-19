@@ -547,7 +547,7 @@ class RoundApplicationController extends Controller
         $metadata = json_decode($round->round_metadata, true);
 
         $search[] = '{{ round.eligibility.description }}';
-        $replace[] = $metadata['eligibility']['description'];
+        $replace[] = isset($metadata['eligibility']['description']) ? $metadata['eligibility']['description'] : '';
 
         $search[] = '{{ round.name }}';
         $replace[] = $metadata['name'];
