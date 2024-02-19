@@ -102,6 +102,43 @@ class IngestData extends Command
 
     private function shortRunningTasks(DirectoryParser $directoryParser)
     {
+        $this->processAll(true);
+    }
+
+    /**
+     * Split the long running tasks into a separate function so we can run them in the background.  longRunningTasks run daily
+     */
+    private function longRunningTasks()
+    {
+        $this->processAll(false);
+
+        if (!app()->isLocal()) {
+            $this->updateProjectSummaries();
+        }
+
+        // Loop through all the chains and update project owners
+        $chains = Chain::all();
+        foreach ($chains as $chain) {
+            $this->updateProjectOwnersForChain($chain);
+
+            $rounds = Round::where('chain_id', $chain->id)
+                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
+                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
+                ->get();
+            foreach ($rounds as $round) {
+                $this->info("Processing donations data for chain ID: {$chain->chain_id}, round ID: {$round->id}...");
+                $this->updateDonations($round);
+            }
+        }
+    }
+
+
+    /**
+     * Limit the dates for most processing to not look at historic data
+     */
+    private function processAll($limitDate = true)
+    {
+
         // Chains are hardcoded for now but should be fetched from a dynamic source in the future
         $chainList = [1, 10, 137, 250, 42161, 424];
 
@@ -124,10 +161,12 @@ class IngestData extends Command
         sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
-            $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '<=', Carbon::now())
-                ->where('donations_end_time', '>=', Carbon::now())
-                ->get();
+            $rounds = Round::where('chain_id', $chain->id);
+            if ($limitDate) {
+                $rounds = $rounds->where('applications_start_time', '>=', Carbon::now())
+                    ->where('donations_end_time', '<=', Carbon::now());
+            }
+            $rounds = $rounds->get();
 
             foreach ($rounds as $round) {
                 $this->info("Processing project data for chain: {$chainId}, round: {$round->round_addr}.");
@@ -135,15 +174,18 @@ class IngestData extends Command
             }
         }
 
-
         $this->info('Applications...');
         sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
-            $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '<=', Carbon::now())
-                ->where('donations_end_time', '>=', Carbon::now())
-                ->get();
+            $rounds = Round::where('chain_id', $chain->id);
+
+            if ($limitDate) {
+                $rounds = $rounds->where('applications_start_time', '>=', Carbon::now())
+                    ->where('donations_end_time', '<=', Carbon::now());
+            }
+            $rounds = $rounds->get();
+
             foreach ($rounds as $round) {
                 $this->info("Processing applications data for chain: {$chainId}, round: {$round->round_addr}.");
                 $this->updateApplications($round);
@@ -154,10 +196,14 @@ class IngestData extends Command
         sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
-            $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '<=', Carbon::createFromTimestamp($this->fromDate))
-                ->where('donations_end_time', '>=', Carbon::createFromTimestamp($this->toDate))
-                ->get();
+            $rounds = Round::where('chain_id', $chain->id);
+
+            if ($limitDate) {
+                $rounds = $rounds->where('applications_start_time', '>=', Carbon::now())
+                    ->where('donations_end_time', '<=', Carbon::now());
+            }
+            $rounds = $rounds->get();
+
             foreach ($rounds as $round) {
                 $this->info("Processing application funding data for chain: {$chainId}, round: {$round->round_addr}.");
                 $applications = RoundApplication::where('round_id', $round->id)->whereNotNull('approved_at')->whereNull('donor_amount_usd')->get();
@@ -168,30 +214,6 @@ class IngestData extends Command
         }
     }
 
-    /**
-     * Split the long running tasks into a separate function so we can run them in the background
-     */
-    private function longRunningTasks()
-    {
-        if (!app()->isLocal()) {
-            $this->updateProjectSummaries();
-        }
-
-        // Loop through all the chains and update project owners
-        $chains = Chain::all();
-        foreach ($chains as $chain) {
-            $this->updateProjectOwnersForChain($chain);
-
-            $rounds = Round::where('chain_id', $chain->id)
-                ->where('applications_start_time', '>=', Carbon::createFromTimestamp($this->fromDate))
-                ->where('donations_end_time', '<=', Carbon::createFromTimestamp($this->toDate))
-                ->get();
-            foreach ($rounds as $round) {
-                $this->info("Processing donations data for chain ID: {$chain->chain_id}, round ID: {$round->id}...");
-                $this->updateDonations($round);
-            }
-        }
-    }
 
     /**
      * Update the project summaries for projects that don't have them

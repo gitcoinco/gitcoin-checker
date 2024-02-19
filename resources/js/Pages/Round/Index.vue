@@ -100,6 +100,7 @@ const flagRound = async (round) => {
                     <input
                         type="checkbox"
                         id="showTestRounds"
+                        class="mr-1"
                         v-model="showTestRounds"
                     />
                     <label for="showTestRounds">Show test rounds</label>
