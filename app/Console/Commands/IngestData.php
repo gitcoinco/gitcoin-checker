@@ -444,10 +444,10 @@ rounds(filter: {
                         'match_amount' => $roundData['matchAmount'],
                         'match_amount_in_usd' => $roundData['matchAmountInUsd'],
                         'unique_donors_count' => $roundData['uniqueDonorsCount'],
-                        'applications_start_time' => $roundData['applicationsStartTime'],
-                        'applications_end_time' => $roundData['applicationsEndTime'],
-                        'donations_start_time' => $roundData['donationsStartTime'],
-                        'donations_end_time' => $roundData['donationsEndTime'],
+                        'applications_start_time' => $this->validateDate($roundData['applicationsStartTime']) ? $roundData['applicationsStartTime'] : null,
+                        'applications_end_time' => $this->validateDate($roundData['applicationsEndTime']) ? $roundData['applicationsEndTime'] : null,
+                        'donations_start_time' => $this->validateDate($roundData['donationsStartTime']) ? $roundData['donationsStartTime'] : null,
+                        'donations_end_time' => $this->validateDate($roundData['donationsEndTime']) ? $roundData['donationsEndTime'] : null,
                         'created_at_block' => $roundData['createdAtBlock'],
                         'updated_at_block' => $roundData['updatedAtBlock'],
                         'round_metadata' => json_encode($roundData['roundMetadata']),
@@ -516,6 +516,24 @@ rounds(filter: {
 
             Cache::put($cacheName, $hash, now()->addHours(1));
         }
+    }
+
+    /**
+     * Some dates are purposefully set very far into the future, e.g. 275760-09-13T00:00:00.  In such cases, return null
+     */
+    private function validateDate($date)
+    {
+        $date = strtotime($date);
+        if (!$date) {
+            return null;
+        }
+
+        // if it's too far into the future, return null
+        if ($date > now()->addYears(3)->timestamp) {
+            return null;
+        }
+
+        return $date;
     }
 
     /**
