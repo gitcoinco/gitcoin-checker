@@ -1,5 +1,6 @@
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, computed } from "vue";
+
 import Modal from "@/Components/Modal.vue";
 import { watch } from "vue";
 import { isValidEmail } from "@/utils";
@@ -24,6 +25,14 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+});
+
+const searchTerm = ref("");
+
+const filteredRounds = computed(() => {
+    return props.rounds.filter((round) =>
+        round.name?.toLowerCase().includes(searchTerm.value.toLowerCase())
+    );
 });
 
 // Convert time_of_the_day from UTC to current locale
@@ -290,18 +299,34 @@ const submitNotificationSetup = () => {
                         </div>
 
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700"
-                                >Rounds to Include:</label
-                            >
+                            <div>
+                                <input
+                                    v-model="searchTerm"
+                                    type="text"
+                                    id="roundSearch"
+                                    placeholder="Rounds to Include:"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                    style="
+                                        margin-bottom: 0;
+                                        border-bottom-right-radius: 0;
+                                        border-bottom-left-radius: 0;
+                                        border-bottom: 1px dotted #d2d6dc;
+                                    "
+                                />
+                            </div>
 
                             <select
                                 v-model="notificationSetupRounds"
                                 multiple
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                class="block w-full rounded-md border-gray-300 shadow-sm"
+                                style="
+                                    border-top-left-radius: 0;
+                                    border-top-right-radius: 0;
+                                    border-top: 0;
+                                "
                             >
                                 <option
-                                    v-for="round in rounds"
+                                    v-for="round in filteredRounds"
                                     :value="round.id"
                                     :key="round.id"
                                 >
