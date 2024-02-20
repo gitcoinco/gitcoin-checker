@@ -512,6 +512,12 @@ rounds(filter: {
                     $round->name = $metadata['name'];
                     $round->save();
                 }
+
+                // In the event of there being no name
+                if (Str::length($round->name) == 0 || $round->name == null) {
+                    $round->name = "Chain ID: {$chain->chain_id}, Round ID: {$round->id}";
+                    $round->save();
+                }
             }
 
             Cache::put($cacheName, $hash, now()->addHours(1));
