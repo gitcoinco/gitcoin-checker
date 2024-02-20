@@ -143,22 +143,26 @@ class IngestData extends Command
         $chainList = [1, 10, 137, 250, 42161, 424];
 
         $this->info('Chains...');
-        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $this->info("Processing data for chain ID: {$chainId}...");
             $chain = Chain::firstOrCreate(['chain_id' => $chainId]);
         }
 
         $this->info('Rounds...');
-        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $this->info("Processing rounds data for chain ID: {$chainId}...");
             $this->updateRounds($chain);
         }
 
+        $this->info('Round roles...');
+        foreach ($chainList as $key => $chainId) {
+            $chain = Chain::where('chain_id', $chainId)->first();
+            $this->info("Processing round role data for chain ID: {$chainId}...");
+            $this->updateRoundRoles($chain);
+        }
+
         $this->info('Projects...');
-        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id);
@@ -175,7 +179,6 @@ class IngestData extends Command
         }
 
         $this->info('Applications...');
-        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id);
@@ -193,7 +196,6 @@ class IngestData extends Command
         }
 
         $this->info('Funding...');
-        sleep(2);
         foreach ($chainList as $key => $chainId) {
             $chain = Chain::where('chain_id', $chainId)->first();
             $rounds = Round::where('chain_id', $chain->id);
@@ -212,6 +214,47 @@ class IngestData extends Command
                 }
             }
         }
+    }
+
+    private function updateRoundRoles(Chain $chain)
+    {
+        $cacheName = $this->cacheName . 'IngestData::updateRoundRoles(' . $chain->id . ')';
+
+        $query = '
+        roundRoles(filter: {chainId: {equalTo: ' . $chain->chain_id . '}}) {
+            role
+            roundId
+            address
+          }
+        ';
+
+        $roundData = $this->graphQLQuery($query);
+
+        $hash = HashService::hashMultidimensionalArray($roundData);
+
+        if (Cache::get($cacheName) == $hash) {
+            $this->info("Round roles data for chain {$chain->id} has not changed. Skipping...");
+            return;
+        }
+
+
+        if (isset($roundData['roundRoles']) && count($roundData['roundRoles']) > 0) {
+            foreach ($roundData['roundRoles'] as $key => $data) {
+                $roundAddress = Str::lower($data['roundId']);
+                $address = Str::lower($data['address']);
+
+                $round = Round::where('round_addr', $roundAddress)->first();
+
+                if ($round) {
+                    $round->roundRoles()->updateOrCreate(
+                        ['address' => $address, 'round_id' => $round->id],
+                        ['role' => $data['role']]
+                    );
+                }
+            }
+        }
+
+        Cache::put($cacheName, $hash, now()->addHours(1));
     }
 
 

@@ -58,6 +58,11 @@ class Round extends Model
         return $this->hasOne(RoundMetadata::class);
     }
 
+    public function roundRoles()
+    {
+        return $this->hasMany(RoundRole::class);
+    }
+
     public function requirements()
     {
         return $this->hasMany(RoundRequirement::class);
