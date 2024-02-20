@@ -554,8 +554,10 @@ class RoundApplicationController extends Controller
 
         $search[] = '{{ round.eligibility.requirements }}';
         $requirements = '';
-        foreach ($metadata['eligibility']['requirements'] as $key => $requirement) {
-            $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
+        if (isset($metadata['eligibility']['requirements']) && is_array($metadata['eligibility']['requirements'])) {
+            foreach ($metadata['eligibility']['requirements'] as $key => $requirement) {
+                $requirements .= ($key + 1) . '. ' . $requirement['requirement'] . PHP_EOL;
+            }
         }
         $replace[] = $requirements;
 
