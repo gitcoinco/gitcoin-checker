@@ -54,6 +54,53 @@ const logout = () => {
                                     />
                                 </Link>
                             </div>
+
+                            <!-- Navigation Links -->
+                            <div
+                                class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
+                            >
+                                <NavLink
+                                    :href="route('dashboard')"
+                                    :active="route().current('dashboard')"
+                                >
+                                    <i class="fa fa-tachometer mr-1"></i>
+                                    Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('project.index')"
+                                    :active="route().current('project.index')"
+                                >
+                                    <i class="fa fa-folder-open-o mr-1"></i>
+                                    Projects
+                                </NavLink>
+                                <NavLink
+                                    :href="route('round.index')"
+                                    :active="route().current('round.index')"
+                                >
+                                    <i class="fa fa-circle-o-notch mr-1"></i>
+                                    Rounds
+                                </NavLink>
+                                <NavLink
+                                    :href="route('access-control.index')"
+                                    :active="
+                                        route().current('access-control.index')
+                                    "
+                                >
+                                    <i class="fa fa-users mr-1"></i>
+                                    Users
+                                </NavLink>
+                                <NavLink
+                                    :href="route('notificationsetup.index')"
+                                    :active="
+                                        route().current(
+                                            'notificationsetup.index'
+                                        )
+                                    "
+                                >
+                                    <i class="fa fa-bell-o mr-1"></i>
+                                    Notifications
+                                </NavLink>
+                            </div>
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
@@ -248,6 +295,72 @@ const logout = () => {
                                     </template>
 
                                     <template #content>
+                                        <!-- Account Management -->
+                                        <div
+                                            class="block px-4 py-2 text-xs text-gray-400"
+                                        >
+                                            Manage Account
+                                        </div>
+
+                                        <DropdownLink
+                                            :href="route('profile.show')"
+                                        >
+                                            <i class="fa fa-user mr-1"></i>
+                                            Profile
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('dashboard')"
+                                        >
+                                            <i
+                                                class="fa fa-tachometer mr-1"
+                                            ></i>
+                                            Dashboard
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('project.index')"
+                                        >
+                                            <i
+                                                class="fa fa-folder-open-o mr-1"
+                                            ></i>
+                                            Projects
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('round.index')"
+                                        >
+                                            <i
+                                                class="fa fa-circle-o-notch mr-1"
+                                            ></i>
+                                            Rounds
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="
+                                                route('access-control.index')
+                                            "
+                                        >
+                                            <i class="fa fa-users mr-1"></i>
+                                            Users
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="
+                                                route('notificationsetup.index')
+                                            "
+                                        >
+                                            <i class="fa fa-bell-o mr-1"></i>
+                                            Notifications
+                                        </DropdownLink>
+
+                                        <DropdownLink
+                                            v-if="
+                                                $page.props.jetstream
+                                                    .hasApiFeatures
+                                            "
+                                            :href="route('api-tokens.index')"
+                                        >
+                                            API Tokens
+                                        </DropdownLink>
+
+                                        <div class="border-t border-gray-200" />
+
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
                                             <DropdownLink as="button">

@@ -28,6 +28,9 @@ class AccessControlController extends Controller
             $accessControl->user;
         }
 
+
+
+
         return inertia('AccessControl/Index', ['accessControls' => $accessControls]);
     }
 

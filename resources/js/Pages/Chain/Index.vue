@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, reactive, toRefs } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
@@ -20,7 +20,7 @@ const updateChains = () => {
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Chains
@@ -65,5 +65,5 @@ const updateChains = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, useForm, usePage, Link, router } from "@inertiajs/vue3";
 import Modal from "@/Components/Modal.vue";
@@ -121,7 +121,7 @@ const moveQuestion = (index, direction) => {
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <div class="flex justify-between items-center">
                 <div>
@@ -204,7 +204,7 @@ const moveQuestion = (index, direction) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>
 
 <style scoped></style>

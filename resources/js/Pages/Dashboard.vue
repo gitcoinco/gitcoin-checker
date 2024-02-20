@@ -1,5 +1,5 @@
 <script setup>
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Welcome from "@/Components/Welcome.vue";
 import Stats from "@/Components/Stats.vue";
 import Applications from "@/Pages/Application/Components/Applications.vue";
@@ -137,7 +137,7 @@ function refreshApplications() {
 </script>
 
 <template>
-    <AppLayout title="Dashboard">
+    <AuthenticatedLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
@@ -177,5 +177,5 @@ function refreshApplications() {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>

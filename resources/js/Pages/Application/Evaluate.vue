@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { usePage, useForm, Link } from "@inertiajs/vue3";
 import Modal from "@/Components/Modal.vue";
@@ -40,7 +40,7 @@ const checkAgainstChatGPT = async () => {
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ round.name }}
@@ -129,5 +129,5 @@ const checkAgainstChatGPT = async () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>

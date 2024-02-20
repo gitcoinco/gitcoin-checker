@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, usePage, Link, router } from "@inertiajs/vue3";
 import { copyToClipboard, shortenAddress } from "@/utils.js";
 
@@ -12,7 +12,7 @@ const round = ref(usePage().props.round.valueOf());
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <div class="flex justify-between items-center">
                 <div>
@@ -101,5 +101,5 @@ const round = ref(usePage().props.round.valueOf());
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>

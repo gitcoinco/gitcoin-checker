@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(NotificationSetup::class);
     }
 
+    public function roundRoles()
+    {
+        return $this->hasMany(RoundRole::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'uuid';

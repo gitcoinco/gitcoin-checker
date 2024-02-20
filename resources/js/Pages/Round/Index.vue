@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
@@ -87,7 +87,7 @@ const flagRound = async (round) => {
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Rounds
@@ -347,5 +347,5 @@ const flagRound = async (round) => {
                 <Pagination :links="rounds.links" />
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>

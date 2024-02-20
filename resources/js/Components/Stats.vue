@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios"; // Ensure axios is imported
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";

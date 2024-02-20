@@ -27,11 +27,15 @@ class CheckAccessControl
     {
         $user = $request->user(); // Get the authenticated user
 
-        $hasAccessControl = Cache::remember('accessControl.' . $user->id, 120, function () use ($user) {
+        $hasAccessControl = Cache::remember('CheckAccessControl::accessControl.' . $user->id, 120, function () use ($user) {
             return $user->accessControl()->exists();
         });
 
-        if (!$hasAccessControl && !app()->runningUnitTests()) {
+        $hasRoundAccess = Cache::remember('CheckAccessControl::roundAccess.' . $user->id, 120, function () use ($user) {
+            return $user->roundRoles()->exists();
+        });
+
+        if ((!$hasAccessControl && !$hasRoundAccess) && !app()->runningUnitTests()) {
             // redirect to no access page
             return redirect()->route('noaccess');
         }

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Evaluation from "@/Pages/Application/Components/Evaluation.vue";
 import ResultsSummary from "@/Pages/Application/Components/ResultsSummary.vue";
 import { useForm, usePage, Link, router } from "@inertiajs/vue3";
@@ -153,7 +153,7 @@ const refreshApplication = async (application) => {
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AuthenticatedLayout title="Profile">
         <template #header>
             <div class="flex justify-between items-center">
                 <div>
@@ -373,7 +373,7 @@ const refreshApplication = async (application) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>
 
 <style scoped>

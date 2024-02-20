@@ -2,7 +2,7 @@
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import GitcoinLogo from "@/Components/Gitcoin/Logo.vue";
 import { ref } from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
