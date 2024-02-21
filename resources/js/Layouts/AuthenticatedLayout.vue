@@ -49,7 +49,7 @@ const logout = () => {
                             <div class="shrink-0 flex items-left">
                                 <Link
                                     :href="route('dashboard')"
-                                    v-if="$page.props.auth.is_admin"
+                                    v-if="$page.props.auth.user.is_admin"
                                 >
                                     <ApplicationMark
                                         class="block h-9 w-auto"
@@ -71,7 +71,7 @@ const logout = () => {
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
-                                    v-if="$page.props.auth.is_admin"
+                                    v-if="$page.props.auth.user.is_admin"
                                 >
                                     <i class="fa fa-tachometer mr-1"></i>
                                     Dashboard
@@ -88,7 +88,7 @@ const logout = () => {
                                     :active="
                                         route().current('access-control.index')
                                     "
-                                    v-if="$page.props.auth.is_admin"
+                                    v-if="$page.props.auth.user.is_admin"
                                 >
                                     <i class="fa fa-users mr-1"></i>
                                     Users
@@ -100,7 +100,7 @@ const logout = () => {
                                             'notificationsetup.index'
                                         )
                                     "
-                                    v-if="$page.props.auth.is_admin"
+                                    v-if="$page.props.auth.user.is_admin"
                                 >
                                     <i class="fa fa-bell-o mr-1"></i>
                                     Notifications
@@ -322,7 +322,9 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('dashboard')"
-                                            v-if="$page.props.auth.is_admin"
+                                            v-if="
+                                                $page.props.auth.user.is_admin
+                                            "
                                         >
                                             <i
                                                 class="fa fa-tachometer mr-1"
@@ -331,7 +333,9 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('project.index')"
-                                            v-if="$page.props.auth.is_admin"
+                                            v-if="
+                                                $page.props.auth.user.is_admin
+                                            "
                                         >
                                             <i
                                                 class="fa fa-folder-open-o mr-1"
@@ -340,7 +344,9 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('round.index')"
-                                            v-if="$page.props.auth.is_admin"
+                                            v-if="
+                                                $page.props.auth.user.is_admin
+                                            "
                                         >
                                             <i
                                                 class="fa fa-circle-o-notch mr-1"
@@ -351,7 +357,9 @@ const logout = () => {
                                             :href="
                                                 route('access-control.index')
                                             "
-                                            v-if="$page.props.auth.is_admin"
+                                            v-if="
+                                                $page.props.auth.user.is_admin
+                                            "
                                         >
                                             <i class="fa fa-users mr-1"></i>
                                             Users
@@ -360,7 +368,9 @@ const logout = () => {
                                             :href="
                                                 route('notificationsetup.index')
                                             "
-                                            v-if="$page.props.auth.is_admin"
+                                            v-if="
+                                                $page.props.auth.user.is_admin
+                                            "
                                         >
                                             <i class="fa fa-bell-o mr-1"></i>
                                             Notifications
@@ -370,7 +380,7 @@ const logout = () => {
                                             v-if="
                                                 $page.props.jetstream
                                                     .hasApiFeatures &&
-                                                $page.props.auth.is_admin
+                                                $page.props.auth.user.is_admin
                                             "
                                             :href="route('api-tokens.index')"
                                         >
@@ -445,7 +455,7 @@ const logout = () => {
                         <ResponsiveNavLink
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
-                            v-if="$page.props.auth.is_admin"
+                            v-if="$page.props.auth.user.is_admin"
                         >
                             Dashboard
                         </ResponsiveNavLink>

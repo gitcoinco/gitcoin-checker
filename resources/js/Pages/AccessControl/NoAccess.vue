@@ -14,8 +14,8 @@ import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
                 <div>
-                    You do not have access. Please contact PGF to request
-                    access.
+                    You do not have access. Only Gitcoin round operators and
+                    staff have access to Checker.
                 </div>
             </div>
         </div>
