@@ -22,6 +22,6 @@ class UserPolicy
 
     public function viewRounds(User $user)
     {
-        return $user->has_round_access;
+        return $user->is_round_operator;
     }
 }

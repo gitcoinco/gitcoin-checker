@@ -64,7 +64,7 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
         'is_admin',
-        'has_round_access',
+        'is_round_operator',
     ];
 
     /**

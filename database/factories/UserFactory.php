@@ -30,7 +30,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'current_team_id' => null,
-            'eth_addr' => '0x123',
+            'eth_addr' => '0x123' . Str::random(37),
         ];
     }
 
