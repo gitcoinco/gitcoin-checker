@@ -27,18 +27,13 @@ class CheckAccessControl
     {
         $user = $request->user(); // Get the authenticated user
 
-        $hasAccessControl = Cache::remember('CheckAccessControl::accessControl.' . $user->id, 120, function () use ($user) {
-            return $user->accessControl()->exists();
-        });
-
-        $hasRoundAccess = Cache::remember('CheckAccessControl::roundAccess.' . $user->id, 120, function () use ($user) {
-            return $user->roundRoles()->exists();
-        });
-
-        if ((!$hasAccessControl && !$hasRoundAccess) && !app()->runningUnitTests()) {
-            // redirect to no access page
-            return redirect()->route('noaccess');
-        }
+        // if (!app()->runningUnitTests()) {
+        //     if ($user->is_admin || $user->is_round_operator) {
+        //     } else {
+        //         // redirect to no access page
+        //         return redirect()->route('noaccess');
+        //     }
+        // }
 
         // If the user doesn't have an email and name specified, redirect to the profile page
         if (!$user->email || !$user->name) {

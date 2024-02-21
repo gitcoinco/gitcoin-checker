@@ -15,7 +15,9 @@ const searchTerm = ref("");
 
 const search = async () => {
     try {
-        const response = await axios.get("/project/search/" + searchTerm.value);
+        const response = await axios.get(
+            route("project.search") + "/" + searchTerm.value
+        );
         projects.value = response.data;
 
         // Check if the URL already contains a ?
@@ -72,6 +74,7 @@ if (urlParams.has("search")) {
                                             @keyup="onKeyup"
                                         />
                                     </th>
+                                    <th>Rounds</th>
                                     <th>Website</th>
                                     <th>Twitter</th>
                                     <th>Github</th>
@@ -92,6 +95,26 @@ if (urlParams.has("search")) {
                                             {{ project.title }}
                                         </Link>
                                     </td>
+                                    <td>
+                                        <div>
+                                            <Link
+                                                v-for="(
+                                                    application, index
+                                                ) in project.applications"
+                                                :key="index"
+                                                :href="
+                                                    route(
+                                                        'round.show',
+                                                        application.round
+                                                    )
+                                                "
+                                                class="text-blue-500 hover:underline"
+                                            >
+                                                {{ application.round.name }}
+                                            </Link>
+                                        </div>
+                                    </td>
+
                                     <td>
                                         <a
                                             :href="project.website"

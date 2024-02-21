@@ -20,8 +20,21 @@ class DashboardController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function indexRO(Request $request)
+    {
+        return Inertia::render('RO/Dashboard', [
+            'indexData' => env('GRAPHQL_ENDPOINT'),
+        ]);
+    }
+
     public function index(Request $request)
     {
+        // $user = $request->user();
+
+        // if (!$user->is_admin && $user->is_round_operator) {
+        //     return redirect()->route('round.index');
+        // }
+
         $projectsCount = Cache::remember('projectsCount', 60, function () {
             return Project::where('title', 'not like', '%test%')->count();
         });

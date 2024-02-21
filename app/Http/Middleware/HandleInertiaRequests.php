@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,7 +37,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        if (!$user) {
+            return [];
+        }
+
         return array_merge(parent::share($request), [
+            'auth' => [
+                'user' => fn () => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'is_admin' => $user->is_admin,
+                    'is_round_operator' => $user->is_round_operator,
+                ] : null,
+            ],
             'flash' => [
                 'notifications' => fn () => $request->session()->get('notifications')
             ],

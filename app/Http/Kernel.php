@@ -71,5 +71,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         // ...
         'access.control' => \App\Http\Middleware\CheckAccessControl::class,
+        'is_admin' => \App\Http\Middleware\IsAdmin::class,
+        'is_round_operator' => \App\Http\Middleware\IsRoundOperator::class,
     ];
 }

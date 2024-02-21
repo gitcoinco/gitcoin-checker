@@ -8,6 +8,7 @@ use App\Models\Traits\ShortUniqueUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -62,6 +63,8 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'is_admin',
+        'has_round_access',
     ];
 
     /**
@@ -85,6 +88,20 @@ class User extends Authenticatable
     public function roundRoles()
     {
         return $this->hasMany(RoundRole::class);
+    }
+
+    public function getIsAdminAttribute()
+    {
+        return Cache::remember('User::accessControlExists.' . $this->id, 60, function () {
+            return $this->accessControl()->exists();
+        });
+    }
+
+    public function getIsRoundOperatorAttribute()
+    {
+        return Cache::remember('User::roundRolesExists.' . $this->id, 60, function () {
+            return $this->roundRoles()->exists();
+        });
     }
 
     public function getRouteKeyName()

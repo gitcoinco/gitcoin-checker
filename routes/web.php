@@ -31,6 +31,13 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        if (auth()->user()->is_admin) {
+            return redirect()->route('dashboard');
+        } else if (auth()->user()->is_round_operator) {
+            return redirect()->route('ro.dashboard');
+        }
+    }
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -68,83 +75,85 @@ Route::middleware([
     CheckAccessControl::class,
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/gpt/models', [GPTController::class, 'models'])->name('gpt.models');
+    Route::prefix('admin')->middleware('is_admin')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/gpt/models', [GPTController::class, 'models'])->name('gpt.models');
+        Route::get('applications', [RoundApplicationController::class, 'index'])->name('round.application.index');
 
-
-    Route::get('applications', [RoundApplicationController::class, 'index'])->name('round.application.index');
-
-    Route::prefix('application')->group(function () {
-        Route::get('/{application}', [RoundApplicationController::class, 'show'])->name('application.show');
-        Route::get('/set/filters', [RoundApplicationController::class, 'setFilters'])->name('round.application.set.filters');
-        Route::prefix('application')->group(function () {
-            Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
-            Route::post('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'upsert'])->name('round.application.evaluation.answers.upsert');
+        Route::prefix('chain')->group(function () {
+            Route::get('/', [ChainController::class, 'index'])->name('chain.index');
+            Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
         });
     });
+
+    // ro = round operator
+    Route::prefix('ro')->middleware('is_round_operator')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'indexRO'])->name('ro.dashboard');
+        Route::prefix('application')->group(function () {
+            Route::get('/{application}', [RoundApplicationController::class, 'show'])->name('application.show');
+            Route::get('/set/filters', [RoundApplicationController::class, 'setFilters'])->name('round.application.set.filters');
+            Route::prefix('application')->group(function () {
+                Route::get('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'index'])->name('round.application.user.evaluation.index');
+                Route::post('/evaluation/{application}', [RoundApplicationEvaluationAnswersController::class, 'upsert'])->name('round.application.evaluation.answers.upsert');
+            });
+        });
+
+        Route::get('notificationsetup', [NotificationSetupController::class, 'index'])->name('notificationsetup.index');
+        Route::post('notificationsetup', [NotificationSetupController::class, 'upsert'])->name('notificationsetup.upsert');
+        Route::delete('notificationsetup/{notificationSetup}', [NotificationSetupController::class, 'delete'])->name('notificationsetup.delete');
+
+        Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
+
+        Route::prefix('round')->group(function () {
+            Route::get('/evaluation/{round}', [RoundEvaluationController::class, 'show'])->name('round.evaluation.show');
+            Route::get('/evaluation/qa/{round}', [RoundEvaluationController::class, 'showQA'])->name('round.evaluation.show.qa');
+            Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');
+            Route::get('/evaluation/gpt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
+            Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
+            Route::get('/evaluation/gpt/reset/{round}', [RoundPromptController::class, 'reset'])->name('round.prompt.reset');
+            Route::get('/{round}/evaluation/setup', [RoundEvaluationController::class, 'setup'])->name('round.evaluation.setup');
+
+
+            Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
+            Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
+            Route::post('/flag/{id}', [RoundController::class, 'flag']);
+            Route::prefix('application')->group(function () {
+                Route::get('/{application}/details', [RoundApplicationController::class, 'details'])->name('round.application.details');
+                Route::get('/evaluate-all/{round}', [RoundApplicationController::class, 'evaluateAllShow'])->name('round.evaluate.all.show');
+                Route::get('/evaluate/{application}', [RoundApplicationController::class, 'evaluate'])->name('round.application.evaluate');
+                Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
+                Route::post('/evaluate/chatgpt/{application}/list', [RoundApplicationController::class, 'checkAgainstChatGPTList'])->name('round.application.chatgpt.list');
+                Route::delete('/evaluate/chatgpt/{application}/delete', [RoundApplicationController::class, 'deleteGPTResult'])->name('round.application.evaluation.results.destroy');
+                Route::delete('/evaluate/evaluation-answer/{answer}/delete', [RoundApplicationEvaluationAnswersController::class, 'delete'])->name('round.application.evaluation-answer.destroy');
+            });
+        });
+
+        Route::prefix('project')->group(function () {
+            Route::get('/', [ProjectController::class, 'index'])->name('project.index');
+            Route::get('/show/{project}', [ProjectController::class, 'show'])->name('project.show');
+            Route::get('/search/{search?}', [ProjectController::class, 'search'])->name('project.search');
+        });
+
+        Route::prefix('api')->group(function () {
+            Route::get('/application/{application}/show', [RoundApplicationController::class, 'apiShow'])->name('api.round.application.show');
+        });
+
+        Route::prefix('access-control')->group(function () {
+            Route::get('/', [AccessControlController::class, 'index'])->name('access-control.index');
+            Route::post('/upsert', [AccessControlController::class, 'upsert'])->name('access-control.upsert');
+            Route::delete('/delete/{accessControl}', [AccessControlController::class, 'destroy'])->name('access-control.delete');
+        });
+
+        Route::prefix('access-control')->group(function () {
+            Route::get('/stats/history', [RoundApplicationController::class, 'statsHistory'])->name('api.applications.stats.history');
+        });
+    });
+
 
     Route::prefix('user-preferences')->group(function () {
         Route::get('/rounds', [UserPreferenceController::class, 'roundsSearch'])->name('user-preferences.rounds.search');
         Route::get('/round/toggle/{round}', [UserPreferenceController::class, 'roundToggle'])->name('user-preferences.round.toggle');
         Route::get('/rounds/selectedApplicationRoundType', [UserPreferenceController::class, 'selectedApplicationRoundType'])->name('user-preferences.rounds.selectedApplicationRoundType');
-    });
-
-
-    Route::prefix('chain')->group(function () {
-        Route::get('/', [ChainController::class, 'index'])->name('chain.index');
-        Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
-    });
-
-    Route::get('notificationsetup', [NotificationSetupController::class, 'index'])->name('notificationsetup.index');
-    Route::post('notificationsetup', [NotificationSetupController::class, 'upsert'])->name('notificationsetup.upsert');
-    Route::delete('notificationsetup/{notificationSetup}', [NotificationSetupController::class, 'delete'])->name('notificationsetup.delete');
-
-
-    Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
-
-    Route::prefix('round')->group(function () {
-        Route::get('/evaluation/{round}', [RoundEvaluationController::class, 'show'])->name('round.evaluation.show');
-        Route::get('/evaluation/qa/{round}', [RoundEvaluationController::class, 'showQA'])->name('round.evaluation.show.qa');
-        Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');
-        Route::get('/evaluation/gpt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
-        Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
-        Route::get('/evaluation/gpt/reset/{round}', [RoundPromptController::class, 'reset'])->name('round.prompt.reset');
-        Route::get('/{round}/evaluation/setup', [RoundEvaluationController::class, 'setup'])->name('round.evaluation.setup');
-
-
-        Route::get('/show/{round}', [RoundController::class, 'show'])->name('round.show');
-        Route::get('/search/{search?}', [RoundController::class, 'search'])->name('round.search');
-        Route::post('/flag/{id}', [RoundController::class, 'flag']);
-        Route::prefix('application')->group(function () {
-            Route::get('/{application}/details', [RoundApplicationController::class, 'details'])->name('round.application.details');
-            Route::get('/evaluate-all/{round}', [RoundApplicationController::class, 'evaluateAllShow'])->name('round.evaluate.all.show');
-            Route::get('/evaluate/{application}', [RoundApplicationController::class, 'evaluate'])->name('round.application.evaluate');
-            Route::post('/evaluate/chatgpt/{application}', [RoundApplicationController::class, 'checkAgainstChatGPT'])->name('round.application.chatgpt');
-            Route::post('/evaluate/chatgpt/{application}/list', [RoundApplicationController::class, 'checkAgainstChatGPTList'])->name('round.application.chatgpt.list');
-            Route::delete('/evaluate/chatgpt/{application}/delete', [RoundApplicationController::class, 'deleteGPTResult'])->name('round.application.evaluation.results.destroy');
-            Route::delete('/evaluate/evaluation-answer/{answer}/delete', [RoundApplicationEvaluationAnswersController::class, 'delete'])->name('round.application.evaluation-answer.destroy');
-        });
-    });
-
-    Route::prefix('project')->group(function () {
-        Route::get('/', [ProjectController::class, 'index'])->name('project.index');
-        Route::get('/show/{project}', [ProjectController::class, 'show'])->name('project.show');
-        Route::get('/search/{search?}', [ProjectController::class, 'search'])->name('project.search');
-    });
-
-    Route::prefix('api')->group(function () {
-        Route::get('/application/{application}/show', [RoundApplicationController::class, 'apiShow'])->name('api.round.application.show');
-    });
-
-
-    Route::prefix('access-control')->group(function () {
-        Route::get('/', [AccessControlController::class, 'index'])->name('access-control.index');
-        Route::post('/upsert', [AccessControlController::class, 'upsert'])->name('access-control.upsert');
-        Route::delete('/delete/{accessControl}', [AccessControlController::class, 'destroy'])->name('access-control.delete');
-    });
-
-    Route::prefix('access-control')->group(function () {
-        Route::get('/stats/history', [RoundApplicationController::class, 'statsHistory'])->name('api.applications.stats.history');
     });
 });

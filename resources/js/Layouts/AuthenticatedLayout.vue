@@ -47,7 +47,16 @@ const logout = () => {
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-left">
-                                <Link :href="route('dashboard')">
+                                <Link
+                                    :href="route('dashboard')"
+                                    v-if="$page.props.auth.is_admin"
+                                >
+                                    <ApplicationMark
+                                        class="block h-9 w-auto"
+                                        style="width: 70px; height: 70px"
+                                    />
+                                </Link>
+                                <Link :href="route('ro.dashboard')" v-else>
                                     <ApplicationMark
                                         class="block h-9 w-auto"
                                         style="width: 70px; height: 70px"
@@ -62,6 +71,7 @@ const logout = () => {
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
+                                    v-if="$page.props.auth.is_admin"
                                 >
                                     <i class="fa fa-tachometer mr-1"></i>
                                     Dashboard
@@ -69,22 +79,17 @@ const logout = () => {
                                 <NavLink
                                     :href="route('project.index')"
                                     :active="route().current('project.index')"
+                                    v-if="$page.props.auth.is_admin"
                                 >
                                     <i class="fa fa-folder-open-o mr-1"></i>
                                     Projects
-                                </NavLink>
-                                <NavLink
-                                    :href="route('round.index')"
-                                    :active="route().current('round.index')"
-                                >
-                                    <i class="fa fa-circle-o-notch mr-1"></i>
-                                    Rounds
                                 </NavLink>
                                 <NavLink
                                     :href="route('access-control.index')"
                                     :active="
                                         route().current('access-control.index')
                                     "
+                                    v-if="$page.props.auth.is_admin"
                                 >
                                     <i class="fa fa-users mr-1"></i>
                                     Users
@@ -96,9 +101,17 @@ const logout = () => {
                                             'notificationsetup.index'
                                         )
                                     "
+                                    v-if="$page.props.auth.is_admin"
                                 >
                                     <i class="fa fa-bell-o mr-1"></i>
                                     Notifications
+                                </NavLink>
+                                <NavLink
+                                    :href="route('round.index')"
+                                    :active="route().current('round.index')"
+                                >
+                                    <i class="fa fa-circle-o-notch mr-1"></i>
+                                    Rounds
                                 </NavLink>
                             </div>
                         </div>
@@ -310,6 +323,7 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('dashboard')"
+                                            v-if="$page.props.auth.is_admin"
                                         >
                                             <i
                                                 class="fa fa-tachometer mr-1"
@@ -318,6 +332,7 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('project.index')"
+                                            v-if="$page.props.auth.is_admin"
                                         >
                                             <i
                                                 class="fa fa-folder-open-o mr-1"
@@ -326,6 +341,7 @@ const logout = () => {
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('round.index')"
+                                            v-if="$page.props.auth.is_admin"
                                         >
                                             <i
                                                 class="fa fa-circle-o-notch mr-1"
@@ -336,6 +352,7 @@ const logout = () => {
                                             :href="
                                                 route('access-control.index')
                                             "
+                                            v-if="$page.props.auth.is_admin"
                                         >
                                             <i class="fa fa-users mr-1"></i>
                                             Users
@@ -344,6 +361,7 @@ const logout = () => {
                                             :href="
                                                 route('notificationsetup.index')
                                             "
+                                            v-if="$page.props.auth.is_admin"
                                         >
                                             <i class="fa fa-bell-o mr-1"></i>
                                             Notifications
@@ -352,7 +370,8 @@ const logout = () => {
                                         <DropdownLink
                                             v-if="
                                                 $page.props.jetstream
-                                                    .hasApiFeatures
+                                                    .hasApiFeatures &&
+                                                $page.props.auth.is_admin
                                             "
                                             :href="route('api-tokens.index')"
                                         >
@@ -427,6 +446,14 @@ const logout = () => {
                         <ResponsiveNavLink
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
+                            v-if="$page.props.auth.is_admin"
+                        >
+                            Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('ro.dashboard')"
+                            :active="route().current('ro.dashboard')"
+                            v-else-if="$page.props.auth.is_round_operator"
                         >
                             Dashboard
                         </ResponsiveNavLink>
