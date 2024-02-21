@@ -30,7 +30,7 @@ class RoundController extends Controller
         $user = auth()->user();
 
         if ($user->is_admin) {
-            $rounds = Project::orderBy('id', 'desc');
+            $rounds = Round::orderBy('id', 'desc');
         } else if ($user->is_round_operator) {
             $roundsForThisOperator = $user->roundRoles()->pluck('round_id')->toArray();
 
@@ -41,8 +41,7 @@ class RoundController extends Controller
             }
         }
 
-        $rounds = $rounds->orderBy('flagged_at', 'desc')
-            ->orderBy('last_application_at', 'desc')
+        $rounds = $rounds->orderBy('last_application_at', 'desc')
             ->with(['chain', 'gptRoundEligibilityScores'])
             ->withCount('projects')
             ->withCount(['applications as pending_applications_count' => function ($query) {
@@ -64,7 +63,6 @@ class RoundController extends Controller
                 $query->where('status', 'PENDING');
             }], 'score')
             ->when(!$showTestRounds, function ($query) {
-
                 $query->where('name', 'not like', '%test%');
             });
 
