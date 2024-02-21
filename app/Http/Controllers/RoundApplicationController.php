@@ -9,6 +9,7 @@ use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
 use App\Models\RoundPrompt;
 use App\Models\UserPreference;
+use App\Policies\RoundApplicationPolicy;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Orhanerday\OpenAi\OpenAi;
@@ -90,9 +91,8 @@ class RoundApplicationController extends Controller
 
     public function show(RoundApplication $application)
     {
-        $cacheName = 'RoundApplicationController->show(' . $application->id . ')';
 
-        $this->authorize('update', AccessControl::class);
+        $this->authorize('view', $application);
 
         $application->load([
             'round.evaluationQuestions',

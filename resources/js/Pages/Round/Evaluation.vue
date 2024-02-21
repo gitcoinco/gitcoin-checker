@@ -91,7 +91,7 @@ const round = ref(usePage().props.round.valueOf());
                             class="text-blue-500 hover:underline"
                         >
                             <i class="fa fa-user mr-1" aria-hidden="true"></i>
-                            How good is the setup of this round?
+                            How well is the setup of this round?
                         </Link>
                         <p>
                             Rounds have two major pieces of information that

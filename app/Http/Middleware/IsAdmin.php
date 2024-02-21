@@ -21,6 +21,10 @@ class IsAdmin
         if (Auth::check() && Auth::user()->is_admin) {
             return $next($request);
         }
+
+        $currentRoute = \Route::currentRouteName();
+        dd($currentRoute);
+
         // Optionally, redirect to a specific route or return an error
         return redirect('/noaccess')->with('error', 'You do not have access to this section');
     }

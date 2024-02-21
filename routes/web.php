@@ -30,14 +30,21 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
+// Check if the user is an admin or a round operator and redirect accordingly
+Route::get('/dashboard', function () {
     if (auth()->check()) {
         if (auth()->user()->is_admin) {
-            return redirect()->route('dashboard');
+            return redirect()->route('admin.dashboard');
         } else if (auth()->user()->is_round_operator) {
             return redirect()->route('ro.dashboard');
+        } else {
+            return redirect()->route('noaccess');
         }
     }
+})->name('dashboard');
+
+
+Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -77,7 +84,7 @@ Route::middleware([
 ])->group(function () {
 
     Route::prefix('admin')->middleware('is_admin')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('/gpt/models', [GPTController::class, 'models'])->name('gpt.models');
         Route::get('applications', [RoundApplicationController::class, 'index'])->name('round.application.index');
 

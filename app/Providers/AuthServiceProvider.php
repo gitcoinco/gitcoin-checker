@@ -17,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
         'App\Models\RoundApplicationEvaluationAnswers' => 'App\Policies\RoundApplicationEvaluationAnswersPolicy',
         'App\Models\NotificationSetup' => 'App\Policies\NotificationSetupPolicy',
         'App\Models\Round' => 'App\Policies\RoundPolicy',
+        'App\Models\RoundApplication' => 'App\Policies\RoundApplicationPolicy',
         'App\Models\User' => 'App\Policies\UserPolicy',
     ];
     /**

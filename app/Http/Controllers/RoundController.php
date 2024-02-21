@@ -25,43 +25,60 @@ class RoundController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function getRoundData($showTestRounds, $roundIds = null)
+    {
+        $user = auth()->user();
+
+        if ($user->is_admin) {
+            $rounds = Project::orderBy('id', 'desc');
+        } else if ($user->is_round_operator) {
+            $roundsForThisOperator = $user->roundRoles()->pluck('round_id')->toArray();
+
+            if ($roundIds) {
+                $rounds = Round::whereIn('id', $roundIds)->orderByRaw("FIELD(id, " . implode(',', $roundIds) . ")");
+            } else {
+                $rounds = Round::whereIn('id', $roundsForThisOperator)->orderBy('created_at', 'desc');
+            }
+        }
+
+        $rounds = $rounds->orderBy('flagged_at', 'desc')
+            ->orderBy('last_application_at', 'desc')
+            ->with(['chain', 'gptRoundEligibilityScores'])
+            ->withCount('projects')
+            ->withCount(['applications as pending_applications_count' => function ($query) {
+                $query->where('status', 'PENDING');
+            }])
+            ->withAvg(['applications as applications_approved' => function ($query) {
+                $query->where('status', 'APPROVED');
+            }], 'score')
+            ->withCount(['applications as approved_applications_count' => function ($query) {
+                $query->where('status', 'APPROVED');
+            }])
+            ->withAvg(['applications as applications_rejected' => function ($query) {
+                $query->where('status', 'REJECTED');
+            }], 'score')
+            ->withCount(['applications as rejected_applications_count' => function ($query) {
+                $query->where('status', 'REJECTED');
+            }])
+            ->withAvg(['applications as applications_pending' => function ($query) {
+                $query->where('status', 'PENDING');
+            }], 'score')
+            ->when(!$showTestRounds, function ($query) {
+
+                $query->where('name', 'not like', '%test%');
+            });
+
+
+        return $rounds;
+    }
 
 
     public function index($search = null)
     {
         $showTestRounds = filter_var(request('showTestRounds', false), FILTER_VALIDATE_BOOLEAN);
 
-        $cacheName = 'RoundController->index(' . $search . ')' . request()->getRequestUri();
+        $rounds = $this->getRoundData($showTestRounds)->paginate();
 
-        $rounds = Cache::remember($cacheName, 60, function () use ($showTestRounds) {
-            return Round::orderBy('flagged_at', 'desc')
-                ->orderBy('last_application_at', 'desc')
-                ->with(['chain', 'gptRoundEligibilityScores'])
-                ->withCount('projects')
-                ->withCount(['applications as pending_applications_count' => function ($query) {
-                    $query->where('status', 'PENDING');
-                }])
-                ->withAvg(['applications as applications_approved' => function ($query) {
-                    $query->where('status', 'APPROVED');
-                }], 'score')
-                ->withCount(['applications as approved_applications_count' => function ($query) {
-                    $query->where('status', 'APPROVED');
-                }])
-                ->withAvg(['applications as applications_rejected' => function ($query) {
-                    $query->where('status', 'REJECTED');
-                }], 'score')
-                ->withCount(['applications as rejected_applications_count' => function ($query) {
-                    $query->where('status', 'REJECTED');
-                }])
-                ->withAvg(['applications as applications_pending' => function ($query) {
-                    $query->where('status', 'PENDING');
-                }], 'score')
-                ->when(!$showTestRounds, function ($query) {
-
-                    $query->where('name', 'not like', '%test%');
-                })
-                ->paginate();
-        });
         return Inertia::render('Round/Index', [
             'rounds' => $rounds
         ]);
@@ -101,6 +118,9 @@ class RoundController extends Controller
 
     public function show(Request $request, Round $round)
     {
+
+        $this->authorize('view', $round);
+
         // has of request inputs
         $requestHash = md5(json_encode($request->all()));
 

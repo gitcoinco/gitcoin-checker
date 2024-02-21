@@ -18,3 +18,7 @@ in-node:
 .PHONY: test
 test:
 	./vendor/bin/phpunit
+
+.PHONY: cc
+cc:
+	composer clear-all-cache

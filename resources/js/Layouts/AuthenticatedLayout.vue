@@ -79,7 +79,6 @@ const logout = () => {
                                 <NavLink
                                     :href="route('project.index')"
                                     :active="route().current('project.index')"
-                                    v-if="$page.props.auth.is_admin"
                                 >
                                     <i class="fa fa-folder-open-o mr-1"></i>
                                     Projects
