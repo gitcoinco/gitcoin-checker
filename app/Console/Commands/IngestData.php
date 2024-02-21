@@ -612,39 +612,41 @@ rounds(filter: {
             return;
         }
 
-        foreach ($applicationData['applications'] as $key => $data) {
-            if (isset($data['project']) && count($data['project']) > 0) {
+        if (isset($applicationData['applications']) && is_array($applicationData['applications'])) {
+            foreach ($applicationData['applications'] as $key => $data) {
+                if (isset($data['project']) && count($data['project']) > 0) {
 
-                $metadata = $data['project']['metadata'];
+                    $metadata = $data['project']['metadata'];
 
-                $description = null;
-                if (isset($metadata['description'])) {
-                    $description = $metadata['description'];
+                    $description = null;
+                    if (isset($metadata['description'])) {
+                        $description = $metadata['description'];
+                    }
+
+                    $createdAt = now();
+                    if (isset($data['createdAtBlock'])) {
+                        $createdAt = $this->blockTimeService->getBlockTime($round->chain, $data['createdAtBlock']);
+                    }
+
+
+                    $project = Project::updateOrCreate(
+                        ['id_addr' => Str::lower($data['project']['id'])],
+                        [
+                            'created_at' => $createdAt,
+                            'title' => isset($metadata['title']) ? $metadata['title'] : null,
+                            'description' => $description,
+                            'website' => isset($metadata['website']) ? $metadata['website'] : null,
+                            'userGithub' => isset($metadata['userGithub']) ? $metadata['userGithub'] : null,
+                            'projectGithub' => isset($metadata['projectGithub']) ? $metadata['projectGithub'] : null,
+                            'projectTwitter' => isset($metadata['projectTwitter']) ? $metadata['projectTwitter'] : null,
+                            'metadata' => json_encode($metadata),
+                            'logoImg' => isset($metadata['logoImg']) ? $metadata['logoImg'] : null,
+                            'bannerImg' => isset($metadata['bannerImg']) ? $metadata['bannerImg'] : null,
+                        ]
+                    );
+
+                    $this->info("Successfully updated project: {$project->title}");
                 }
-
-                $createdAt = now();
-                if (isset($data['createdAtBlock'])) {
-                    $createdAt = $this->blockTimeService->getBlockTime($round->chain, $data['createdAtBlock']);
-                }
-
-
-                $project = Project::updateOrCreate(
-                    ['id_addr' => Str::lower($data['project']['id'])],
-                    [
-                        'created_at' => $createdAt,
-                        'title' => isset($metadata['title']) ? $metadata['title'] : null,
-                        'description' => $description,
-                        'website' => isset($metadata['website']) ? $metadata['website'] : null,
-                        'userGithub' => isset($metadata['userGithub']) ? $metadata['userGithub'] : null,
-                        'projectGithub' => isset($metadata['projectGithub']) ? $metadata['projectGithub'] : null,
-                        'projectTwitter' => isset($metadata['projectTwitter']) ? $metadata['projectTwitter'] : null,
-                        'metadata' => json_encode($metadata),
-                        'logoImg' => isset($metadata['logoImg']) ? $metadata['logoImg'] : null,
-                        'bannerImg' => isset($metadata['bannerImg']) ? $metadata['bannerImg'] : null,
-                    ]
-                );
-
-                $this->info("Successfully updated project: {$project->title}");
             }
         }
 
