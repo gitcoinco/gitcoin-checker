@@ -184,8 +184,8 @@ class IngestData extends Command
             $rounds = Round::where('chain_id', $chain->id);
 
             if ($limitDate) {
-                $rounds = $rounds->where('applications_start_time', '>=', Carbon::now())
-                    ->where('donations_end_time', '<=', Carbon::now());
+                $rounds = $rounds->where('applications_start_time', '<=', Carbon::now())
+                    ->where('donations_end_time', '>=', Carbon::now());
             }
             $rounds = $rounds->get();
 
@@ -201,8 +201,8 @@ class IngestData extends Command
             $rounds = Round::where('chain_id', $chain->id);
 
             if ($limitDate) {
-                $rounds = $rounds->where('applications_start_time', '>=', Carbon::now())
-                    ->where('donations_end_time', '<=', Carbon::now());
+                $rounds = $rounds->where('applications_start_time', '<=', Carbon::now())
+                    ->where('donations_end_time', '>=', Carbon::now());
             }
             $rounds = $rounds->get();
 
