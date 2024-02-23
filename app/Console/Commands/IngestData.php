@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\GptRoundEligibilityScoreController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundApplicationController;
 use App\Http\Controllers\RoundPromptController;
@@ -103,6 +104,10 @@ class IngestData extends Command
     private function shortRunningTasks(DirectoryParser $directoryParser)
     {
         $this->processAll(true);
+
+        // Score the rounds based on setup
+        $scoreController = new GptRoundEligibilityScoreController();
+        $scoreController->scoreRounds();
     }
 
     /**
