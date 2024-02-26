@@ -88,9 +88,8 @@ const totalEvaluationAverage = () => {
 };
 </script>
 <template>
-    <div>
+    <div v-if="totalEvaluationAverage().score !== null">
         <div
-            v-if="totalEvaluationAverage() !== null"
             class="h-12 w-12 rounded-full flex items-center justify-center text-white text-sm"
             :class="{
                 'bg-red-500': totalEvaluationAverage().score < 40,
