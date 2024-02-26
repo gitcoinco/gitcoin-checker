@@ -137,7 +137,7 @@ const flagRound = async (round) => {
                             <th>Chain</th>
                             <th class="nowrap"># Projects</th>
                             <th>
-                                <Tooltip>
+                                <Tooltip position="west">
                                     Pending
                                     <template #content>
                                         Pending applications
@@ -145,7 +145,7 @@ const flagRound = async (round) => {
                                 </Tooltip>
                             </th>
                             <th>
-                                <Tooltip>
+                                <Tooltip position="west">
                                     Approved
                                     <template #content>
                                         Approved applications
@@ -153,7 +153,7 @@ const flagRound = async (round) => {
                                 </Tooltip>
                             </th>
                             <th>
-                                <Tooltip>
+                                <Tooltip position="west">
                                     Rejected
                                     <template #content>
                                         Rejected applications
@@ -161,7 +161,7 @@ const flagRound = async (round) => {
                                 </Tooltip>
                             </th>
                             <th>
-                                <Tooltip>
+                                <Tooltip position="west">
                                     Round score
                                     <template #content>
                                         How well is this round setup in terms of
@@ -319,7 +319,7 @@ const flagRound = async (round) => {
                                     "
                                     class="text-xs"
                                 >
-                                    <tooltip>
+                                    <tooltip position="west">
                                         {{
                                             round
                                                 .gpt_round_eligibility_scores[0]

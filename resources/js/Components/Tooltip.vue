@@ -13,7 +13,10 @@
             v-if="isVisible"
             @mouseenter="extendHideTimeout"
             @mouseleave="startHideTimeout"
-            class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg tooltip-content"
+            :class="[
+                'absolute mt-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg tooltip-content',
+                positionClass,
+            ]"
         >
             <slot name="content"></slot>
         </div>
@@ -22,12 +25,36 @@
 
 <script>
 export default {
+    props: {
+        position: {
+            type: String,
+            default: "north", // Default position
+        },
+    },
+
     data() {
         return {
             isVisible: false,
             hideTimeout: null,
         };
     },
+    computed: {
+        positionClass() {
+            switch (this.position) {
+                case "north":
+                    return "bottom-full mb-2 left-1/2 transform -translate-x-1/2";
+                case "south":
+                    return "top-full mt-2 left-1/2 transform -translate-x-1/2";
+                case "east":
+                    return "left-full ml-2 top-1/2 transform -translate-y-1/2";
+                case "west":
+                    return "right-full mr-2 top-1/2 transform -translate-y-1/2";
+                default:
+                    return "top-full mt-2 left-1/2 transform -translate-x-1/2"; // Default position
+            }
+        },
+    },
+
     methods: {
         showTooltip() {
             this.isVisible = true;
