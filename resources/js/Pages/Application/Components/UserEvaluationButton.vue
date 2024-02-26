@@ -95,7 +95,7 @@ const toggleModal = () => {
                 "
             >
                 <SecondaryButton @click="toggleModal">
-                    My Evaluation
+                    Perform Evaluation
                 </SecondaryButton>
             </div>
             <div v-else>
@@ -115,7 +115,7 @@ const toggleModal = () => {
         <Modal :show="showPromptModal" @close="showPromptModal = false">
             <div class="modal-content">
                 <h2 class="modal-title flex justify-between">
-                    <span>My Evaluation</span>
+                    <span>Perform Evaluation</span>
                     <span @click="toggleModal" class="cursor-pointer">
                         <i class="fa fa-times-circle-o" aria-hidden="true"></i>
                     </span>
