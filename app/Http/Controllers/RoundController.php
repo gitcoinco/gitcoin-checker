@@ -182,6 +182,7 @@ class RoundController extends Controller
                 'round' => $round,
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
+                'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
             ]);
         } else {
             return Inertia::render('Round/Show', [
@@ -189,6 +190,7 @@ class RoundController extends Controller
                 'indexData' => env('GRAPHQL_ENDPOINT'),
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
+                'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
             ]);
         }
     }

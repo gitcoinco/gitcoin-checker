@@ -25,6 +25,7 @@ const page = usePage();
 
 const round = ref(usePage().props.round.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
+const pinataUrl = usePage().props.pinataUrl;
 
 const queryParams = new URLSearchParams(window.location.search);
 const status = ref(queryParams.get("status") || "all");
@@ -314,8 +315,8 @@ const refreshApplication = async (application) => {
                     <div
                         class="mb-3"
                         v-if="
-                            JSON.parse(round.round_metadata).eligibility
-                                .description
+                            JSON.parse(round.round_metadata)?.eligibility
+                                ?.description
                         "
                     >
                         <div class="text-xl mr-6">Eligibility description:</div>
@@ -328,8 +329,8 @@ const refreshApplication = async (application) => {
                     </div>
                     <div
                         v-if="
-                            JSON.parse(round.round_metadata).eligibility
-                                .requirements.length > 0
+                            JSON.parse(round.round_metadata)?.eligibility
+                                ?.requirements.length > 0
                         "
                     >
                         <div class="text-xl mr-6">
@@ -356,6 +357,7 @@ const refreshApplication = async (application) => {
                             <thead>
                                 <tr>
                                     <th>Date</th>
+                                    <th>Project</th>
                                     <th>
                                         <select v-model="status">
                                             <option value="all">All</option>
@@ -370,7 +372,6 @@ const refreshApplication = async (application) => {
                                             </option>
                                         </select>
                                     </th>
-                                    <th>Project</th>
                                     <th>Prior approvals</th>
                                     <th>Results</th>
                                     <th>Manager</th>
@@ -401,6 +402,73 @@ const refreshApplication = async (application) => {
                                         </Link>
                                     </td>
                                     <td>
+                                        <div v-if="application.project"></div>
+                                        <div class="flex">
+                                            <Link
+                                                :href="
+                                                    route('project.show', {
+                                                        project:
+                                                            application.project
+                                                                .slug,
+                                                    })
+                                                "
+                                                class="text-blue-500 hover:underline mr-1"
+                                            >
+                                                <img
+                                                    :src="
+                                                        application.project
+                                                            .logoImg
+                                                            ? pinataUrl +
+                                                              '/' +
+                                                              application
+                                                                  .project
+                                                                  .logoImg +
+                                                              '?img-width=42'
+                                                            : '/img/placeholder.png'
+                                                    "
+                                                    onerror="this.onerror=null; this.src='/img/placeholder.png';"
+                                                    style="
+                                                        width: 42px;
+                                                        height: 42px;
+                                                    "
+                                                    class="rounded-full mr-1"
+                                                />
+                                            </Link>
+                                            <div>
+                                                <div>
+                                                    <Link
+                                                        :href="
+                                                            route(
+                                                                'project.show',
+                                                                {
+                                                                    project:
+                                                                        application
+                                                                            .project
+                                                                            .slug,
+                                                                }
+                                                            )
+                                                        "
+                                                        class="text-blue-500 hover:underline mr-1"
+                                                    >
+                                                        {{
+                                                            application.project
+                                                                .title
+                                                        }}
+                                                    </Link>
+                                                </div>
+                                                <ApplicationAnswers
+                                                    :applicationUuid="
+                                                        application.uuid
+                                                    "
+                                                >
+                                                    <span class="text-xs">
+                                                        Application answers
+                                                    </span>
+                                                </ApplicationAnswers>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <span>
                                             <span
                                                 v-html="
@@ -414,25 +482,6 @@ const refreshApplication = async (application) => {
                                                 application.status.toLowerCase()
                                             }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <Link
-                                            v-if="application.project"
-                                            :href="
-                                                route('project.show', {
-                                                    project:
-                                                        application.project
-                                                            .slug,
-                                                })
-                                            "
-                                            class="text-blue-500 hover:underline mr-1"
-                                        >
-                                            {{ application.project.title }}
-                                        </Link>
-
-                                        <ApplicationAnswers
-                                            :applicationUuid="application.uuid"
-                                        />
                                     </td>
                                     <td>
                                         <div

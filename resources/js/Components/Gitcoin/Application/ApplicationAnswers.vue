@@ -57,8 +57,10 @@ const toggleModal = () => {
 <template>
     <span>
         <span @click="toggleModal" :disabled="!application" class="pointer">
-            <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-            <span v-if="isLoading" class="loading-indicator"></span>
+            <slot>
+                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                <span v-if="isLoading" class="loading-indicator"></span>
+            </slot>
         </span>
 
         <Modal :show="openModal" @close="toggleModal">
