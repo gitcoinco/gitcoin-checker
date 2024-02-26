@@ -33,7 +33,9 @@ watch(showTestRounds, (newValue) => {
 
 const search = async () => {
     try {
-        const response = await axios.get("/round/search/" + searchTerm.value);
+        const response = await axios.get(
+            route("round.search") + "/" + searchTerm.value
+        );
         rounds.value = response.data;
 
         // Create a new URL object
