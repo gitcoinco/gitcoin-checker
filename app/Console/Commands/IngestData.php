@@ -600,6 +600,7 @@ rounds(filter: {
         $query = '
         applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
             id
+            statusSnapshots
             project {
                 id
                 createdAtBlock
@@ -628,9 +629,14 @@ rounds(filter: {
                         $description = $metadata['description'];
                     }
 
-                    $createdAt = now();
-                    if (isset($data['createdAtBlock'])) {
-                        $createdAt = $this->blockTimeService->getBlockTime($round->chain, $data['createdAtBlock']);
+                    $createdAt = null;
+                    if ($data['statusSnapshots']) {
+                        foreach ($data['statusSnapshots'] as $key => $value) {
+                            if (strtolower($value['status']) == 'pending') {
+                                // The application was created with the first pending state
+                                $createdAt = strtotime($value['updatedAt']);
+                            }
+                        }
                     }
 
 
@@ -720,29 +726,28 @@ rounds(filter: {
 
                 $this->info("Processing round {$round->round_addr}, application: {$data['id']}");
 
-                $createdAt = null;
-                // When was this application created?
-                if (isset($data['createdAtBlock'])) {
-                    $createdAt = $this->blockTimeService->getBlockTime($chain, $data['createdAtBlock']);
-                }
 
                 $metadata = $data['metadata'];
 
                 // When was this application approved / pending
+                $createdAt = null;
                 $rejectedAt = null;
                 $approvedAt = null;
                 if ($data['statusSnapshots']) {
                     foreach ($data['statusSnapshots'] as $key => $value) {
                         if (strtolower($value['status']) == 'rejected') {
-                            $rejectedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']['value']);
+                            $rejectedAt = strtotime($value['updatedAt']);
                         } else if (strtolower($value['status']) == 'approved') {
-                            $approvedAt = $this->blockTimeService->getBlockTime($chain, $value['statusUpdatedAtBlock']['value']);
+                            $approvedAt = strtotime($value['updatedAt']);
+                        } else if (strtolower($value['status']) == 'pending') {
+                            // The application was created with the first pending state
+                            $createdAt = strtotime($value['updatedAt']);
                         }
                     }
                 }
 
                 if (!$createdAt) {
-                    throw new Exception("Unable to determine createdAt for application {$data['project']['id']}, chain {$chain->chain_id}, block {$data['createdAtBlock']}");
+                    throw new Exception("Unable to determine createdAt for application {$data['project']['id']}, chain {$chain->chain_id}, block {$data['createdAt']}");
                 }
 
                 if (!isset($data['projectId'])) {
