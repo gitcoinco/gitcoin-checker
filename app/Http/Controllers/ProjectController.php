@@ -24,6 +24,10 @@ class ProjectController extends Controller
 
         $limit = $request->query('limit', 100);
 
+        if ($limit > 10000) {
+            $limit = 10000;
+        }
+
         $projects = Project::select('id_addr', 'slug', 'title', 'projectGithub', 'userGithub')->orderBy('id', 'desc')->paginate($limit);
         return response()->json($projects);
     }
