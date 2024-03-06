@@ -13,6 +13,25 @@ use Orhanerday\OpenAi\OpenAi;
 
 class ProjectController extends Controller
 {
+
+    /**
+     * A list of projects and their associated Github handles
+     */
+    public function githubIndex()
+    {
+        $request = request();
+
+        $limit = $request->query('limit', 100);
+
+        $projects = Project::select('id_addr', 'slug', 'title', 'projectGithub', 'userGithub')->orderBy('id', 'desc')->paginate($limit);
+        return response()->json($projects);
+    }
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Get a list of projects that this user can see.  Pass in projectIds as a search result, where the order is preserved.
      */
