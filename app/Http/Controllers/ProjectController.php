@@ -14,6 +14,7 @@ use Orhanerday\OpenAi\OpenAi;
 class ProjectController extends Controller
 {
 
+
     /**
      * A list of projects and their associated Github handles
      */
@@ -27,10 +28,7 @@ class ProjectController extends Controller
         return response()->json($projects);
     }
 
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+
 
     /**
      * Get a list of projects that this user can see.  Pass in projectIds as a search result, where the order is preserved.
