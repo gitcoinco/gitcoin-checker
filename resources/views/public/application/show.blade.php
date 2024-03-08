@@ -111,6 +111,7 @@
             <div class="card-body">
                 <h5 class="mb-3">Manual Reviews</h5>
 
+                @if (count($evaluationAnswers) > 0) {
                 @foreach($evaluationAnswers as $reviewerKey => $result)
                 @php
                 $questions = json_decode($result->questions);
@@ -154,6 +155,11 @@
                     @endif
                 </div>
                 @endforeach
+                @else
+                <div>
+                    No manual reviews yet.
+                </div>
+                @endif
 
                 <div>
                     <a href="{{ route('public.round.show', $application->round) }}" class="text-decoration-none text-primary">Back to Round</a>
