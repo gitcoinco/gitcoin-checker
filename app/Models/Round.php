@@ -101,6 +101,19 @@ class Round extends Model
         return $this->hasMany(RoundApplication::class);
     }
 
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->name,
+            'round_addr' => $this->round_addr,
+            'match_token_address' => $this->match_token_address,
+            'chain_id' => $this->chain_id,
+            'chain' => $this->chain->name,
+            'applications_year' => date('Y', strtotime($this->applications_start_time)),
+            'donations_year' => date('Y', strtotime($this->donations_start_time)),
+        ];
+    }
+
     public function getRouteKeyName()
     {
         return 'uuid';

@@ -63,3 +63,10 @@ https://fontawesome.com/v4/icons/
 ### Bugsnag
 
 Set BUGSNAG_API_KEY if you would like to receive errors from both the frontend and backend.
+
+### Search
+
+Scout is used for search, which uses Meilisearch in the background. To re-index:
+
+php artisan scout:import "App\Models\Round"
+php artisan scout:import "App\Models\Project"

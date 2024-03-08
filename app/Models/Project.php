@@ -70,6 +70,20 @@ class Project extends Model
         return $this->hasMany(ProjectOwner::class, 'project_id', 'id');
     }
 
+    public function toSearchableArray()
+    {
+        return [
+            'id_addr' => $this->id_addr,
+            'slug' => $this->slug,
+            'title' => $this->title,
+            'gpt_summary' => $this->gpt_summary,
+            'description' => $this->description,
+            'website' => $this->website,
+            'userGithub' => $this->userGithub,
+            'projectGithub' => $this->projectGithub,
+        ];
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';
