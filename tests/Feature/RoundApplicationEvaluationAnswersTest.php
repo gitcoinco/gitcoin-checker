@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AccessControl;
+use App\Models\Chain;
 use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationEvaluationQuestions;
@@ -29,7 +30,13 @@ class RoundApplicationEvaluationAnswersTest extends TestCase
             ]
         )->create();
 
-        $round = Round::factory()->create();
+        $chain = Chain::factory()->create();
+
+        $round = Round::factory([
+            'name' => 'Test Round',
+            'chain_id' => $chain->id,
+        ])->create();
+
         $application = RoundApplication::factory()->create(
             [
                 'round_id' => $round->id,
@@ -69,7 +76,16 @@ class RoundApplicationEvaluationAnswersTest extends TestCase
                 'eth_addr' => $user->eth_addr,
             ]
         );
-        $round = Round::factory()->create();
+
+
+        $chain = Chain::factory()->create();
+
+        $round = Round::factory(
+            [
+                'name' => 'Test Round',
+                'chain_id' => $chain->id,
+            ]
+        )->create();
         $roundRole = RoundRole::factory()->create(
             [
                 'role' => 'ADMIN',
