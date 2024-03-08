@@ -22,7 +22,7 @@ class RoundApplicationEvaluationAnswersController extends Controller
 
     public function upsert(RoundApplication $application)
     {
-        $this->authorize('update', AccessControl::class);
+        $this->authorize('canReview', $application);
 
         $this->validate(request(), [
             'answers' => 'required|array',

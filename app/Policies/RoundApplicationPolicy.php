@@ -15,6 +15,11 @@ class RoundApplicationPolicy
         //
     }
 
+    public function canReview(User $user, RoundApplication $application)
+    {
+        return $user->is_admin || $user->roundRoles()->where('round_id', $application->round_id)->count() > 0;
+    }
+
     public function view(User $user, RoundApplication $application)
     {
         return $user->is_admin || $user->roundRoles()->where('round_id', $application->round_id)->count() > 0;
