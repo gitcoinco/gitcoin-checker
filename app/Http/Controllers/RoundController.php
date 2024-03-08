@@ -266,7 +266,7 @@ class RoundController extends Controller
             // ->selectRaw('project_addr, sum(donor_amount_usd + match_amount_usd) as total_amount')
             // ->groupBy('project_addr')
             // ->orderBy('total_amount', 'desc')
-            ->paginate(10);
+            ->paginate();
 
         $totalProjectsReachingMatchingCap = 0;
         if ($matchingCap > 0) {
