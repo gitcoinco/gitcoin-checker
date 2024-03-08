@@ -543,8 +543,6 @@ const refreshApplication = async (application) => {
                                                 'https://manager.gitcoin.co/#/round/' +
                                                 round.round_addr.toLowerCase() +
                                                 '/application/' +
-                                                round.round_addr.toLowerCase() +
-                                                '-' +
                                                 application.application_id.toLowerCase()
                                             "
                                             target="_blank"
