@@ -589,6 +589,12 @@ class RoundApplicationController extends Controller
         $search[] = '{{ github.recent_activity.summary }}';
         $replace[] = $githubResults;
 
+        $ossController = new OpensourceObserverController();
+        $ossResults = $ossController->getProjectStatistics($project->projectGithub);
+
+        $search[] = '{{ github.oss.project.summary }}';
+        $replace[] = $ossResults;
+
         $data = [
             'system_prompt' => str_replace($search, $replace, $prompt->system_prompt) . PHP_EOL . PHP_EOL . $returnedFormat . PHP_EOL,
             'prompt' => str_replace($search, $replace, $prompt->prompt),

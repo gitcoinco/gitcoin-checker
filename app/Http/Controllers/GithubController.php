@@ -7,6 +7,50 @@ use Illuminate\Support\Facades\Cache;
 
 class GithubController extends Controller
 {
+
+    public static function getGithubRepoDetails($repo)
+    {
+        $isProject = false;
+        $projectIdentifier = null;
+        $repoIdentifier = null;
+
+        if (stristr($repo, '/')) {
+            $isProject = true;
+            $repoParts = explode('/', $repo);
+            $projectIdentifier = $repoParts[0];
+            $repoIdentifier = $repoParts[1];
+        } else {
+            $repoIdentifier = $repo;
+        }
+
+        if ($isProject) {
+            $url = "https://api.github.com/repos/$projectIdentifier/$repoIdentifier";
+        } else {
+            $url = "https://api.github.com/users/$repo";
+        }
+
+
+        $headers = [
+            'User-Agent: PHP Script',
+            'Authorization: token ' . env('GITHUB_TOKEN')
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpcode >= 200 && $httpcode < 300) {
+            return json_decode($response, true);
+        } else {
+            // Handle the error accordingly
+            return response()->json(['error' => 'Unable to fetch repository details'], $httpcode);
+        }
+    }
+
     function checkGitHubActivity($identifier, $isProject = false)
     {
         $baseUrl = 'https://api.github.com';

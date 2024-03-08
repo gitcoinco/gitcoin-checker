@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessControl;
 use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Services\NotificationService;
@@ -38,9 +39,12 @@ class RoundPromptController extends Controller
         return redirect()->route('round.prompt.show', $round);
     }
 
-    private function getRandomApplicationPrompt(Round $round)
+    public function getRandomApplicationPrompt(Round $round)
     {
-        $randomApplication = $round->applications()->inRandomOrder()->first();
+
+        $randomApplication = $round->applications()->whereHas('project', function ($query) {
+            $query->where('title', 'not like', '%test%');
+        })->inRandomOrder()->first();
         if (!$randomApplication) {
             return null;
         }
@@ -49,6 +53,7 @@ class RoundPromptController extends Controller
 
         return $randomApplication;
     }
+
 
     public function show(Round $round)
     {

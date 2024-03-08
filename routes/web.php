@@ -120,6 +120,7 @@ Route::middleware([
             Route::get('/evaluation/qa/{round}', [RoundEvaluationController::class, 'showQA'])->name('round.evaluation.show.qa');
             Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');
             Route::get('/evaluation/gpt/{round}', [RoundPromptController::class, 'show'])->name('round.prompt.show');
+            Route::get('/evaluation/randomapplicationresults/{round}', [RoundPromptController::class, 'getRandomApplicationPrompt'])->name('round.prompt.randomapplicationresults');
             Route::post('/evaluation/gpt/{round}', [RoundPromptController::class, 'upsert'])->name('round.prompt.upsert');
             Route::get('/evaluation/gpt/reset/{round}', [RoundPromptController::class, 'reset'])->name('round.prompt.reset');
             Route::get('/{round}/evaluation/setup', [RoundEvaluationController::class, 'setup'])->name('round.evaluation.setup');

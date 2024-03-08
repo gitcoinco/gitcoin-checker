@@ -6,5 +6,9 @@ Evaluate the project "{{ project.name }}" for Gitcoin round eligibility. Assess 
 
 Provide your evaluation in a structured format for each criterion.
 
+A summary of Github activity for the project:
+{{ github.oss.project.summary }}
+
 Github recent activity (only view recent activity if there's more than 5 commits in the past 3 months):
 {{ github.recent_activity.summary }}
+

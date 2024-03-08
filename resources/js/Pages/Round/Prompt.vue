@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -11,7 +12,7 @@ import RandomApplicationPrompt from "./Components/GPT/RandomApplicationPrompt.vu
 
 const round = ref(usePage().props.round.valueOf());
 const prompt = ref(usePage().props.prompt.valueOf());
-const randomApplication = ref(usePage().props.randomApplication.valueOf());
+const randomGeneratedPrompt = ref(null);
 
 const form = useForm({
     system_prompt: "",
@@ -31,8 +32,7 @@ const resetToDefaultPrompt = () => {
             }),
             {
                 onSuccess: (response) => {
-                    randomApplication.value = response.props.randomApplication;
-                    prompt.value = response.props.prompt;
+                    window.location.reload();
                 },
                 onError: (error) => {},
             }
@@ -66,6 +66,19 @@ const addAccessControl = () => {
     form.eth_addr = "";
     form.role = "admin";
 };
+
+onMounted(async () => {
+    try {
+        const response = await axios.get(
+            route("round.prompt.randomapplicationresults", {
+                round: round.value.uuid,
+            })
+        );
+        randomGeneratedPrompt.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+});
 </script>
 
 <template>
@@ -91,8 +104,10 @@ const addAccessControl = () => {
             </h2>
         </template>
 
-        <div class="py-6">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+        <div
+            class="mt-10 bg-white overflow-hidden shadow-xl sm:rounded-lg mb-5 py-6"
+        >
+            <div>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-6">
                     <div class="flex justify-between items-center mb-5">
                         <h2>Evaluation Criteria</h2>
@@ -276,6 +291,26 @@ const addAccessControl = () => {
                                 ><br />
                                 Recent (past 3 months) Github activity.
                             </div>
+                            <div class="mb-2">
+                                <span v-pre class="mr-3">{{
+                                    github.oss.project.summary
+                                }}</span>
+                                <span
+                                    @click="
+                                        copyToClipboard(
+                                            '{{ github.oss.project.summary }}'
+                                        )
+                                    "
+                                    class="cursor-pointer"
+                                >
+                                    <i
+                                        class="fa fa-clone"
+                                        aria-hidden="true"
+                                    ></i> </span
+                                ><br />
+                                An Opensource Observer summary of the project if
+                                available.
+                            </div>
                         </div>
                     </div>
 
@@ -289,18 +324,17 @@ const addAccessControl = () => {
                     </div>
                 </div>
             </div>
-
-            <div class="py-6" v-if="randomApplication">
-                <div
-                    class="bg-white overflow-hidden shadow-xl sm:rounded-lg py-6"
-                >
+        </div>
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-5 p-5">
+            <div v-if="randomGeneratedPrompt">
+                <div>
                     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                         <h2 class="text-2xl mb-5">
                             A random application and the prompt that will be
                             generated for them
                         </h2>
                         <RandomApplicationPrompt
-                            :application="randomApplication"
+                            :application="randomGeneratedPrompt"
                             class="text-lg"
                         />
                     </div>
@@ -326,6 +360,7 @@ const addAccessControl = () => {
                     </div>
                 </div>
             </div>
+            <div v-else>No random application available.</div>
         </div>
     </AuthenticatedLayout>
 </template>
