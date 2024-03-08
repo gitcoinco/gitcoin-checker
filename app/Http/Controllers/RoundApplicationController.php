@@ -31,6 +31,19 @@ class RoundApplicationController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function showPublic(RoundApplication $application)
+    {
+
+        return view('public.application.show', [
+            'application' => $application,
+            'project' => $application->project,
+            'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+            'promptResults' => $application->results()->orderBy('id', 'desc')->get(),
+
+            'evaluationAnswers' => $application->evaluationAnswers()->with('user')->orderBy('id', 'desc')->get(),
+        ]);
+    }
+
     private function getAvgGPTScores()
     {
         $cacheName = 'RoundApplicationController->getAvgGPTScores()';

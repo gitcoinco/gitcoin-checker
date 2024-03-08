@@ -139,6 +139,23 @@ nav[role="navigation"] p.text-sm.text-gray-700 {
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
 }
+
+.highlight-red {
+    border-left: 10px solid red;
+    padding: 15px;
+    background-color: #ddd;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.highlight-orange {
+    border-left: 10px solid orange;
+    padding: 15px;
+    background-color: #ddd;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
 ol, ul { margin-left: 25px; }
 
 .pointer { cursor: pointer; }

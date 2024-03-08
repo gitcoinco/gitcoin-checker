@@ -243,8 +243,6 @@ class RoundController extends Controller
     {
         $round->load(['chain']);
 
-        $projectAddr = $round->applications()->where('status', 'APPROVED')->pluck('project_addr')->toArray();
-
         $totalRoundDonatators = ProjectDonation::where('round_id', $round->id)->count();
         $totalRoundDonors = ProjectDonation::where('round_id', $round->id)->distinct('donor_address')->count('donor_address');
 
@@ -256,18 +254,25 @@ class RoundController extends Controller
             $matchingCap = ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'];
         }
 
-        $projects = RoundApplication::where('round_id', $round->id)
-            ->join('projects', 'round_applications.project_addr', '=', 'projects.id_addr')
-            ->selectRaw('projects.title, projects.slug, projects.logoImg, round_applications.project_addr, sum(round_applications.donor_amount_usd + round_applications.match_amount_usd) as total_amount')
-            ->groupBy('projects.title', 'round_applications.project_addr')
-            ->orderBy('total_amount', 'desc')
-            ->paginate(100);
+        // $roundApplications = RoundApplication::where('round_id', $round->id)
+        //     ->join('projects', 'round_applications.project_addr', '=', 'projects.id_addr')
+        //     ->selectRaw('projects.title, projects.slug, projects.logoImg, round_applications.project_addr, sum(round_applications.donor_amount_usd + round_applications.match_amount_usd) as total_amount')
+        //     ->groupBy('projects.title', 'round_applications.project_addr')
+        //     ->orderBy('total_amount', 'desc')
+        //     ->paginate(10);
+
+        $roundApplications = $round->applications()
+            ->with('project')
+            // ->selectRaw('project_addr, sum(donor_amount_usd + match_amount_usd) as total_amount')
+            // ->groupBy('project_addr')
+            // ->orderBy('total_amount', 'desc')
+            ->paginate(10);
 
         $totalProjectsReachingMatchingCap = 0;
         if ($matchingCap > 0) {
 
-            foreach ($projects as $key => $project) {
-                if ($project->total_amount >= $matchingCap) {
+            foreach ($roundApplications as $key => $roundApplication) {
+                if ($roundApplication->total_amount >= $matchingCap) {
                     $totalProjectsReachingMatchingCap++;
                 }
             }
@@ -277,7 +282,7 @@ class RoundController extends Controller
 
         return view('public.round.show', [
             'round' => $round,
-            'projects' => $projects,
+            'roundApplications' => $roundApplications,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
             'totalRoundDonatators' => $totalRoundDonatators,
             'totalRoundDonors' => $totalRoundDonors,

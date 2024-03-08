@@ -42,7 +42,11 @@ class ProjectController extends Controller
         $user = auth()->user();
 
         if ($user->is_admin) {
-            $projects = Project::orderBy('id', 'desc');
+            if ($projectIds) {
+                $projects = Project::whereIn('id', $projectIds)->orderByRaw("FIELD(id, " . implode(',', $projectIds) . ")");
+            } else {
+                $projects = Project::orderBy('created_at', 'desc');
+            }
         } else if ($user->is_round_operator) {
             $roundsForThisOperator = $user->roundRoles()->pluck('round_id')->toArray();
             $roundApplications = RoundApplication::whereIn('round_id', $roundsForThisOperator)->pluck('project_addr')->toArray();
@@ -60,9 +64,16 @@ class ProjectController extends Controller
         return $projects;
     }
 
-    public function index($search = null)
+    public function index()
     {
-        $projects = $this->getProjectData();
+        $request = request();
+        if ($request->query('search')) {
+            $projectIds = Project::search($request->query('search'))->get()->pluck('id')->toArray();
+
+            $projects = $this->getProjectData($projectIds);
+        } else {
+            $projects = $this->getProjectData();
+        }
 
         $projects = $projects->paginate();
 

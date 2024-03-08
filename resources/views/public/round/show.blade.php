@@ -47,7 +47,7 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                             @endif
                         </div>
                         <div>
-                            {{ $projects->total() }}<br />
+                            {{ $roundApplications->total() }}<br />
                             <span class="text-muted font-italic"> Total Projects
                             </span>
                         </div>
@@ -101,35 +101,49 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
 
 
-                @if(count($projects) > 0)
+                @if(count($roundApplications) > 0)
                 <div>
                     <!-- <h3>Projects in the {{ $round->name }} round.</h3> -->
                     <div>
-                        @foreach($projects as $project)
+                        @foreach($roundApplications as $roundApplication)
                         <div class="d-flex align-items-center mb-2 bg-light p-2">
-                            <div>
-                                <a href="{{ route('public.project.show', $project->slug) }}" class="text-decoration-none text-dark d-flex align-items-center">
-                                    <img src="{{ $project->logoImg ? $pinataUrl.'/'.$project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
+                            <div class="mr-2">
+                                <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                    <img src="{{ $roundApplication->project->logoImg ? $pinataUrl.'/'.$roundApplication->project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
                                 </a>
                             </div>
-                            <div class="ml-2">
+                            <div class="mr-2">
                                 <div>
-                                    <a href="{{ route('public.project.show', $project->slug) }}" class="text-decoration-none text-dark align-items-center">
-                                        <h6>{{ $project->title }}</h6>${{ number_format($project->total_amount, 2) }}
+                                    <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark align-items-center">
+                                        <h6>{{ $roundApplication->project->title }}</h6>${{ number_format($roundApplication->project->total_amount, 2) }}
                                     </a>
                                 </div>
-                                @if ($project->gpt_summary)
+                                @if ($roundApplication->project->gpt_summary)
                                 <div class="text-xs">
-                                    {{ $project->gpt_summary }}
+                                    {{ $roundApplication->project->gpt_summary }}
                                 </div>
                                 @endif
+                            </div>
+
+                            <div>
+                                <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
+
+                                    @if($roundApplication->status == 'APPROVED')
+                                    <span class="small text-success"><i class="fa fa-check-circle"></i> Approved</span>
+                                    @elseif($roundApplication->status == 'PENDING')
+                                    <span class="small text-warning"><i class="fa fa-clock-o"></i> Pending</span>
+                                    @elseif($roundApplication->status == 'REJECTED')
+                                    <span class="small text-danger"><i class="fa fa-times-circle"></i> Rejected</span>
+                                    @endif
+                                </a>
+
                             </div>
                         </div>
                         @endforeach
                     </div>
                 </div>
 
-                {{ $projects->links() }}
+                {{ $roundApplications->links() }}
 
                 @endif
             </div>
