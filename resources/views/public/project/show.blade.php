@@ -61,10 +61,10 @@ Gitcoin: {{ $project->title }}
                     <div><i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></div>
                     @endif
                     @if($project->userGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a></div>
+                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a> <span class="text-xs">(user)</span></div>
                     @endif
                     @if($project->projectGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a></div>
+                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a> <span class="text-xs">(project)</span></div>
                     @endif
                 </div>
 
