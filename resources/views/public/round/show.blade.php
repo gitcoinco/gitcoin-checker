@@ -106,6 +106,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     <!-- <h3>Projects in the {{ $round->name }} round.</h3> -->
                     <div>
                         @foreach($roundApplications as $roundApplication)
+                        <?php
+                        if (!$roundApplication->project) {
+                            continue;
+                        }
+                        ?>
                         <div class="d-flex align-items-center mb-2 bg-light p-2">
                             <div class="mr-2">
                                 <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark d-flex align-items-center">
