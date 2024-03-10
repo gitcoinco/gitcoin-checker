@@ -111,7 +111,7 @@
             <div class="card-body">
                 <h5 class="mb-3">Manual Reviews</h5>
 
-                @if (count($evaluationAnswers) > 0) {
+                @if (count($evaluationAnswers) > 0)
                 @foreach($evaluationAnswers as $reviewerKey => $result)
                 @php
                 $questions = json_decode($result->questions);
