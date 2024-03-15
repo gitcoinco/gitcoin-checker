@@ -127,11 +127,27 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                         @endif
                                     </a>
                                 </div>
-                                @if ($roundApplication->project->gpt_summary)
+                                @if ($roundApplication->donor_amount_usd > 0)
                                 <div class="text-xs">
-                                    {{ $roundApplication->project->gpt_summary }}
+                                    Donor amount: ${{ $roundApplication->donor_amount_usd }}
                                 </div>
                                 @endif
+
+                                @if ($roundApplication->match_amount_usd > 0)
+                                <div class="text-xs">
+                                    Match amount: ${{ $roundApplication->match_amount_usd }}
+                                </div>
+                                @endif
+
+                                @if ($roundApplication->donor_contributions_count > 0)
+                                <div class="text-xs">
+                                    {{ $roundApplication->donor_contributions_count }} contribution<?php if ($roundApplication->donor_contributions_count > 1) {
+                                                                                                        echo 's';
+                                                                                                    } ?>
+                                </div>
+                                @endif
+
+
                             </div>
 
                             <div style="min-width: 80px;">
@@ -152,10 +168,9 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                 @if ($totalReviews > 0)
                                 <div class="text-xs">
                                     <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
-                                        {{ $totalReviews }} review
-                                        @if($totalReviews > 1)
-                                        s
-                                        @endif
+                                        {{ $totalReviews }} review<?php if ($totalReviews > 1) {
+                                                                        echo 's';
+                                                                    } ?>
                                     </a>
                                 </div>
                                 @endif

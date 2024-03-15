@@ -44,9 +44,15 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                                 </h4>
 
                                 <span class="text-xs">{{ $round->chain->name }}, {{ \Carbon\Carbon::parse($round->donations_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}<br />({{ $round->applications_count}} applications)</span><br />
-                                <span class="text-xs">
-                                    ${{number_format($round->match_amount_usd, 2)}} match pool
-                                </span>
+                                <div class="text-xs">
+                                    ${{number_format($round->match_amount_in_usd, 2)}} match pool
+                                </div>
+                                @if ($round->total_amount_donated_in_usd > 0)
+                                <div class="text-xs">
+                                    ${{number_format($round->total_amount_donated_in_usd, 2)}} total crowdfunded
+                                </div>
+                                @endif
+
                             </div>
                             @endforeach
                         </div>

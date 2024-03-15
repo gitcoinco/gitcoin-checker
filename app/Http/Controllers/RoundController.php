@@ -263,9 +263,12 @@ class RoundController extends Controller
 
         $roundApplications = $round->applications()
             ->with(['project', 'evaluationAnswers', 'results'])
+
             // ->selectRaw('project_addr, sum(donor_amount_usd + match_amount_usd) as total_amount')
             // ->groupBy('project_addr')
-            // ->orderBy('total_amount', 'desc')
+
+            ->orderByRaw('donor_amount_usd + match_amount_usd desc')
+
             ->paginate();
 
         $totalProjectsReachingMatchingCap = 0;
