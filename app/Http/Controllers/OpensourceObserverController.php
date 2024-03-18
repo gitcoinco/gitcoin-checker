@@ -73,7 +73,10 @@ class OpensourceObserverController extends Controller
 
         // Call the service with variables set to null if that's what the server expects
         $result = $this->graphQLService->query($query, $variables, "GetProjectStatistics");
-        $projectData = $result['data']['projects'][0];
+        $projectData = null;
+        if (isset($result['data']['projects'][0])) {
+            $projectData = $result['data']['projects'][0];
+        }
 
         return $projectData;
     }

@@ -49,7 +49,7 @@ class GraphQLService
      */
     public function query($query, $variables = null, $operationName = null)
     {
-        $cacheName = 'GraphQLService::query(' . $query . ')';
+        $cacheName = 'GraphQLService1::query(' . $query . ')';
 
         return Cache::remember($cacheName, now()->addMinutes(60), function () use ($query, $variables, $operationName) {
             $payload = json_encode([
