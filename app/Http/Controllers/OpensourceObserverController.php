@@ -6,6 +6,7 @@ use App\Services\GraphQLService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class OpensourceObserverController extends Controller
 {
@@ -19,6 +20,11 @@ class OpensourceObserverController extends Controller
 
     public function getProjectStatistics($slug)
     {
+        if (!$slug || Str::len($slug) <= 0) {
+            echo "OpensourceObserverController: Project slug not provided\n";
+            return;
+        }
+
         $projectData = $this->getProjectDetails($slug);
 
         $query = <<<'GRAPHQL'
