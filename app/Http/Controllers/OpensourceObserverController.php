@@ -20,7 +20,7 @@ class OpensourceObserverController extends Controller
 
     public function getProjectStatistics($slug)
     {
-        if (!$slug || Str::len($slug) <= 0) {
+        if (!$slug || Str::length($slug) <= 0) {
             echo "OpensourceObserverController: Project slug not provided\n";
             return;
         }
