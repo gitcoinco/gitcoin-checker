@@ -45,6 +45,11 @@ class OpensourceObserverController extends Controller
         }
         GRAPHQL;
 
+        if (!isset($projectData['project_id'])) {
+            echo "OpensourceObserverController: Project not found for slug" . $slug . "\n";
+            return;
+        }
+
         $variables = [
             'projectId' => $projectData['project_id'],
         ];
