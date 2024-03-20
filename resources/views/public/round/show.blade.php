@@ -88,8 +88,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     <div>
                         <div class="mb-4">
                             {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}<br />
-                            <span class="text-muted font-italic"> Round ended on
-                            </span>
+                            @if (\Carbon\Carbon::parse($round->donations_end_time)->isPast())
+                            <span class="text-muted font-italic"> Round ended on </span>
+                            @else
+                            <span class="text-muted font-italic"> Round will end on </span>
+                            @endif
                         </div>
                         <div>
                             {{ $totalProjectsReachingMatchingCap }}<br />

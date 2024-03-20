@@ -31,6 +31,8 @@ class AddressService
             "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4" => "DAI",
             "0x5FbDB2315678afecb367f032d93F642f64180aa3" => "TEST",
             "0x7c6b91D9Be155A6Db01f749217d76fF02A7227F2" => "GTC",
+            "0x7f9a7DB853Ca816B9A138AEe3380Ef34c437dEe0" => "GTC",
+            "0x7f9a7db853ca816b9a138aee3380ef34c437dee0" => "GTC",
             "0x6C121674ba6736644A7e73A8741407fE8a5eE5BA" => "DAI",
             "0xaf88d065e77c8cc2239327c5edb3a432268e5831" => "USDC",
             "0x912CE59144191C1204E64559FE8253a0e49E6548" => "ARB",
