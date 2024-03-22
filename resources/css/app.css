@@ -77,3 +77,8 @@ a[disabled] {
     list-style-type: decimal;
     margin-left: 2rem;
 }
+
+a {
+    color: #3490dc;
+    text-decoration: none;
+}

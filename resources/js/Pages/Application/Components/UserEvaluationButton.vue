@@ -3,7 +3,7 @@ import { ref, defineProps, defineEmits } from "vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
-import { showDateInShortFormat } from "@/utils";
+import { showDateInShortFormat, shortenURL } from "@/utils";
 import { Link } from "@inertiajs/vue3";
 import TextareaInput from "@/Components/TextareaInput.vue";
 1;
@@ -83,6 +83,17 @@ const toggleModal = () => {
         hasRetrievedData.value = true;
     }
 };
+
+const displayText = (text) => {
+    // turn links into clickable anchor tags with a shortened version of the link, by using the shortenURL function
+
+    return text.replace(/((http:\/\/|https:\/\/)[^\s]+)/g, (match) => {
+        return `<a href="${match}" target="_blank">${shortenURL(
+            match.replace(/(http:\/\/|https:\/\/)/g, ""),
+            15
+        )}</a>`;
+    });
+};
 </script>
 
 <template>
@@ -113,107 +124,213 @@ const toggleModal = () => {
         </span>
 
         <Modal :show="showPromptModal" @close="showPromptModal = false">
-            <div class="modal-content">
-                <h2 class="modal-title flex justify-between">
-                    <span>Perform Evaluation</span>
-                    <span @click="toggleModal" class="cursor-pointer">
-                        <i class="fa fa-times-circle-o" aria-hidden="true"></i>
-                    </span>
-                </h2>
-                <form
-                    @submit.prevent="submitEvaluation"
-                    class="mb-4 text-sm"
-                    v-if="
-                        application?.round?.evaluation_questions?.questions
-                            ?.length > 0
-                    "
+            <div class="modal-content flex justify-between">
+                <div
+                    v-if="application?.project"
+                    class="mr-2"
+                    style="width: 49%"
                 >
-                    <div v-if="loggedInUserAnswers" class="mb-4">
-                        Your evaluation from
-                        {{
-                            showDateInShortFormat(
-                                loggedInUserAnswers.updated_at,
-                                true
-                            )
-                        }}:
+                    <div class="mb-3">
+                        <div v-if="application.project.title">
+                            {{ application.project.title }}
+                        </div>
+
+                        <div v-if="application.project.gpt_summary">
+                            {{ application.project.gpt_summary }}
+                        </div>
+
+                        <div v-if="application.project.website">
+                            Website:
+                            <a
+                                :href="application.project.website"
+                                target="_blank"
+                                >{{
+                                    shortenURL(
+                                        application.project.website.replace(
+                                            /(http:\/\/|https:\/\/)/g,
+                                            ""
+                                        ),
+                                        15
+                                    )
+                                }}
+                            </a>
+                        </div>
+
+                        <div v-if="application.project.projectGithub">
+                            Project Github:
+                            <a
+                                :href="application.project.projectGithub"
+                                target="_blank"
+                                >{{ application.project.projectGithub }}</a
+                            >
+                        </div>
+
+                        <div v-if="application.project.userGithub">
+                            User Github:
+                            <a
+                                :href="application.project.userGithub"
+                                target="_blank"
+                                >{{ application.project.userGithub }}</a
+                            >
+                        </div>
                     </div>
-                    <div>
-                        <div
-                            v-for="(question, qIndex) in JSON.parse(
-                                application.round.evaluation_questions.questions
-                            )"
-                            :key="qIndex"
-                            class="mb-5"
-                        >
-                            <p class="mb-2 font-bold">{{ question.text }}</p>
-                            <div class="flex flex-wrap">
-                                <div
-                                    v-for="(option, cIndex) in question.options"
-                                    :key="cIndex"
-                                    class="mb-1 mr-2 flex items-center text-xs"
+
+                    <div v-if="application?.project?.applications">
+                        <table class="text-xs">
+                            <thead>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>Date</td>
+                                    <td>Round</td>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr
+                                    v-for="(application, index) in application
+                                        .project.applications"
+                                    :key="index"
                                 >
-                                    <input
-                                        type="radio"
-                                        :name="'question-' + qIndex"
-                                        :value="option"
-                                        v-model="selectedAnswers[qIndex]"
-                                        class="mr-2"
-                                    />
-                                    {{ option }}
-                                </div>
-                            </div>
+                                    <td>
+                                        {{ application.status }}
+                                    </td>
+                                    <td>
+                                        {{
+                                            showDateInShortFormat(
+                                                application.created_at
+                                            )
+                                        }}
+                                    </td>
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route('round.show', {
+                                                    round: application.round
+                                                        .uuid,
+                                                })
+                                            "
+                                            target="_blank"
+                                        >
+                                            {{ application.round.name }}
+                                        </Link>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="width: 49%">
+                    <h2 class="modal-title flex justify-between">
+                        <span>Perform Evaluation</span>
+                        <span @click="toggleModal" class="cursor-pointer">
+                            <i
+                                class="fa fa-times-circle-o"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </h2>
+                    <form
+                        @submit.prevent="submitEvaluation"
+                        class="mb-4 text-sm"
+                        v-if="
+                            application?.round?.evaluation_questions?.questions
+                                ?.length > 0
+                        "
+                    >
+                        <div v-if="loggedInUserAnswers" class="mb-4">
+                            Your evaluation from
+                            {{
+                                showDateInShortFormat(
+                                    loggedInUserAnswers.updated_at,
+                                    true
+                                )
+                            }}:
                         </div>
                         <div>
-                            <TextareaInput
-                                v-model="notes"
-                                placeholder="Notes"
-                            ></TextareaInput>
-                        </div>
-                        <div class="mt-4 flex justify-between items-center">
-                            <div>
-                                <div
-                                    v-if="saveStatus === 'saving'"
-                                    class="mt-2 text-blue-500"
-                                >
-                                    Saving...
-                                </div>
-                                <div
-                                    v-if="saveStatus === 'success'"
-                                    class="mt-2 text-green-500"
-                                >
-                                    Saved successfully!
-                                </div>
-                                <div
-                                    v-if="saveStatus === 'error'"
-                                    class="mt-2 text-red-500"
-                                >
-                                    Error saving data. Please try again.
+                            <div
+                                v-for="(question, qIndex) in JSON.parse(
+                                    application.round.evaluation_questions
+                                        .questions
+                                )"
+                                :key="qIndex"
+                                class="mb-5"
+                            >
+                                <p
+                                    class="mb-2 font-bold"
+                                    v-html="displayText(question.text)"
+                                ></p>
+                                <div class="flex flex-wrap">
+                                    <div
+                                        v-for="(
+                                            option, cIndex
+                                        ) in question.options"
+                                        :key="cIndex"
+                                        class="mb-1 mr-2 flex items-center text-xs"
+                                    >
+                                        <input
+                                            type="radio"
+                                            :name="'question-' + qIndex"
+                                            :value="option"
+                                            v-model="selectedAnswers[qIndex]"
+                                            class="mr-2"
+                                        />
+                                        {{ option }}
+                                    </div>
                                 </div>
                             </div>
-                            <PrimaryButton
-                                type="submit"
-                                :disabled="
-                                    selectedAnswers.length !==
-                                    JSON.parse(
-                                        application.round.evaluation_questions
-                                            .questions
-                                    ).length
-                                "
-                                :class="{
-                                    'opacity-50 cursor-not-allowed':
+                            <div>
+                                <TextareaInput
+                                    v-model="notes"
+                                    placeholder="Notes"
+                                ></TextareaInput>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                <div>
+                                    <div
+                                        v-if="saveStatus === 'saving'"
+                                        class="mt-2 text-blue-500"
+                                    >
+                                        Saving...
+                                    </div>
+                                    <div
+                                        v-if="saveStatus === 'success'"
+                                        class="mt-2 text-green-500"
+                                    >
+                                        Saved successfully!
+                                    </div>
+                                    <div
+                                        v-if="saveStatus === 'error'"
+                                        class="mt-2 text-red-500"
+                                    >
+                                        Error saving data. Please try again.
+                                    </div>
+                                </div>
+                                <PrimaryButton
+                                    type="submit"
+                                    :disabled="
                                         selectedAnswers.length !==
                                         JSON.parse(
                                             application.round
                                                 .evaluation_questions.questions
-                                        ).length,
-                                }"
-                            >
-                                Save
-                            </PrimaryButton>
+                                        ).length
+                                    "
+                                    :class="{
+                                        'opacity-50 cursor-not-allowed':
+                                            selectedAnswers.length !==
+                                            JSON.parse(
+                                                application.round
+                                                    .evaluation_questions
+                                                    .questions
+                                            ).length,
+                                    }"
+                                >
+                                    Save
+                                </PrimaryButton>
+                            </div>
                         </div>
-                    </div>
-                </form>
-                <div v-else>No questions specified</div>
+                    </form>
+                    <div v-else>No questions specified</div>
+                </div>
             </div>
         </Modal>
     </div>
