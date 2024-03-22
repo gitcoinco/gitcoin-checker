@@ -306,7 +306,7 @@ const openModal = (index) => {
                                 <p class="mb-2 font-bold">
                                     <span v-html="displayText(question.text)">
                                     </span>
-                                    <span
+                                    <!-- <span
                                         v-if="
                                             hasGPTEvaluation(
                                                 application.results,
@@ -345,7 +345,7 @@ const openModal = (index) => {
                                                 }}
                                             </div>
                                         </Modal>
-                                    </span>
+                                    </span> -->
                                 </p>
 
                                 <div class="flex flex-wrap">
