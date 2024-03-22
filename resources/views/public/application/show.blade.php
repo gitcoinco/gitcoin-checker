@@ -121,7 +121,7 @@
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="rounded-circle bg-primary text-white text-center" style="width: 30px; height: 30px; line-height: 30px;">
-                            {{ substr($result->user->name, 0, 1) }}{{$reviewerKey+1}}
+                            R{{$reviewerKey+1}}
                         </div>
                         <div class="ml-2">
                             Reviewed on {{ $result->created_at->format('j M Y h:i A') }}
