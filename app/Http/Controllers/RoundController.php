@@ -156,7 +156,7 @@ class RoundController extends Controller
                     $query->select('id', 'uuid', 'application_id', 'round_id', 'project_id', 'prompt_id', 'results_data', 'created_at', 'updated_at');
                 }
             ])
-                ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'status', 'created_at', 'updated_at')
+                ->select('id', 'uuid', 'application_id', 'project_addr', 'round_id', 'metadata', 'status', 'created_at', 'updated_at')
                 ->whereHas('project')
                 ->when(request('status', 'all') !== 'all', function ($query) {
                     $query->where('status', strtolower(request('status')));

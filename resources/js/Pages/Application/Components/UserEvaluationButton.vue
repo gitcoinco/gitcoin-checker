@@ -6,11 +6,14 @@ import Modal from "@/Components/Modal.vue";
 import { showDateInShortFormat, shortenURL } from "@/utils";
 import { Link } from "@inertiajs/vue3";
 import TextareaInput from "@/Components/TextareaInput.vue";
-1;
+
+import ReadMore from "@/Components/Gitcoin/ReadMore.vue";
+
 const emit = defineEmits(["evaluatedApplication"]);
 
 const selectedAnswers = ref([]);
 const notes = ref(null);
+const isModalOpen = ref([]);
 
 const props = defineProps({
     application: Object,
@@ -94,6 +97,36 @@ const displayText = (text) => {
         )}</a>`;
     });
 };
+
+/**
+ * Look for a GPT evaluation and return for the specific questionText and return it.
+ */
+const hasGPTEvaluation = (results, questionText) => {
+    if (!results) {
+        return false;
+    }
+
+    let gptEvaluation = null;
+    results.some((result) => {
+        let resultsData = JSON.parse(result.results_data);
+
+        for (let key in resultsData) {
+            if (
+                resultsData[key].criteria.trim().toLowerCase() ==
+                questionText.trim().toLowerCase()
+            ) {
+                gptEvaluation = resultsData[key];
+                return true;
+            }
+        }
+    });
+
+    return gptEvaluation;
+};
+
+const openModal = (index) => {
+    isModalOpen.value[index] = true;
+};
 </script>
 
 <template>
@@ -156,6 +189,21 @@ const displayText = (text) => {
                             </a>
                         </div>
 
+                        <div
+                            v-for="(answer, index) in JSON.parse(
+                                application.metadata
+                            ).application.answers"
+                            :key="index"
+                            class="text-xs"
+                        >
+                            <div v-if="answer.answer" class="mb-3">
+                                <strong>{{ answer.question }}:</strong>
+
+                                <ReadMore :words="10">
+                                    {{ answer.answer }}
+                                </ReadMore>
+                            </div>
+                        </div>
                         <div v-if="application.project.projectGithub">
                             Project Github:
                             <a
@@ -255,10 +303,51 @@ const displayText = (text) => {
                                 :key="qIndex"
                                 class="mb-5"
                             >
-                                <p
-                                    class="mb-2 font-bold"
-                                    v-html="displayText(question.text)"
-                                ></p>
+                                <p class="mb-2 font-bold">
+                                    <span v-html="displayText(question.text)">
+                                    </span>
+                                    <span
+                                        v-if="
+                                            hasGPTEvaluation(
+                                                application.results,
+                                                question.text
+                                            )
+                                        "
+                                    >
+                                        <span
+                                            @click="openModal(qIndex)"
+                                            class="btn btn-primary pointer"
+                                        >
+                                            (GPT Result)
+                                        </span>
+
+                                        <Modal
+                                            :show="
+                                                isModalOpen[qIndex]
+                                                    ? true
+                                                    : false
+                                            "
+                                            @close="isModalOpen[qIndex] = false"
+                                        >
+                                            <div class="modal-content">
+                                                {{
+                                                    hasGPTEvaluation(
+                                                        application.results,
+                                                        question.text
+                                                    ).score
+                                                }}
+                                                -
+                                                {{
+                                                    hasGPTEvaluation(
+                                                        application.results,
+                                                        question.text
+                                                    ).reason
+                                                }}
+                                            </div>
+                                        </Modal>
+                                    </span>
+                                </p>
+
                                 <div class="flex flex-wrap">
                                     <div
                                         v-for="(
