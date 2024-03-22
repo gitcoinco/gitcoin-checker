@@ -183,7 +183,7 @@ const openModal = (index) => {
                                             /(http:\/\/|https:\/\/)/g,
                                             ""
                                         ),
-                                        15
+                                        30
                                     )
                                 }}
                             </a>
@@ -199,7 +199,7 @@ const openModal = (index) => {
                             <div v-if="answer.answer" class="mb-3">
                                 <strong>{{ answer.question }}:</strong>
 
-                                <ReadMore :words="10">
+                                <ReadMore :words="30">
                                     {{ answer.answer }}
                                 </ReadMore>
                             </div>
