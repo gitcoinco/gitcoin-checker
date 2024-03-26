@@ -1,13 +1,13 @@
 <template>
     <div>
-        <!-- Display either the truncated text or the full text based on the state -->
-        <span v-if="!isReadMore">{{ truncatedText }}</span>
-        <span v-else><slot></slot></span>
+        <!-- Display truncated or full content based on state -->
+        <span v-if="!isReadMore" v-html="truncatedContent"></span>
+        <span v-else v-html="fullContent"></span>
 
-        <!-- Show Read more or Read less link -->
-        <a href="#" @click="toggleReadMore" v-if="showReadMoreLink">{{
-            isReadMore ? "Read less" : "Read more"
-        }}</a>
+        <!-- Toggle link -->
+        <a href="#" @click.prevent="toggleReadMore" v-if="showReadMoreLink">
+            {{ isReadMore ? "Read less" : "Read more" }}
+        </a>
     </div>
 </template>
 
@@ -15,6 +15,7 @@
 export default {
     name: "ReadMore",
     props: {
+        htmlContent: String,
         words: {
             type: Number,
             required: true,
@@ -22,35 +23,44 @@ export default {
     },
     data() {
         return {
-            isReadMore: false, // State to toggle between showing partial/full text
+            isReadMore: false,
+            // Initially assume we need to show the link, adjust based on actual content
+            showReadMoreLink: true,
         };
     },
     computed: {
-        // Compute the truncated text based on the 'words' prop
-        truncatedText() {
-            const originalText = this.$slots.default()[0].children;
-            if (!originalText) return "";
-            const wordsArray = originalText.trim().split(/\s+/);
-            if (wordsArray.length <= this.words) {
-                this.showReadMoreLink = false; // No need for the link if text is short
-                return originalText;
-            }
-            this.showReadMoreLink = true;
-            return wordsArray.slice(0, this.words).join(" ") + "...";
+        fullContent() {
+            // If htmlContent prop is provided, use it; otherwise, extract slot's HTML
+            return this.htmlContent || this.extractSlotHtml();
         },
-        showReadMoreLink: {
-            get() {
-                return this.isReadMoreLink;
-            },
-            set(value) {
-                this.isReadMoreLink = value;
-            },
+        truncatedContent() {
+            const div = document.createElement("div");
+            div.innerHTML = this.fullContent;
+            const fullText = div.textContent || div.innerText || "";
+
+            const words = fullText.split(/\s+/);
+            if (words.length <= this.words) {
+                // If the content is short enough, no need for truncation or the read more link
+                this.showReadMoreLink = false;
+                return this.fullContent; // Show full content as is, no truncation needed
+            }
+
+            // Truncate the text and append ellipsis
+            const truncatedText = words.slice(0, this.words).join(" ") + "...";
+            this.showReadMoreLink = true; // Ensure link is shown for truncated content
+            // For simplicity, use the truncated text as the content when 'read more' is not activated
+            // This approach maintains text integrity but removes HTML formatting in truncated view
+            return truncatedText;
         },
     },
     methods: {
         toggleReadMore(event) {
-            event.preventDefault();
             this.isReadMore = !this.isReadMore;
+        },
+        extractSlotHtml() {
+            // Extract HTML from slot. This simplistic method assumes single root node text content.
+            // You may need a more complex method for handling multiple nodes or deeper structures.
+            return this.$slots.default ? this.$slots.default()[0].children : "";
         },
     },
 };

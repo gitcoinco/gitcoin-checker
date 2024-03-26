@@ -8,6 +8,8 @@ import { Link } from "@inertiajs/vue3";
 import TextareaInput from "@/Components/TextareaInput.vue";
 
 import ReadMore from "@/Components/Gitcoin/ReadMore.vue";
+import Accordion from "@/Components/Gitcoin/Accordion/Accordion.vue";
+import AccordionItem from "@/Components/Gitcoin/Accordion/AccordionItem.vue";
 
 const emit = defineEmits(["evaluatedApplication"]);
 
@@ -124,6 +126,15 @@ const hasGPTEvaluation = (results, questionText) => {
     return gptEvaluation;
 };
 
+const formatDescription = (description) => {
+    description = description.replace(
+        /((http:\/\/|https:\/\/)[^\s]+)/g,
+        (match) => {
+            return `<a href="${match}" target="_blank">${match}</a>`;
+        }
+    );
+    return description.replace(/(?:\r\n|\r|\n)/g, "<br>");
+};
 const openModal = (index) => {
     isModalOpen.value[index] = true;
 };
@@ -164,107 +175,207 @@ const openModal = (index) => {
                     style="width: 49%"
                 >
                     <div class="mb-3">
-                        <div v-if="application.project.title">
-                            {{ application.project.title }}
-                        </div>
+                        <Accordion>
+                            <AccordionItem name="item1" :isOpen="true">
+                                <template #heading>
+                                    <i
+                                        class="fa fa-star mr-1 text-orange-500"
+                                        aria-hidden="true"
+                                    ></i>
+                                    {{ application.project.title }}
+                                </template>
+                                <template #text>
+                                    <div class="text-xs">
+                                        <div v-if="application.project.title">
+                                            {{ application.project.title }}
+                                        </div>
 
-                        <div v-if="application.project.gpt_summary">
-                            {{ application.project.gpt_summary }}
-                        </div>
-
-                        <div v-if="application.project.website">
-                            Website:
-                            <a
-                                :href="application.project.website"
-                                target="_blank"
-                                >{{
-                                    shortenURL(
-                                        application.project.website.replace(
-                                            /(http:\/\/|https:\/\/)/g,
-                                            ""
-                                        ),
-                                        30
-                                    )
-                                }}
-                            </a>
-                        </div>
-
-                        <div
-                            v-for="(answer, index) in JSON.parse(
-                                application.metadata
-                            ).application.answers"
-                            :key="index"
-                            class="text-xs"
-                        >
-                            <div v-if="answer.answer" class="mb-3">
-                                <strong>{{ answer.question }}:</strong>
-
-                                <ReadMore :words="30">
-                                    {{ answer.answer }}
-                                </ReadMore>
-                            </div>
-                        </div>
-                        <div v-if="application.project.projectGithub">
-                            Project Github:
-                            <a
-                                :href="application.project.projectGithub"
-                                target="_blank"
-                                >{{ application.project.projectGithub }}</a
-                            >
-                        </div>
-
-                        <div v-if="application.project.userGithub">
-                            User Github:
-                            <a
-                                :href="application.project.userGithub"
-                                target="_blank"
-                                >{{ application.project.userGithub }}</a
-                            >
-                        </div>
-                    </div>
-
-                    <div v-if="application?.project?.applications">
-                        <table class="text-xs">
-                            <thead>
-                                <tr>
-                                    <td>Status</td>
-                                    <td>Date</td>
-                                    <td>Round</td>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr
-                                    v-for="(application, index) in application
-                                        .project.applications"
-                                    :key="index"
-                                >
-                                    <td>
-                                        {{ application.status }}
-                                    </td>
-                                    <td>
-                                        {{
-                                            showDateInShortFormat(
-                                                application.created_at
-                                            )
-                                        }}
-                                    </td>
-                                    <td>
-                                        <Link
-                                            :href="
-                                                route('round.show', {
-                                                    round: application.round
-                                                        .uuid,
-                                                })
+                                        <div
+                                            v-if="
+                                                application.project.gpt_summary
                                             "
-                                            target="_blank"
                                         >
-                                            {{ application.round.name }}
-                                        </Link>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                            {{
+                                                application.project.gpt_summary
+                                            }}
+                                        </div>
+
+                                        <div v-if="application.project.website">
+                                            Website:
+                                            <a
+                                                :href="
+                                                    application.project.website
+                                                "
+                                                target="_blank"
+                                                >{{
+                                                    shortenURL(
+                                                        application.project.website.replace(
+                                                            /(http:\/\/|https:\/\/)/g,
+                                                            ""
+                                                        ),
+                                                        30
+                                                    )
+                                                }}
+                                            </a>
+                                        </div>
+
+                                        <div
+                                            v-if="
+                                                application.project
+                                                    .projectGithub
+                                            "
+                                        >
+                                            Project Github:
+                                            <a
+                                                :href="
+                                                    application.project
+                                                        .projectGithub
+                                                "
+                                                target="_blank"
+                                                >{{
+                                                    application.project
+                                                        .projectGithub
+                                                }}</a
+                                            >
+                                        </div>
+
+                                        <div
+                                            v-if="
+                                                application.project.userGithub
+                                            "
+                                        >
+                                            User Github:
+                                            <a
+                                                :href="
+                                                    application.project
+                                                        .userGithub
+                                                "
+                                                target="_blank"
+                                                >{{
+                                                    application.project
+                                                        .userGithub
+                                                }}</a
+                                            >
+                                        </div>
+                                    </div>
+                                </template>
+                            </AccordionItem>
+
+                            <AccordionItem name="item4">
+                                <template #heading>
+                                    <i
+                                        class="fa fa-star mr-1 text-orange-500"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Project details</template
+                                >
+                                <template #text>
+                                    <div class="text-xs">
+                                        <div
+                                            v-html="
+                                                formatDescription(
+                                                    application.project
+                                                        .description
+                                                )
+                                            "
+                                        ></div>
+                                    </div>
+                                </template>
+                            </AccordionItem>
+
+                            <AccordionItem name="item2">
+                                <template #heading>
+                                    <i
+                                        class="fa fa-star mr-1 text-orange-500"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Application answers</template
+                                >
+                                <template #text>
+                                    <div
+                                        v-for="(answer, index) in JSON.parse(
+                                            application.metadata
+                                        ).application.answers"
+                                        :key="index"
+                                        class="text-xs"
+                                    >
+                                        <div v-if="answer.answer" class="mb-3">
+                                            <strong
+                                                >{{ answer.question }}:</strong
+                                            >
+
+                                            <ReadMore :words="30">
+                                                {{ answer.answer }}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
+                                </template>
+                            </AccordionItem>
+                            <AccordionItem
+                                name="item3"
+                                v-if="application?.project?.applications"
+                            >
+                                <template #heading>
+                                    <i
+                                        class="fa fa-star mr-1 text-orange-500"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Past applications</template
+                                >
+                                <template #text>
+                                    <table class="text-xs">
+                                        <thead>
+                                            <tr>
+                                                <td>Status</td>
+                                                <td>Date</td>
+                                                <td>Round</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr
+                                                v-for="(
+                                                    application, index
+                                                ) in application.project
+                                                    .applications"
+                                                :key="index"
+                                            >
+                                                <td>
+                                                    {{ application.status }}
+                                                </td>
+                                                <td>
+                                                    {{
+                                                        showDateInShortFormat(
+                                                            application.created_at
+                                                        )
+                                                    }}
+                                                </td>
+                                                <td>
+                                                    <Link
+                                                        :href="
+                                                            route(
+                                                                'round.show',
+                                                                {
+                                                                    round: application
+                                                                        .round
+                                                                        .uuid,
+                                                                }
+                                                            )
+                                                        "
+                                                        target="_blank"
+                                                    >
+                                                        {{
+                                                            application.round
+                                                                .name
+                                                        }}
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </AccordionItem>
+                        </Accordion>
                     </div>
                 </div>
                 <div style="width: 49%">
@@ -303,9 +414,14 @@ const openModal = (index) => {
                                 :key="qIndex"
                                 class="mb-5"
                             >
-                                <p class="mb-2 font-bold">
-                                    <span v-html="displayText(question.text)">
-                                    </span>
+                                <p class="mb-2">
+                                    <ReadMore
+                                        :words="15"
+                                        :htmlContent="
+                                            displayText(question.text)
+                                        "
+                                    >
+                                    </ReadMore>
                                     <!-- <span
                                         v-if="
                                             hasGPTEvaluation(

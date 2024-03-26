@@ -55,7 +55,6 @@ const totalEvaluationAverage = () => {
             let answers = JSON.parse(
                 props.application.evaluation_answers[i].answers
             );
-            console.log(answers);
             for (let j = 0; j < answers.length; j++) {
                 totalNrAnswers += 1;
                 if (answers[j] == "Yes") {

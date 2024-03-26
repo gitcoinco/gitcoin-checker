@@ -133,7 +133,7 @@ class RoundController extends Controller
                     $query->select('id', 'uuid', 'round_id', 'questions');
                 },
                 'project' => function ($query) {
-                    $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
+                    $query->select('id', 'uuid', 'slug', 'id_addr', 'title', 'description', 'website', 'logoImg', 'bannerImg', 'projectGithub', 'userGithub', 'projectTwitter', 'created_at', 'updated_at');
                 },
                 'project.applications' => function ($query) {
                     $query->orderBy('created_at', 'desc');
