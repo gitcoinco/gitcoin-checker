@@ -167,8 +167,41 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
                                 <?php
                                 $totalReviews = $roundApplication->results->count() + $roundApplication->evaluationAnswers->count();
+
+                                $score = 0;
+                                $count = 0;
+
+                                if ($totalReviews > 0) {
+                                    foreach ($roundApplication->results as $result) {
+                                        $score += $result->score;
+                                        $count++;
+                                    }
+
+                                    foreach ($roundApplication->evaluationAnswers as $evaluationAnswer) {
+                                        $score += $evaluationAnswer->score;
+                                        $count++;
+                                    }
+                                    if ($count > 0) {
+                                        $score = intval($score / $count);
+                                    }
+                                }
+
+
                                 ?>
                                 @if ($totalReviews > 0)
+
+
+                                <div style="font-size: 12px; border-radius: 50%;
+                                            width: 42px;
+                                            height: 42px;
+                                            line-height: 42px;
+                                            text-align: center;
+                                            color: white;
+                                            background-color:
+                                                {{ $score < 40 ? 'red' : ($score < 70 ? 'orange' : 'green') }}">
+                                    {{ $score }}%
+                                </div>
+
                                 <div class="text-xs">
                                     <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
                                         {{ $totalReviews }} review<?php if ($totalReviews > 1) {
