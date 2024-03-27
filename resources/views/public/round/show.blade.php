@@ -185,11 +185,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
                                         <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
                                             @if($roundApplication->status == 'APPROVED')
-                                            <span class="small text-success"><i class="fa fa-check-circle"></i>Application approved</span>
+                                            <span class="text-success"><i class="fa fa-check-circle"></i>Application approved</span>
                                             @elseif($roundApplication->status == 'PENDING')
-                                            <span class="small text-warning"><i class="fa fa-clock-o"></i> Pending application</span>
+                                            <span class="text-warning"><i class="fa fa-clock-o"></i> Pending application</span>
                                             @elseif($roundApplication->status == 'REJECTED')
-                                            <span class="small text-danger"><i class="fa fa-times-circle"></i>Application rejected</span>
+                                            <span class="text-danger"><i class="fa fa-times-circle"></i>Application rejected</span>
                                             @endif
                                         </a>
                                     </div>
