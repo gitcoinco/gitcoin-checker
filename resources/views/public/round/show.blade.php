@@ -25,7 +25,22 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                 <h1 class="card-title">{{ $round->name }}</h1>
 
                 <div class="mb-4">
-                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ \Carbon\Carbon::parse($round->donations_start_time)->format('d M Y H:i') }} to {{ \Carbon\Carbon::parse($round->donations_end_time)->format('d M Y H:i') }}.
+
+
+                    @php
+                    $now = \Carbon\Carbon::now();
+                    $start = \Carbon\Carbon::parse($round->donations_start_time);
+                    $end = \Carbon\Carbon::parse($round->donations_end_time);
+                    @endphp
+
+                    @if($now->lt($start))
+                    The {{ $round->name }} round will run on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    @elseif($now->gt($end))
+                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    @else
+                    The {{ $round->name }} round is currently running on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    @endif
+
                 </div>
 
                 <?php
