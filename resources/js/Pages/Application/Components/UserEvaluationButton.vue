@@ -10,6 +10,8 @@ import TextareaInput from "@/Components/TextareaInput.vue";
 import ReadMore from "@/Components/Gitcoin/ReadMore.vue";
 import Accordion from "@/Components/Gitcoin/Accordion/Accordion.vue";
 import AccordionItem from "@/Components/Gitcoin/Accordion/AccordionItem.vue";
+import MarkdownIt from "markdown-it";
+const markdown = new MarkdownIt();
 
 const emit = defineEmits(["evaluatedApplication"]);
 
@@ -125,19 +127,6 @@ const hasGPTEvaluation = (results, questionText) => {
 
     return gptEvaluation;
 };
-
-const formatDescription = (description) => {
-    description = description.replace(
-        /((http:\/\/|https:\/\/)[^\s]+)/g,
-        (match) => {
-            return `<a href="${match}" target="_blank">${match}</a>`;
-        }
-    );
-    return description.replace(/(?:\r\n|\r|\n)/g, "<br>");
-};
-const openModal = (index) => {
-    isModalOpen.value[index] = true;
-};
 </script>
 
 <template>
@@ -174,7 +163,10 @@ const openModal = (index) => {
                     class="mr-2"
                     style="width: 49%"
                 >
-                    <div class="mb-3">
+                    <div
+                        class="mb-3 overflow-auto"
+                        style="max-height: 600px; overflow-y: scroll"
+                    >
                         <Accordion>
                             <AccordionItem name="item1" :isOpen="true">
                                 <template #heading>
@@ -272,8 +264,9 @@ const openModal = (index) => {
                                 <template #text>
                                     <div class="text-xs">
                                         <div
+                                            class="markdown"
                                             v-html="
-                                                formatDescription(
+                                                markdown.render(
                                                     application.project
                                                         .description
                                                 )
@@ -414,9 +407,9 @@ const openModal = (index) => {
                                 :key="qIndex"
                                 class="mb-5"
                             >
-                                <p class="mb-2">
+                                <p class="mb-2 text-xs">
                                     <ReadMore
-                                        :words="15"
+                                        :words="25"
                                         :htmlContent="
                                             displayText(question.text)
                                         "
