@@ -17,6 +17,10 @@
     <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
 
     @stack('head')
+
+    @yield('scripts')
+
+
 </head>
 
 <body class="bg-gray-100" style="background-attachment: fixed; background-image: url('/img/backgrounds/bg3.jpeg');">
