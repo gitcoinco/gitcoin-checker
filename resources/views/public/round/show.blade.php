@@ -128,23 +128,83 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                         if (!$roundApplication->project) {
                             continue;
                         }
+
+
+                        $totalReviews = $roundApplication->results->count() + $roundApplication->evaluationAnswers->count();
+
+                        $score = 0;
+                        $count = 0;
+
+                        if ($totalReviews > 0) {
+                            foreach ($roundApplication->results as $result) {
+                                $score += $result->score;
+                                $count++;
+                            }
+
+                            foreach ($roundApplication->evaluationAnswers as $evaluationAnswer) {
+                                $score += $evaluationAnswer->score;
+                                $count++;
+                            }
+                            if ($count > 0) {
+                                $score = intval($score / $count);
+                            }
+                        }
+
+
+
                         ?>
-                        <div class="d-flex align-items-center mb-2 bg-light p-2">
+                        <div class="d-flex align-items-center mb-5 bg-light p-2">
                             <div class="mr-2">
                                 <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark d-flex align-items-center">
                                     <img src="{{ $roundApplication->project->logoImg ? $pinataUrl.'/'.$roundApplication->project->logoImg.'?img-width=50' : '/img/placeholder.png' }}" onerror="this.onerror=null; this.src='/img/placeholder.png';" style="width: 50px; max-width: inherit" class="mx-auto rounded-circle" />
                                 </a>
                             </div>
                             <div class="flex-grow-1 mr-2">
-                                <div>
-                                    <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark align-items-center">
-                                        <h6>{{ $roundApplication->project->title }}</h6>
-
-                                        @if ($roundApplication->project->total_amount)
-                                        ${{ number_format($roundApplication->project->total_amount, 2) }}
-                                        @endif
-                                    </a>
+                                <div class="mb-2">
+                                    <div>
+                                        <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark align-items-center">
+                                            <h6 class="mb-0">{{ $roundApplication->project->title }}</h6>
+                                        </a>
+                                    </div>
+                                    @if ($roundApplication->project->gpt_summary)
+                                    <div class="text-xs">{{ $roundApplication->project->gpt_summary }}</div>
+                                    @endif
                                 </div>
+
+                                <div class="text-xs">
+                                    <div>
+
+                                        <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
+                                            {{ $totalReviews }} application review<?php if ($totalReviews > 1) {
+                                                                                        echo 's';
+                                                                                    } ?>
+                                        </a>
+                                    </div>
+
+                                    <div>
+
+                                        <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
+                                            @if($roundApplication->status == 'APPROVED')
+                                            <span class="small text-success"><i class="fa fa-check-circle"></i>Application approved</span>
+                                            @elseif($roundApplication->status == 'PENDING')
+                                            <span class="small text-warning"><i class="fa fa-clock-o"></i> Pending application</span>
+                                            @elseif($roundApplication->status == 'REJECTED')
+                                            <span class="small text-danger"><i class="fa fa-times-circle"></i>Application rejected</span>
+                                            @endif
+                                        </a>
+                                    </div>
+                                </div>
+
+
+
+
+                                @if ($roundApplication->project->total_amount)
+                                <div class="text-xs">
+                                    Total amount: ${{ number_format($roundApplication->project->total_amount, 2) }}
+                                </div>
+                                @endif
+
+
                                 @if ($roundApplication->donor_amount_usd > 0)
                                 <div class="text-xs">
                                     Donor amount: ${{ $roundApplication->donor_amount_usd }}
@@ -164,49 +224,12 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                                                                                     } ?>
                                 </div>
                                 @endif
-
-
                             </div>
 
                             <div style="min-width: 80px;">
-                                <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
-
-                                    @if($roundApplication->status == 'APPROVED')
-                                    <span class="small text-success"><i class="fa fa-check-circle"></i> Approved</span>
-                                    @elseif($roundApplication->status == 'PENDING')
-                                    <span class="small text-warning"><i class="fa fa-clock-o"></i> Pending</span>
-                                    @elseif($roundApplication->status == 'REJECTED')
-                                    <span class="small text-danger"><i class="fa fa-times-circle"></i> Rejected</span>
-                                    @endif
-                                </a>
-
-                                <?php
-                                $totalReviews = $roundApplication->results->count() + $roundApplication->evaluationAnswers->count();
-
-                                $score = 0;
-                                $count = 0;
-
-                                if ($totalReviews > 0) {
-                                    foreach ($roundApplication->results as $result) {
-                                        $score += $result->score;
-                                        $count++;
-                                    }
-
-                                    foreach ($roundApplication->evaluationAnswers as $evaluationAnswer) {
-                                        $score += $evaluationAnswer->score;
-                                        $count++;
-                                    }
-                                    if ($count > 0) {
-                                        $score = intval($score / $count);
-                                    }
-                                }
-
-
-                                ?>
                                 @if ($totalReviews > 0)
-
-
-                                <div style="font-size: 12px; border-radius: 50%;
+                                <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
+                                    <div style="font-size: 12px; border-radius: 50%;
                                             width: 42px;
                                             height: 42px;
                                             line-height: 42px;
@@ -214,16 +237,10 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                             color: white;
                                             background-color:
                                                 {{ $score < 40 ? 'red' : ($score < 70 ? 'orange' : 'green') }}">
-                                    {{ $score }}%
-                                </div>
+                                        {{ $score }}%
+                                    </div>
+                                </a>
 
-                                <div class="text-xs">
-                                    <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
-                                        {{ $totalReviews }} review<?php if ($totalReviews > 1) {
-                                                                        echo 's';
-                                                                    } ?>
-                                    </a>
-                                </div>
                                 @endif
 
                             </div>
