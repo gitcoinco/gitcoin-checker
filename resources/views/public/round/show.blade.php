@@ -34,11 +34,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     @endphp
 
                     @if($now->lt($start))
-                    The {{ $round->name }} round will run on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    The {{ $round->name }} round will run on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }} (UTC).
                     @elseif($now->gt($end))
-                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    The {{ $round->name }} round ran on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }} (UTC).
                     @else
-                    The {{ $round->name }} round is currently running on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }}.
+                    The {{ $round->name }} round is currently running on the {{ $round->chain->name }} blockchain from {{ $start->format('d M Y H:i') }} to {{ $end->format('d M Y H:i') }} (UTC).
                     @endif
 
                 </div>
