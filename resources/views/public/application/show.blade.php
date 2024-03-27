@@ -65,51 +65,12 @@
             </div>
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="mb-3">Automated Reviews</h5>
-
-                @foreach($promptResults as $result)
-                @foreach(json_decode($result->results_data) as $data)
-                <div class="mb-3 text-xs">
-                    <h6 class="mb-0">
-                        <div>
-                            @if($data->score == 'Yes')
-                            <i class="fa fa-check-circle text-success"></i>
-                            @elseif($data->score == 'No')
-                            <i class="fa fa-times-circle text-danger"></i>
-                            @else
-                            <i class="fa fa-question-circle text-warning"></i>
-                            @endif
-
-                            <span class="text-muted" style="{{ str_word_count($data->criteria) > 20 ? 'font-size: 0.8em;' : '' }}">
-                                {{ $data->criteria }}
-                            </span>
-                        </div>
-                    </h6>
-
-                    <?php
-                    $highlightColor = 'highlight-green';
-                    if ($data->score == 'No') {
-                        $highlightColor = 'highlight-red';
-                    } else if ($data->score == 'Uncertain') {
-                        $highlightColor = 'highlight-orange';
-                    }
-
-                    ?>
-
-                    <div class="{{ $highlightColor }} text-xs" style="opacity: 0.7;">
-                        {{ $data->reason }}
-                    </div>
-                </div>
-                @endforeach
-                @endforeach
-            </div>
-        </div>
 
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="mb-3">Manual Reviews</h5>
+                <h5 class="mb-3">User Review<?php if (count($evaluationAnswers) > 1) {
+                                                echo 's';
+                                            } ?> </h5>
 
                 @if (count($evaluationAnswers) > 0)
                 @foreach($evaluationAnswers as $reviewerKey => $result)
@@ -168,6 +129,51 @@
 
 
         </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="mb-3">AI Review<?php if (count($promptResults) > 1) {
+                                                echo 's';
+                                            } ?></h5>
+
+                @foreach($promptResults as $result)
+                @foreach(json_decode($result->results_data) as $data)
+                <div class="mb-3 text-xs">
+                    <h6 class="mb-0">
+                        <div>
+                            @if($data->score == 'Yes')
+                            <i class="fa fa-check-circle text-success"></i>
+                            @elseif($data->score == 'No')
+                            <i class="fa fa-times-circle text-danger"></i>
+                            @else
+                            <i class="fa fa-question-circle text-warning"></i>
+                            @endif
+
+                            <span class="text-muted" style="{{ str_word_count($data->criteria) > 20 ? 'font-size: 0.8em;' : '' }}">
+                                {{ $data->criteria }}
+                            </span>
+                        </div>
+                    </h6>
+
+                    <?php
+                    $highlightColor = 'highlight-green';
+                    if ($data->score == 'No') {
+                        $highlightColor = 'highlight-red';
+                    } else if ($data->score == 'Uncertain') {
+                        $highlightColor = 'highlight-orange';
+                    }
+
+                    ?>
+
+                    <div class="{{ $highlightColor }} text-xs" style="opacity: 0.7;">
+                        {{ $data->reason }}
+                    </div>
+                </div>
+                @endforeach
+                @endforeach
+            </div>
+        </div>
+
 
         <style>
             .grayscale {
