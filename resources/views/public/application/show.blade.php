@@ -83,7 +83,7 @@
                 $questions = json_decode($result->questions);
                 $answers = json_decode($result->answers);
                 @endphp
-
+                @if(is_array($questions))
                 <div class="review">
                     <div class="mb-3">
                         <div class="d-flex align-items-center mb-2 accordion-toggle pointer">
@@ -125,6 +125,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 @endforeach
                 @endif
 
@@ -134,6 +135,7 @@
                 <h5 class="mb-3">AI Review{{ count($promptResults) > 1 ? 's' : '' }}</h5>
 
                 @foreach($promptResults as $key => $result)
+                @if($result->results_data)
                 <div class="review">
                     <div class="mb-3">
                         <div class="d-flex align-items-center mb-2 accordion-toggle pointer">
@@ -184,6 +186,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 @endforeach
                 @endif
 
