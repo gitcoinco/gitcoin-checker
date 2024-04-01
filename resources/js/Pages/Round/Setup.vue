@@ -21,7 +21,10 @@ const isRoundManager = usePage().props.isRoundManager;
                         class="font-semibold text-xl text-gray-800 leading-tight"
                     >
                         {{ round.name }} on {{ round.chain.name }}
-                        <span class="text-sm">
+                        <span
+                            class="text-sm"
+                            v-if="round.round_addr.length > 10"
+                        >
                             {{ shortenAddress(round.round_addr) }}
 
                             <span

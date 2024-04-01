@@ -76,7 +76,7 @@ async function evaluateApplication(application) {
                 <Link :href="route('round.show', { round })">
                     {{ round.name }}
                 </Link>
-                <span class="text-sm">
+                <span class="text-sm" v-if="round.round_addr.length > 10">
                     {{ shortenAddress(round.round_addr) }}
 
                     <span

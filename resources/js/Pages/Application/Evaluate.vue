@@ -44,7 +44,7 @@ const checkAgainstChatGPT = async () => {
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ round.name }}
-                <span class="text-sm">
+                <span class="text-sm" v-if="round.round_addr.length > 10">
                     {{ shortenAddress(round.round_addr) }}
 
                     <span

@@ -5,6 +5,7 @@ import { defineProps, defineEmits, ref, watch } from "vue";
 import ResultsData from "@/Components/Gitcoin/Application/ResultsData.vue";
 import UserEvaluationButton from "./UserEvaluationButton.vue";
 import { showDateInShortFormat } from "@/utils";
+import Checkbox from "@/Components/Checkbox.vue";
 
 const emit = defineEmits(["perform-gpt-evaluation", "user-evaluation-updated"]);
 
@@ -25,6 +26,7 @@ const showGPTResultsModal = ref(false);
 
 const busyDoingGPTEvaluation = ref(false);
 const evaluationProgress = ref(0);
+const showResults = ref(false);
 
 watch(
     () => props.application,
@@ -149,6 +151,11 @@ const nrResults = (application) => {
                     </span>
                 </h2>
 
+                <div class="mb-4">
+                    <Checkbox id="toggleResults" v-model="showResults" />
+                    <label for="toggleResults">Show result details</label>
+                </div>
+
                 <table>
                     <tr>
                         <th>Date</th>
@@ -171,39 +178,45 @@ const nrResults = (application) => {
                             GPT
                         </td>
                         <td>
-                            <Modal :show="showGPTResultsModal">
-                                <div class="bg-white p-5 w-full">
-                                    <h2
-                                        class="modal-title flex justify-between"
-                                    >
-                                        GPT Evaluation for
-                                        {{ application.project.title }}
-                                        <span
-                                            @click="showGPTResultsModal = false"
-                                            class="cursor-pointer"
+                            <div v-if="showResults">
+                                <Modal :show="showGPTResultsModal">
+                                    <div class="bg-white p-5 w-full">
+                                        <h2
+                                            class="modal-title flex justify-between"
                                         >
-                                            <i
-                                                class="fa fa-times-circle-o"
-                                                aria-hidden="true"
-                                            ></i>
-                                        </span>
-                                    </h2>
-                                    <ResultsData
-                                        :result="props.application.results[0]"
-                                    ></ResultsData>
-                                </div>
-                            </Modal>
-                            <a
-                                href="#"
-                                class="text-blue-500 hover:underline"
-                                @click="showGPTResultsModal = true"
-                            >
-                                {{
-                                    gptNrPercentage(
-                                        props.application.results[0]
-                                    )
-                                }}%
-                            </a>
+                                            GPT Evaluation for
+                                            {{ application.project.title }}
+                                            <span
+                                                @click="
+                                                    showGPTResultsModal = false
+                                                "
+                                                class="cursor-pointer"
+                                            >
+                                                <i
+                                                    class="fa fa-times-circle-o"
+                                                    aria-hidden="true"
+                                                ></i>
+                                            </span>
+                                        </h2>
+                                        <ResultsData
+                                            :result="
+                                                props.application.results[0]
+                                            "
+                                        ></ResultsData>
+                                    </div>
+                                </Modal>
+                                <a
+                                    href="#"
+                                    class="text-blue-500 hover:underline"
+                                    @click="showGPTResultsModal = true"
+                                >
+                                    {{
+                                        gptNrPercentage(
+                                            props.application.results[0]
+                                        )
+                                    }}%
+                                </a>
+                            </div>
                         </td>
                         <td></td>
                         <td>
@@ -265,9 +278,13 @@ const nrResults = (application) => {
                             <i class="fa fa-user mr-1" aria-hidden="true"></i
                             >{{ answer.user.name }}
                         </td>
-                        <td>{{ answer.score }}%</td>
                         <td>
-                            {{ answer.notes }}
+                            <div v-if="showResults">{{ answer.score }}%</div>
+                        </td>
+                        <td>
+                            <div v-if="showResults">
+                                {{ answer.notes }}
+                            </div>
                         </td>
                         <td>
                             <SecondaryButton
