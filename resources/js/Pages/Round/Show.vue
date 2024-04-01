@@ -26,6 +26,7 @@ const page = usePage();
 const round = ref(usePage().props.round.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
 const pinataUrl = usePage().props.pinataUrl;
+const isRoundManager = usePage().props.isRoundManager;
 
 const queryParams = new URLSearchParams(window.location.search);
 const status = ref(queryParams.get("status") || "all");
@@ -249,12 +250,22 @@ const refreshApplication = async (application) => {
                         </span>
                     </h2>
                 </div>
-                <Link
-                    :href="route('round.evaluation.show', round)"
-                    class="text-blue-500 hover:underline"
-                >
-                    Round Evaluation Criteria
-                </Link>
+                <div v-if="isRoundManager">
+                    <Link
+                        :href="route('round.roles.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Users
+                    </Link>
+                    |
+
+                    <Link
+                        :href="route('round.evaluation.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Round Evaluation Criteria
+                    </Link>
+                </div>
             </div>
         </template>
 

@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\Round;
+use App\Models\RoundRole;
 use App\Models\User;
 
-class RoundPolicy
+class RoundRolePolicy
 {
     /**
      * Create a new policy instance.
@@ -15,13 +15,9 @@ class RoundPolicy
         //
     }
 
-    public function canEditRoundRole(User $user, Round $round)
+    public function canDeleteRoundRole(User $user, RoundRole $roundRole)
     {
+        $round = $roundRole->round;
         return $user->is_admin || $user->roundRoles()->where('round_id', $round->id)->where('role', 'MANAGER')->count() > 0;
-    }
-
-    public function view(User $user, Round $round)
-    {
-        return $user->is_admin || $user->roundRoles()->where('round_id', $round->id)->count() > 0;
     }
 }

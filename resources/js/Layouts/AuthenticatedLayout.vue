@@ -91,7 +91,7 @@ const logout = () => {
                                     v-if="$page.props.auth.user.is_admin"
                                 >
                                     <i class="fa fa-users mr-1"></i>
-                                    Users
+                                    Admins
                                 </NavLink>
                                 <NavLink
                                     :href="route('notificationsetup.index')"

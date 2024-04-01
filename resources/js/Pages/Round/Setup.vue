@@ -9,6 +9,7 @@ import axios from "axios";
 const page = usePage();
 
 const round = ref(usePage().props.round.valueOf());
+const isRoundManager = usePage().props.isRoundManager;
 </script>
 
 <template>
@@ -32,12 +33,21 @@ const round = ref(usePage().props.round.valueOf());
                         </span>
                     </h2>
                 </div>
-                <Link
-                    :href="route('round.evaluation.show', round)"
-                    class="text-blue-500 hover:underline"
-                >
-                    Round Evaluation Criteria
-                </Link>
+                <div v-if="isRoundManager">
+                    <Link
+                        :href="route('round.roles.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Users
+                    </Link>
+                    |
+                    <Link
+                        :href="route('round.evaluation.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Round Evaluation Criteria
+                    </Link>
+                </div>
             </div>
         </template>
 

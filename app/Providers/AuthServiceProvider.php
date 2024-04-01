@@ -19,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
         'App\Models\Round' => 'App\Policies\RoundPolicy',
         'App\Models\RoundApplication' => 'App\Policies\RoundApplicationPolicy',
         'App\Models\User' => 'App\Policies\UserPolicy',
+        'App\Models\RoundRole' => 'App\Policies\RoundRolePolicy',
     ];
     /**
      * Register any authentication / authorization services.

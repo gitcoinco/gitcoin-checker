@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Round;
 use App\Models\RoundApplicationEvaluationQuestions;
+use App\Models\RoundRole;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -32,8 +33,13 @@ class RoundEvaluationController extends Controller
     {
         $round->load(['chain']);
 
+        $user = auth()->user();
+
+        $isRoundManager = $user->isAdmin || RoundRole::where('round_id', $round->id)->where('address', $user->eth_addr)->where('role', 'MANAGER')->exists();
+
         return Inertia::render('Round/Evaluation', [
             'round' => $round,
+            'isRoundManager' => $isRoundManager,
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
 use App\Models\RoundPrompt;
+use App\Models\RoundRole;
 use App\Models\UserPreference;
 use App\Policies\RoundApplicationPolicy;
 use Illuminate\Http\Request;
@@ -120,11 +121,16 @@ class RoundApplicationController extends Controller
 
         ]);
 
+        $user = auth()->user();
+
+        $isRoundManager = $user->isAdmin || RoundRole::where('round_id', $application->round->id)->where('address', $user->eth_addr)->where('role', 'MANAGER')->exists();
+
 
         return Inertia::render('Application/Show', [
             'application' => $application,
             'round' => $application->round,
             'averageGPTEvaluationTime' => RoundApplicationPromptResultController::averageGPTResponseTime(),
+            'isRoundManager' => $isRoundManager,
         ]);
     }
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Controllers\GPTController;
 use App\Http\Controllers\NotificationSetupController;
+use App\Http\Controllers\RoundRoleController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
 
@@ -116,6 +117,10 @@ Route::middleware([
         Route::get('rounds', [RoundController::class, 'index'])->name('round.index');
 
         Route::prefix('round')->group(function () {
+            Route::get('/{round}/roundroles', [RoundRoleController::class, 'show'])->name('round.roles.show');
+            Route::post('/{round}/roundroles/upsert', [RoundRoleController::class, 'upsert'])->name('round.role.upsert');
+            Route::delete('/{roundRole}/roundroles/delete', [RoundRoleController::class, 'destroy'])->name('round.role.delete');
+
             Route::get('/evaluation/{round}', [RoundEvaluationController::class, 'show'])->name('round.evaluation.show');
             Route::get('/evaluation/qa/{round}', [RoundEvaluationController::class, 'showQA'])->name('round.evaluation.show.qa');
             Route::post('/evaluation/qa/{round}', [RoundEvaluationController::class, 'upsert'])->name('round.evaluation.upsert');

@@ -25,6 +25,7 @@ const page = usePage();
 
 const application = ref(usePage().props.application.valueOf());
 const round = ref(usePage().props.round.valueOf());
+const isRoundManager = usePage().props.isRoundManager;
 
 const queryParams = new URLSearchParams(window.location.search);
 
@@ -173,12 +174,23 @@ const refreshApplication = async (application) => {
                         </span>
                     </h2>
                 </div>
-                <Link
-                    :href="route('round.evaluation.show', round)"
-                    class="text-blue-500 hover:underline"
-                >
-                    Round Evaluation Criteria
-                </Link>
+
+                <div v-if="isRoundManager">
+                    <Link
+                        :href="route('round.roles.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Users
+                    </Link>
+                    |
+
+                    <Link
+                        :href="route('round.evaluation.show', round)"
+                        class="text-blue-500 hover:underline"
+                    >
+                        Round Evaluation Criteria
+                    </Link>
+                </div>
             </div>
         </template>
 

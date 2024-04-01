@@ -8,6 +8,7 @@ use App\Models\ProjectDonation;
 use App\Models\Round;
 use App\Models\RoundApplication;
 use App\Models\RoundApplicationPromptResult;
+use App\Models\RoundRole;
 use App\Services\AddressService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -119,6 +120,8 @@ class RoundController extends Controller
 
         $this->authorize('view', $round);
 
+        $user = auth()->user();
+
         // has of request inputs
         $requestHash = md5(json_encode($request->all()));
 
@@ -177,12 +180,15 @@ class RoundController extends Controller
             return $round->load('chain');
         });
 
+        $isRoundManager = $user->isAdmin || RoundRole::where('round_id', $round->id)->where('address', $user->eth_addr)->where('role', 'MANAGER')->exists();
+
         if ($request->wantsJson()) {
             return response()->json([
                 'round' => $round,
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
                 'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+                'isRoundManager' => $isRoundManager,
             ]);
         } else {
             return Inertia::render('Round/Show', [
@@ -191,6 +197,7 @@ class RoundController extends Controller
                 'applications' => $applications,
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
                 'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+                'isRoundManager' => $isRoundManager,
             ]);
         }
     }
