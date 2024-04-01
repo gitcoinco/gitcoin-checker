@@ -13,6 +13,16 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                 @include('public.breadcrumb')
 
                 <div class="container py-3">
+                    <form action="/public/rounds/list">
+                        <div class="input-group mb-3">
+                            <input name="search" type="text" value="{{ $search }}" class="form-control" placeholder="Search rounds..." aria-label="Search for rounds" aria-describedby="button-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                            </div>
+                        </div>
+                    </form>
+
+
                     @if ($spotlightRound)
                     <div class="mb-5 highlight-green">
                         <h3 class="mb-3 text-dark">In the spotlight</h3>
@@ -25,14 +35,6 @@ Gitcoin: A list of funding rounds that have been run on Gitcoin.
                     @endif
 
                     <div>
-                        <form action="/public/rounds/list">
-                            <div class="input-group mb-3">
-                                <input name="search" type="text" value="{{ $search }}" class="form-control" placeholder="Search rounds..." aria-label="Search for rounds" aria-describedby="button-addon2">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
-                                </div>
-                            </div>
-                        </form>
 
                         @if ($rounds && count($rounds) > 0)
                         <div class="mb-5">
