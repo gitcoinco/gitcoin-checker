@@ -759,8 +759,11 @@ rounds(filter: {
                     ['round_id' => $round->id, 'project_addr' => Str::lower($data['projectId']), 'application_id' => $data['id']]
                 );
 
+                $project = Project::where('id_addr', Str::lower($data['projectId']))->first();
+
 
                 $roundApplication->update([
+                    'project_id' => $project ? $project->id : null,
                     'status' => $data['status'],
                     'metadata' => json_encode($metadata),
                     'created_at' => $createdAt ? date('Y-m-d H:i:s', $createdAt) : null,
