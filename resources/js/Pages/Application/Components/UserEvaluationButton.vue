@@ -220,6 +220,7 @@ const hasGPTEvaluation = (results, questionText) => {
                                             Project Github:
                                             <a
                                                 :href="
+                                                    'https://github.com/' +
                                                     application.project
                                                         .projectGithub
                                                 "
@@ -239,6 +240,7 @@ const hasGPTEvaluation = (results, questionText) => {
                                             User Github:
                                             <a
                                                 :href="
+                                                    'https://github.com/' +
                                                     application.project
                                                         .userGithub
                                                 "

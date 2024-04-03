@@ -244,7 +244,7 @@ const submitNotificationSetup = () => {
                             <label
                                 for="nr_summaries_per_email"
                                 class="block text-sm font-medium text-gray-700"
-                                >Number of summaries per email:</label
+                                >Max applications per email:</label
                             >
                             <input
                                 v-model="
