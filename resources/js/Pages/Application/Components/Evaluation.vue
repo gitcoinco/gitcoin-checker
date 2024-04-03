@@ -236,7 +236,10 @@ const nrResults = (application) => {
                         </td>
                         <td></td>
                         <td>
-                            <SecondaryButton @click="clearGPTResult">
+                            <SecondaryButton
+                                @click="clearGPTResult"
+                                v-if="$page.props.auth.user.is_admin"
+                            >
                                 Clear</SecondaryButton
                             >
                         </td>
