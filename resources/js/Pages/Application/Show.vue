@@ -355,6 +355,9 @@ const refreshApplication = async (application) => {
                                             :loadingBarInSeconds="
                                                 averageGPTEvaluationTime
                                             "
+                                            v-if="
+                                                application.status === 'PENDING'
+                                            "
                                         />
                                         <div class="mt-2 flex justify-center">
                                             <ResultsSummary
