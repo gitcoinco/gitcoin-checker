@@ -1,7 +1,7 @@
 <script setup>
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import Modal from "@/Components/Modal.vue";
-import { defineProps, defineEmits, ref, watch } from "vue";
+import { defineProps, defineEmits, ref, watch, onMounted } from "vue";
 import ResultsData from "@/Components/Gitcoin/Application/ResultsData.vue";
 import UserEvaluationButton from "./UserEvaluationButton.vue";
 import { showDateInShortFormat } from "@/utils";
@@ -27,6 +27,17 @@ const showGPTResultsModal = ref(false);
 const busyDoingGPTEvaluation = ref(false);
 const evaluationProgress = ref(0);
 const showResults = ref(false);
+
+// Initialize showResults from local storage
+onMounted(() => {
+    const savedShowResults = localStorage.getItem("showResults");
+    showResults.value = savedShowResults === "true"; // Convert string back to boolean
+});
+
+// Watch for changes in showResults and save to local storage
+watch(showResults, (newValue) => {
+    localStorage.setItem("showResults", newValue.toString()); // Convert boolean to string for storage
+});
 
 watch(
     () => props.application,
@@ -152,7 +163,12 @@ const nrResults = (application) => {
                 </h2>
 
                 <div class="mb-4">
-                    <Checkbox id="toggleResults" v-model="showResults" />
+                    <Checkbox
+                        id="toggleResults"
+                        v-model="showResults"
+                        :checked="showResults"
+                        class="mr-2"
+                    />
                     <label for="toggleResults">Show result details</label>
                 </div>
 
