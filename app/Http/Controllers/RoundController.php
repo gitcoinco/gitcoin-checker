@@ -261,22 +261,30 @@ class RoundController extends Controller
             $matchingCap = ($metadata['quadraticFundingConfig']['matchingCapAmount'] / 100) * $metadata['quadraticFundingConfig']['matchingFundsAvailable'];
         }
 
-        // $roundApplications = RoundApplication::where('round_id', $round->id)
-        //     ->join('projects', 'round_applications.project_addr', '=', 'projects.id_addr')
-        //     ->selectRaw('projects.title, projects.slug, projects.logoImg, round_applications.project_addr, sum(round_applications.donor_amount_usd + round_applications.match_amount_usd) as total_amount')
-        //     ->groupBy('projects.title', 'round_applications.project_addr')
-        //     ->orderBy('total_amount', 'desc')
-        //     ->paginate(10);
+        $search = request('search', '');
 
-        $roundApplications = $round->applications()
-            ->with(['project', 'evaluationAnswers', 'results'])
 
-            // ->selectRaw('project_addr, sum(donor_amount_usd + match_amount_usd) as total_amount')
-            // ->groupBy('project_addr')
+        if ($search) {
 
-            ->orderByRaw('donor_amount_usd + match_amount_usd desc')
+            $projectIds = Project::search($search)->get()->map(function ($project) {
+                return $project->id;
+            });
 
-            ->paginate();
+            $projectIdsString = $projectIds->implode(',');
+
+            $roundApplications = $round->applications()
+                ->with(['project', 'evaluationAnswers', 'results'])
+                ->whereIn('project_id', $projectIds)
+                ->orderByRaw("FIELD(project_id, {$projectIdsString})")
+                ->paginate();
+        } else {
+
+
+            $roundApplications = $round->applications()
+                ->with(['project', 'evaluationAnswers', 'results'])
+                ->orderByRaw('donor_amount_usd + match_amount_usd desc')
+                ->paginate();
+        }
 
         $totalProjectsReachingMatchingCap = 0;
         if ($matchingCap > 0) {

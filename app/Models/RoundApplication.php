@@ -13,6 +13,7 @@ class RoundApplication extends Model
     protected $fillable = [
         'uuid',
         'round_id',
+        'project_id',
         'application_id', // The id of the application from the applications.json file
         'project_addr',
         'status',

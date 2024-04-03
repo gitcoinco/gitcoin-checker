@@ -26,14 +26,6 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                 @include('public.breadcrumb')
 
                 <div class="container py-3">
-                    <form action="/public/rounds/list">
-                        <div class="input-group mb-3">
-                            <input name="search" type="text" value="" class="form-control" placeholder="Search rounds..." aria-label="Search for rounds" aria-describedby="button-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
-                            </div>
-                        </div>
-                    </form>
 
 
                     <h1 class="card-title">{{ $round->name }}</h1>
@@ -62,7 +54,7 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                     ?>
 
 
-                    <div class="mb-4 d-flex justify-content-between">
+                    <div class="mb-4 d-flex justify-content-between text-xs">
                         <div>
                             <div class="mb-4">
 
@@ -134,6 +126,26 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
 
                     @if(count($roundApplications) > 0)
+
+                    <?php
+                    $search = request()->get('search');
+                    ?>
+
+                    <form action="/public/round/<?php echo $round->uuid; ?>/show">
+                        <div class="input-group mb-3">
+                            <input name="search" type="text" value="<?php echo $search; ?>" class="form-control" placeholder="Search projects in <?php echo $round->name; ?>" aria-label="Search for projects in this round" aria-describedby="button-addon2">
+                            <div class="input-group-append">
+
+                                <?php if ($search) : ?>
+                                    <button class="btn btn-outline-secondary" type="button" id="clear-search" onclick="location.href='/public/round/<?php echo $round->uuid; ?>/show'">Clear</button>
+                                <?php endif; ?>
+
+
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                            </div>
+                        </div>
+                    </form>
+
                     <div>
                         <!-- <h3>Projects in the {{ $round->name }} round.</h3> -->
                         <div>
