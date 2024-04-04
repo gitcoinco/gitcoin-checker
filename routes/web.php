@@ -58,7 +58,7 @@ Route::get('/', function () {
 Route::prefix('public')->group(
     function () {
 
-        Route::get('/', [PublicController::class, 'home'])->name('public.projects.home');
+        Route::get('/', [PublicController::class, 'home'])->name('public.home');
         Route::get('/gmv', [PublicController::class, 'gmv'])->name('public.gmv');
 
 
