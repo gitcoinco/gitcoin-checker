@@ -12,6 +12,7 @@ use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Controllers\GPTController;
 use App\Http\Controllers\NotificationSetupController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\RoundRoleController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
@@ -56,9 +57,11 @@ Route::get('/', function () {
 
 Route::prefix('public')->group(
     function () {
-        Route::get('/', function () {
-            return redirect()->route('public.projects.home');
-        });
+
+        Route::get('/', [PublicController::class, 'home'])->name('public.projects.home');
+        Route::get('/gmv', [PublicController::class, 'gmv'])->name('public.gmv');
+
+
         Route::get('/projects', [ProjectController::class, 'homePublic'])->name('public.projects.home');
         Route::get('/project/random', [ProjectController::class, 'randomProjectPublic'])->name('public.project.random');
         Route::get('/projects/list', [ProjectController::class, 'listPublic'])->name('public.projects.list');

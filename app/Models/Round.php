@@ -35,6 +35,7 @@ class Round extends Model
         'application_metadata',
         'name',
         'prompt_data',
+        'funded_amount_in_usd',
     ];
 
     // metadata should be returned as json

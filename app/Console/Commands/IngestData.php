@@ -451,6 +451,7 @@ rounds(filter: {
 }, orderBy: CREATED_AT_BLOCK_DESC, first: ' . $limit . ') {
     id
     totalAmountDonatedInUsd
+    fundedAmountInUsd
     matchAmount
     matchAmountInUsd
     applicationsStartTime
@@ -479,6 +480,7 @@ rounds(filter: {
             return;
         }
 
+
         if (is_array($roundsData)) {
             $this->info("Number of rounds to process: " . count($roundsData));
             foreach ($roundsData as $roundData) {
@@ -488,6 +490,7 @@ rounds(filter: {
                     [
                         'total_amount_donated_in_usd' => $roundData['totalAmountDonatedInUsd'],
                         'total_donations_count' => $roundData['totalDonationsCount'],
+                        'funded_amount_in_usd' => $roundData['fundedAmountInUsd'],
                         'match_token_address' => $roundData['matchTokenAddress'],
                         'match_amount' => $roundData['matchAmount'],
                         'match_amount_in_usd' => $roundData['matchAmountInUsd'],
