@@ -10,7 +10,7 @@
 $notificationLogApplications = $notificationLog->notificationLogApplications;
 ?>
 
-<p>Applications: {{ $notificationLogApplications->count() }}</p>
+<p>There are {{ $notificationLogApplications->count() }} new application(s) that require your your attention. Click on the project name below to review the application.</p>
 @include('beautymail::templates.widgets.articleEnd')
 
 @include('beautymail::templates.widgets.newfeatureStart')
