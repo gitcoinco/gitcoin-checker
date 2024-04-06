@@ -145,7 +145,7 @@ class IngestData extends Command
     {
 
         // Chains are hardcoded for now but should be fetched from a dynamic source in the future
-        $chainList = [1, 10, 137, 250, 42161, 424];
+        $chainList = [1, 10, 137, 250, 42161, 424, 43114];
 
         $this->info('Chains...');
         foreach ($chainList as $key => $chainId) {
