@@ -631,7 +631,7 @@ class RoundApplicationController extends Controller
         $answers = '';
         if (isset($metadata['application']['answers'])) {
             foreach ($metadata['application']['answers'] as $answer) {
-                if (!$answer['hidden'] && isset($answer['answer'])) {
+                if (!isset($answer['encryptedAnswer']) && isset($answer['answer'])) {
                     $answers .= $answer['question'] . ': ';
 
                     if (is_array($answer['answer'])) {
