@@ -40,7 +40,7 @@ const answers = computed(() => {
 
     // remove all answers that have answer.hidden = true
     answers = answers.filter((answer) => {
-        return !answer.hidden;
+        return !answer.encryptedAnswer;
     });
 
     return answers;
