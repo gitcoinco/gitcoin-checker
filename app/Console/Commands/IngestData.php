@@ -642,12 +642,14 @@ rounds(filter: {
                         }
                     }
 
+                    $title = isset($data['project']['name']) ? $data['project']['name'] : (isset($metadata['title']) ? $metadata['title'] : null);
+
 
                     $project = Project::updateOrCreate(
                         ['id_addr' => Str::lower($data['project']['id'])],
                         [
                             'created_at' => $createdAt,
-                            'title' => isset($metadata['title']) ? $metadata['title'] : null,
+                            'title' => $title,
                             'description' => $description,
                             'website' => isset($metadata['website']) ? $metadata['website'] : null,
                             'userGithub' => isset($metadata['userGithub']) ? $metadata['userGithub'] : null,
@@ -658,6 +660,13 @@ rounds(filter: {
                             'bannerImg' => isset($metadata['bannerImg']) ? $metadata['bannerImg'] : null,
                         ]
                     );
+
+                    // A bug created very short slugs, so fix these.  This can be removed after a run or two
+                    if (Str::length($project->slug) <= 3) {
+                        $slug = $project->createUniqueSlug();
+                        $project->slug = $slug;
+                        $project->save();
+                    }
 
                     $this->info("Successfully updated project: {$project->title}");
                 }
