@@ -27,7 +27,7 @@ class RoundApplicationPromptResultController extends Controller
         if ($resultsData) {
             foreach ($resultsData as $result) {
                 $totalNrAnswers += 1;
-                if ($result['score'] == 'Yes') {
+                if (isset($result['score']) && $result['score'] == 'Yes') {
                     $score += 1;
                 }
             }
