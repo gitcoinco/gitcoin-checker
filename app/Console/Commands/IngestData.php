@@ -717,8 +717,8 @@ rounds(filter: {
             projectId
             project {
                 id
-                chainId
                 createdAtBlock
+                chainId
                 name
             }
           }
@@ -735,8 +735,6 @@ rounds(filter: {
 
         if (isset($applicationData['applications']) && count($applicationData['applications']) > 0) {
 
-            // Due to a bug, we need to clean up old projects that do not belong to this round
-            $listOfProjectsToInclude = [];
 
             foreach ($applicationData['applications'] as $key => $data) {
 
@@ -777,9 +775,6 @@ rounds(filter: {
 
                 $project = Project::where('id_addr', Str::lower($data['projectId']))->first();
 
-                if ($project) {
-                    $listOfProjectsToInclude[] = $project->id;
-                }
 
                 $roundApplication->update([
                     'project_id' => $project ? $project->id : null,
@@ -802,11 +797,6 @@ rounds(filter: {
                     $roundApplicationController->checkAgainstChatGPT($roundApplication);
                 }
             }
-
-            // Delete any projects that are not in the list of projects to include
-            $round->applications()->whereNotIn('project_id', $listOfProjectsToInclude)->delete();
-
-
             Cache::put($cacheName, $hash, now()->addHours(1));
         }
     }
