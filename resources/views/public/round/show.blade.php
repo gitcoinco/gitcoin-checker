@@ -191,13 +191,13 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                             <a href="{{ route('public.project.show', $roundApplication->project->slug) }}" class="text-decoration-none text-dark align-items-center">
                                                 <h6 class="mb-0">{{ $roundApplication->project->title }}</h6>
                                             </a>
+                                            @if ($roundApplication->project->gpt_summary)
+                                            <div class="text-xs">{{ $roundApplication->project->gpt_summary }}</div>
+                                            @endif
                                         </div>
-                                        @if ($roundApplication->project->gpt_summary)
-                                        <div class="text-xs">{{ $roundApplication->project->gpt_summary }}</div>
-                                        @endif
                                     </div>
 
-                                    <div class="text-xs">
+                                    <div>
                                         <div>
 
                                             <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
@@ -211,11 +211,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
                                             <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
                                                 @if($roundApplication->status == 'APPROVED')
-                                                <span class="text-success"><i class="fa fa-check-circle"></i>Application approved</span>
+                                                <span class="text-success"><i class="fa fa-check-circle"></i> Application approved</span>
                                                 @elseif($roundApplication->status == 'PENDING')
                                                 <span class="text-warning"><i class="fa fa-clock-o"></i> Pending application</span>
                                                 @elseif($roundApplication->status == 'REJECTED')
-                                                <span class="text-danger"><i class="fa fa-times-circle"></i>Application rejected</span>
+                                                <span class="text-danger"><i class="fa fa-times-circle"></i> Application rejected</span>
                                                 @endif
                                             </a>
                                         </div>
