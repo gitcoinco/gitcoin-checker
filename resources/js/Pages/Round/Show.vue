@@ -555,21 +555,41 @@ const refreshApplication = async (application) => {
                                         </div>
                                     </td>
                                     <td>
-                                        <a
-                                            :href="
-                                                'https://manager.gitcoin.co/#/round/' +
-                                                round.round_addr.toLowerCase() +
-                                                '/application/' +
-                                                application.application_id.toLowerCase()
-                                            "
-                                            target="_blank"
-                                            class="text-blue-500 underline"
-                                        >
-                                            <i
-                                                class="fa fa-external-link"
-                                                aria-hidden="true"
-                                            ></i>
-                                        </a>
+                                        <div class="text-xl">
+                                            <a
+                                                :href="
+                                                    'https://manager.gitcoin.co/#/round/' +
+                                                    round.round_addr.toLowerCase() +
+                                                    '/application/' +
+                                                    application.application_id.toLowerCase()
+                                                "
+                                                target="_blank"
+                                                title="View application in Gitcoin Manager"
+                                                class="text-blue-500 underline mr-2"
+                                            >
+                                                <i
+                                                    class="fa fa-external-link"
+                                                    aria-hidden="true"
+                                                ></i>
+                                            </a>
+
+                                            <a
+                                                :href="
+                                                    route('application.show', {
+                                                        application:
+                                                            application.uuid,
+                                                    })
+                                                "
+                                                target="_blank"
+                                                title="View application"
+                                                class="text-blue-500 underline"
+                                            >
+                                                <i
+                                                    class="fa fa-share-square-o"
+                                                    aria-hidden="true"
+                                                ></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
