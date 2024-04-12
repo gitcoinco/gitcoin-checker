@@ -31,6 +31,18 @@ const hasRetrievedData = ref(false);
 let loggedInUserAnswers = null;
 let loggedInUser = null;
 
+const canSave = () => {
+    const howManyQuestionsHaveBeenAnswered = selectedAnswers.value.filter(
+        (answer) => answer
+    ).length;
+
+    const totalNumberOfQuestions = JSON.parse(
+        props.application.round.evaluation_questions.questions
+    ).length;
+
+    return howManyQuestionsHaveBeenAnswered == totalNumberOfQuestions;
+};
+
 const fetchUserData = async () => {
     try {
         const response = await axios.get(
@@ -53,6 +65,10 @@ const fetchUserData = async () => {
 };
 
 const submitEvaluation = async () => {
+    if (!canSave()) {
+        return;
+    }
+
     const form = {
         answers: selectedAnswers.value,
         notes: notes.value,
@@ -507,21 +523,10 @@ const hasGPTEvaluation = (results, questionText) => {
                                 </div>
                                 <PrimaryButton
                                     type="submit"
-                                    :disabled="
-                                        !selectedAnswers.length ===
-                                        JSON.parse(
-                                            application.round
-                                                .evaluation_questions.questions
-                                        ).length
-                                    "
+                                    :disabled="!canSave()"
                                     :class="{
                                         'opacity-50 cursor-not-allowed':
-                                            selectedAnswers.length !==
-                                            JSON.parse(
-                                                application.round
-                                                    .evaluation_questions
-                                                    .questions
-                                            ).length,
+                                            !canSave(),
                                     }"
                                 >
                                     Save
