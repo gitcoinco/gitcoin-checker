@@ -338,7 +338,7 @@ const submitNotificationSetup = () => {
                             type="submit"
                             class="mt-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                         >
-                            Submit
+                            Save
                         </button>
                     </form>
                 </div>
@@ -346,7 +346,3 @@ const submitNotificationSetup = () => {
         </div>
     </div>
 </template>
-
-<style scoped>
-/* Add your styles here */
-</style>
