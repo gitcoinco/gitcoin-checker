@@ -508,7 +508,7 @@ const hasGPTEvaluation = (results, questionText) => {
                                 <PrimaryButton
                                     type="submit"
                                     :disabled="
-                                        selectedAnswers.length !==
+                                        !selectedAnswers.length ===
                                         JSON.parse(
                                             application.round
                                                 .evaluation_questions.questions
