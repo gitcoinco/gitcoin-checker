@@ -120,6 +120,7 @@ if (urlParams.has("search")) {
                                             :href="project.website"
                                             _target="_blank"
                                             class="text-blue-500 hover:underline"
+                                            v-if="project.website"
                                         >
                                             {{
                                                 shortenURL(
