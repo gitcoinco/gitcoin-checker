@@ -2,6 +2,7 @@
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import GitcoinLogo from "@/Components/Gitcoin/Logo.vue";
 import { Head, Link } from "@inertiajs/vue3";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 
 defineProps({
     canLogin: Boolean,
@@ -9,6 +10,13 @@ defineProps({
     laravelVersion: String,
     phpVersion: String,
 });
+
+const gotoPublicProjects = () => {
+    window.location.href = "/public/projects/list";
+};
+const gotoPublicRounds = () => {
+    window.location.href = "/public/rounds/list";
+};
 </script>
 
 <template>
@@ -56,11 +64,25 @@ defineProps({
                     <h2 class="mt-6 text-xl font-semibold text-gray-900">
                         Checker
                     </h2>
-                    <p>
-                        A tool to help you evaluate projects for your Gitcoin
+                    <p class="mb-5">
+                        A tool to help you evaluate projects for your
+                        <a
+                            href="https://gitcoin.co"
+                            title="Funding what matters"
+                            >Gitcoin</a
+                        >
                         rounds.
                     </p>
-                    <a href="https://gitcoin.co">Gitcoin</a>
+                    <p>
+                        <SecondaryButton
+                            @click="gotoPublicProjects"
+                            class="mr-1"
+                            >Projects</SecondaryButton
+                        >
+                        <SecondaryButton @click="gotoPublicRounds"
+                            >Rounds</SecondaryButton
+                        >
+                    </p>
                 </div>
             </div>
         </div>
