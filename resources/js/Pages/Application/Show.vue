@@ -161,7 +161,10 @@ const refreshApplication = async (application) => {
                     <h2
                         class="font-semibold text-xl text-gray-800 leading-tight"
                     >
-                        {{ round.name }} on {{ round.chain.name }}
+                        <Link :href="route('round.show', round)">{{
+                            round.name
+                        }}</Link>
+                        on {{ round.chain.name }}
                         <span
                             class="text-sm"
                             v-if="round.round_addr.length > 10"
