@@ -106,6 +106,7 @@ class Round extends Model
     {
         return [
             'name' => $this->name,
+            'year' => date('Y', strtotime($this->applications_start_time)),
             'round_addr' => $this->round_addr,
             'match_token_address' => $this->match_token_address,
             'chain_id' => $this->chain_id,

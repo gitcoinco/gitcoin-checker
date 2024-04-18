@@ -225,7 +225,7 @@ class RoundController extends Controller
 
         $search = $request->query('search');
         if ($search) {
-            $rounds = Round::search($search)->paginate();
+            $rounds = Round::search($search)->paginate(50);
             $rounds->load(['chain']);
             $rounds->loadCount('applications');
         } else {
