@@ -190,7 +190,7 @@ const applications = ref(usePage().props.applications.valueOf());
                                     </th>
 
                                     <th>
-                                        Round<span
+                                        Application<span
                                             v-if="applications.data.length > 1"
                                             >s</span
                                         >
@@ -236,8 +236,8 @@ const applications = ref(usePage().props.applications.valueOf());
                                         <Link
                                             :href="
                                                 route(
-                                                    'round.show',
-                                                    application.round
+                                                    'application.show',
+                                                    application
                                                 )
                                             "
                                             class="text-blue-500 hover:underline"
