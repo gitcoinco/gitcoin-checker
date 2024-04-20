@@ -227,6 +227,15 @@ const refreshApplication = async (application) => {
         delete loadingStates.value[application.id];
     }
 };
+
+const openPublicView = (round) => {
+    window.open(
+        route("public.round.show", {
+            round: round.uuid,
+        }),
+        "_blank"
+    );
+};
 </script>
 
 <template>
@@ -266,11 +275,22 @@ const refreshApplication = async (application) => {
 
         <div class="py-6">
             <div
-                class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-3 py-3"
+                class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-3 py-5 sm:px-6 lg:px-5"
             >
-                <div
-                    class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex justify-between"
-                >
+                <div class="mb-5">
+                    <a
+                        @click.prevent="openPublicView(round)"
+                        href="#"
+                        target="_blank"
+                        class="text-blue-500 hover:underline"
+                    >
+                        <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                        Open the public view of this round in a new window
+                    </a>
+                </div>
+
+                <div class="max-w-7xl mx-auto flex justify-between">
                     <div>
                         <div class="text-xl mr-6">
                             Match amount: ${{ round.match_amount_in_usd }}
@@ -317,7 +337,7 @@ const refreshApplication = async (application) => {
                     </div>
                 </div>
 
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-3">
+                <div class="max-w-7xl mx-auto pt-3">
                     <div
                         class="mb-3"
                         v-if="
