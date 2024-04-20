@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AccessControl;
 use App\Models\Round;
 use App\Models\RoundApplication;
+use App\Models\RoundPrompt;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,7 +70,6 @@ class RoundPromptController extends Controller
         return Inertia::render('Round/Prompt', [
             'round' => $round,
             'prompt' => $prompt,
-            'randomApplication' => $this->getRandomApplicationPrompt($round),
         ]);
     }
 
@@ -107,6 +107,13 @@ class RoundPromptController extends Controller
         }
 
         $prompt = $round->prompt;
+
+        // If the round has more than 10 prompts, we should not allow the user to change the prompt
+        $totalRoundPrompts = RoundPrompt::withTrashed()->where('round_id', $round->id)->count();
+        if ($totalRoundPrompts > 10) {
+            $this->notificationService->error('We only allow changing the prompt up to 10 times at this point in time. Please contact support if you need to change the prompt more than 10 times.');
+            return redirect()->route('round.prompt.show', $round);
+        }
 
         // if the passed values are different to the current values
         if ($prompt->system_prompt !== $request->system_prompt || $prompt->prompt !== $request->prompt) {

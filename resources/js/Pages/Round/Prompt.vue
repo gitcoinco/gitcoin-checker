@@ -111,8 +111,19 @@ onMounted(async () => {
         >
             <div>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-6">
+                    <div class="mb-5 italic">
+                        <i
+                            class="fa fa-exclamation-circle text-red-600"
+                            aria-hidden="true"
+                        ></i>
+                        Ensure that you know what you're doing when tweaking the
+                        prompts, as it can have a big impact on the quality of
+                        the applications you receive.
+                    </div>
+
                     <div class="flex justify-between items-center mb-5">
-                        <h2>Evaluation Criteria</h2>
+                        <h2 class="text-2xl">Evaluation Criteria</h2>
+
                         <PrimaryButton @click="resetToDefaultPrompt"
                             >Reset to Default Prompt</PrimaryButton
                         >
