@@ -85,7 +85,9 @@ onMounted(async () => {
     <AuthenticatedLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ round.name }}
+                <Link :href="route('round.show', { round })">
+                    {{ round.name }} </Link
+                >&nbsp;
                 <span class="text-sm" v-if="round?.chain?.name"
                     >on {{ round.chain.name }}</span
                 >

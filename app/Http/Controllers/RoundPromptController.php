@@ -116,6 +116,10 @@ class RoundPromptController extends Controller
 
             $round->prompt()->create($request->all());
 
+            // Delete all AI evaluations that have been done for the round as the prompt has changed
+            $round->applications()->each(function ($application) {
+                $application->results()->delete();
+            });
 
             $this->notificationService->success('New round criteria specified.');
         } else {
