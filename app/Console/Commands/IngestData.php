@@ -108,6 +108,8 @@ class IngestData extends Command
         // Score the rounds based on setup
         $scoreController = new GptRoundEligibilityScoreController();
         $scoreController->scoreRounds();
+
+        $this->updateProjectSummaries();
     }
 
     /**
@@ -117,9 +119,6 @@ class IngestData extends Command
     {
         $this->processAll(false);
 
-        if (!app()->isLocal()) {
-            $this->updateProjectSummaries();
-        }
 
         // Loop through all the chains and update project owners
         $chains = Chain::all();
@@ -270,12 +269,10 @@ class IngestData extends Command
     {
         $projectController = new ProjectController();
 
-        $projects = Project::whereNull('gpt_summary')->limit(100)->get();
+        $projects = Project::whereNull('gpt_summary')->orderBy('id', 'desc')->limit(100)->get();
         foreach ($projects as $project) {
             $this->info("Processing project: {$project->title}");
-            if (!app()->isLocal()) {
-                $projectController->doGPTSummary($project);
-            }
+            $projectController->doGPTSummary($project);
         }
     }
 

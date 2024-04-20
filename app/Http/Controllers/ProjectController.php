@@ -391,7 +391,7 @@ class ProjectController extends Controller
         // If the description is short, then just use it
         $wordCount = str_word_count($project->description);
         if ($wordCount <= 30) {
-            $project->gpt_summary = Str::length($project->description) > 0 ? $project->description : $project->title;
+            $project->gpt_summary = Str::length($project->description) > 0 ? $project->description : '.';
             $project->save();
             return $project;
         }
