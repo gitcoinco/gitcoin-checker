@@ -176,6 +176,15 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                 }
                             }
 
+                            $showApplicationReview = false;
+
+                            if ($round->application_result_availability_publicly == 'public') {
+                                $showApplicationReview = true;
+                            } else if ($round->application_result_availability_publicly == 'processed') {
+                                if ($roundApplication->status == 'APPROVED' || $roundApplication->status == 'REJECTED') {
+                                    $showApplicationReview = true;
+                                }
+                            }
 
 
                             ?>
@@ -198,14 +207,15 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                     </div>
 
                                     <div>
+                                        @if ($showApplicationReview)
                                         <div>
-
                                             <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
                                                 {{ $totalReviews }} application review<?php if ($totalReviews > 1) {
                                                                                             echo 's';
                                                                                         } ?>
                                             </a>
                                         </div>
+                                        @endif
 
                                         <div>
 
@@ -253,7 +263,7 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
                                 </div>
 
                                 <div style="min-width: 80px;">
-                                    @if ($totalReviews > 0)
+                                    @if ($totalReviews > 0 && $showApplicationReview)
                                     <a href="{{ route('public.application.show', $roundApplication->uuid) }}">
                                         <div style="font-size: 12px; border-radius: 50%;
                                             width: 42px;

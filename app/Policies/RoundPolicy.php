@@ -24,4 +24,9 @@ class RoundPolicy
     {
         return $user->is_admin || $user->roundRoles()->where('round_id', $round->id)->count() > 0;
     }
+
+    public function update(User $user, Round $round)
+    {
+        return $user->is_admin || $user->roundRoles()->where('round_id', $round->id)->count() > 0;
+    }
 }

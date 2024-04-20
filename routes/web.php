@@ -121,6 +121,10 @@ Route::middleware([
 
         Route::prefix('round')->group(function () {
             Route::get('/{round}/roundroles', [RoundRoleController::class, 'show'])->name('round.roles.show');
+            Route::get('/{round}/settings', [RoundController::class, 'settings'])->name('round.settings.show');
+            Route::post('/{round}/settings', [RoundController::class, 'settingsUpdate'])->name('round.settings.update');
+
+
             Route::post('/{round}/roundroles/upsert', [RoundRoleController::class, 'upsert'])->name('round.role.upsert');
             Route::delete('/{roundRole}/roundroles/delete', [RoundRoleController::class, 'destroy'])->name('round.role.delete');
 

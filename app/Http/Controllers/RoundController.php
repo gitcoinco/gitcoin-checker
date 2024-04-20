@@ -26,6 +26,40 @@ class RoundController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function settingsUpdate(Round $round)
+    {
+        $this->authorize('update', $round);
+
+        $round->load('chain');
+
+
+        // validate application_result_availability_publicly
+        $request = request();
+        $request->validate([
+            'application_result_availability_publicly' => 'required|in:public,private,processed'
+        ]);
+
+        $round->application_result_availability_publicly = $request->application_result_availability_publicly;
+        $round->save();
+
+        $this->notificationService->success('Settings updated');
+
+
+        return Inertia::render('Round/Settings', [
+            'round' => $round
+        ]);
+    }
+
+
+    public function settings(Round $round)
+    {
+        $this->authorize('view', $round);
+        $round->load('chain');
+        return Inertia::render('Round/Settings', [
+            'round' => $round
+        ]);
+    }
+
     public function getRoundData($showTestRounds, $roundIds = null)
     {
         $user = auth()->user();
