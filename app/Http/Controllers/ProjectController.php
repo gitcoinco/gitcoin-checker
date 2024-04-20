@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use League\CommonMark\CommonMarkConverter;
 use Orhanerday\OpenAi\OpenAi;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -390,7 +391,7 @@ class ProjectController extends Controller
         // If the description is short, then just use it
         $wordCount = str_word_count($project->description);
         if ($wordCount <= 30) {
-            $project->gpt_summary = $project->description;
+            $project->gpt_summary = Str::length($project->description) > 0 ? $project->description : $project->title;
             $project->save();
             return $project;
         }
@@ -428,6 +429,7 @@ class ProjectController extends Controller
         if (isset($gptResponse->choices[0]->message->content)) {
             $project->gpt_summary = $gptResponse->choices[0]->message->content;
             $project->save();
+
             return $project;
         }
     }
