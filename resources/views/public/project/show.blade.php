@@ -54,18 +54,42 @@ Gitcoin: {{ $project->title }}
 
                 <div class="mb-4">
 
-                    @if(isset($project->website))
-                    <div><i class="fa fa-globe" aria-hidden="true"></i> <a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></div>
-                    @endif
-                    @if(isset($project->projectTwitter))
-                    <div><i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></div>
-                    @endif
-                    @if($project->userGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a> <span class="text-xs">(user)</span></div>
-                    @endif
-                    @if($project->projectGithub)
-                    <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a> <span class="text-xs">(project)</span></div>
-                    @endif
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            @if(isset($project->website))
+                            <div><i class="fa fa-globe" aria-hidden="true"></i> <a href="{{ $project->website }}" target="_blank">{{ $project->website }}</a></div>
+                            @endif
+                            @if(isset($project->projectTwitter))
+                            <div><i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/{{ $project->projectTwitter }}" target="_blank">{{ $project->projectTwitter }}</a></div>
+                            @endif
+                            @if($project->userGithub)
+                            <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->userGithub }}" target="_blank">{{ $project->userGithub }}</a> <span class="text-xs">(user)</span></div>
+                            @endif
+                            @if($project->projectGithub)
+                            <div><i class="fa fa-github" aria-hidden="true"></i> <a href="https://github.com/{{ $project->projectGithub }}" target="_blank">{{ $project->projectGithub }}</a> <span class="text-xs">(project)</span></div>
+                            @endif
+                        </div>
+
+                        <div>
+
+                            <div class="d-flex border border-grey p-2 rounded text-secondary" style="max-width: 210px;">
+
+                                <div class="mr-1" style="min-width: 42px; font-size: 12px; border-radius: 50%;
+                                            width: 42px;
+                                            height: 42px;
+                                            line-height: 42px;
+                                            text-align: center;
+                                            color: white;
+                                            background-color:
+                                                {{ $stats['totalAverageScore'] < 40 ? 'red' : ($stats['totalAverageScore'] < 70 ? 'orange' : 'green') }}">
+                                    {{ intval($stats['totalAverageScore']) }}%
+                                </div>
+
+                                <div class="small"><em>average score over {{ $stats['totalNrScores'] }} application evaluations</em></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 @if($project->gpt_summary && $project->gpt_summary != $project->description)

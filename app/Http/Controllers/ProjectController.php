@@ -341,6 +341,31 @@ class ProjectController extends Controller
             $projectsInterest = Project::whereNotNull('gpt_summary')->inRandomOrder()->limit(5)->get();
         }
 
+        $cacheTimeout = 30; // Cache for 30 minutes
+
+        $stats = Cache::remember($cacheName . '-stats', $cacheTimeout, function () use ($applications) {
+            $stats = ['nrAIScores' => 0, 'totalAIScores' => 0, 'nrHumanScores' => 0, 'totalHumanScores' => 0, 'totalAverageScore' => 0, 'totalNrScores' => 0];
+
+            foreach ($applications as $application) {
+
+                $stats['nrAIScores'] += $application->results()->count();
+                $result = $application->results()->first();
+                if ($result) {
+                    $stats['totalAIScores'] += $result->score;
+                }
+
+                $stats['nrHumanScores'] += $application->evaluationAnswers()->count();
+                $stats['totalHumanScores'] += $application->evaluationAnswers()->sum('score');
+            }
+
+            $stats['totalNrScores'] = $stats['nrHumanScores'] + $stats['nrAIScores'];
+            if ($stats['totalHumanScores'] + $stats['totalAIScores'] > 0) {
+                $stats['totalAverageScore'] = ($stats['totalHumanScores'] + $stats['totalAIScores']) / ($stats['nrHumanScores'] + $stats['nrAIScores']);
+            }
+
+            return $stats;
+        });
+
         return view('public.project.show', [
             'project' => $project,
             'projectsInterest' => $projectsInterest,
@@ -351,6 +376,7 @@ class ProjectController extends Controller
             'totalProjectDonorContributionsCount' => $totalProjectDonorContributionsCount,
             'totalProjectMatchAmount' => $totalProjectMatchAmount,
             'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
+            'stats' => $stats,
         ]);
     }
 
