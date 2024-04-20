@@ -216,6 +216,27 @@ class RoundController extends Controller
 
         $isRoundManager = $user->isAdmin || RoundRole::where('round_id', $round->id)->where('address', $user->eth_addr)->where('role', 'MANAGER')->exists();
 
+        $stats = ['totalAverageScore' => 0, 'totalNrScores' => 0, 'totalHumanScores' => 0, 'totalAIScores' => 0, 'nrHumanScores' => 0, 'nrAIScores' => 0];
+
+        foreach ($applications as $application) {
+
+            $stats['nrAIScores'] += $application->results()->count();
+            $result = $application->results()->first();
+            if ($result) {
+                $stats['totalAIScores'] += $result->score;
+            }
+
+            $stats['nrHumanScores'] += $application->evaluationAnswers()->count();
+            $stats['totalHumanScores'] += $application->evaluationAnswers()->sum('score');
+        }
+
+        $stats['totalNrScores'] = $stats['nrHumanScores'] + $stats['nrAIScores'];
+        if ($stats['totalHumanScores'] + $stats['totalAIScores'] > 0) {
+            $stats['totalAverageScore'] = ($stats['totalHumanScores'] + $stats['totalAIScores']) / ($stats['nrHumanScores'] + $stats['nrAIScores']);
+        }
+
+
+
         if ($request->wantsJson()) {
             return response()->json([
                 'round' => $round,
@@ -223,6 +244,7 @@ class RoundController extends Controller
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
                 'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
                 'isRoundManager' => $isRoundManager,
+                'stats' => $stats
             ]);
         } else {
             return Inertia::render('Round/Show', [
@@ -232,6 +254,7 @@ class RoundController extends Controller
                 'averageGPTEvaluationTime' => $averageGPTEvaluationTime,
                 'pinataUrl' => env('PINATA_CLOUDFRONT_URL'),
                 'isRoundManager' => $isRoundManager,
+                'stats' => $stats
             ]);
         }
     }

@@ -27,6 +27,7 @@ const round = ref(usePage().props.round.valueOf());
 const applications = ref(usePage().props.applications.valueOf());
 const pinataUrl = usePage().props.pinataUrl;
 const isRoundManager = usePage().props.isRoundManager;
+const stats = usePage().props.stats;
 
 const queryParams = new URLSearchParams(window.location.search);
 const status = ref(queryParams.get("status") || "all");
@@ -371,6 +372,34 @@ const openPublicView = (round) => {
                                     )
                                     .join(", ")
                             }}
+                        </div>
+                    </div>
+                    <div class="mt-3 highlight-green">
+                        <div>
+                            There's a total of
+                            <strong>{{ stats.totalNrScores }} reviews</strong>
+                            with an average score of
+                            <strong>
+                                {{ parseInt(stats.totalAverageScore) }}%</strong
+                            >.
+                        </div>
+
+                        <div v-if="stats.nrHumanScores > 0">
+                            The average human scoring is
+                            {{
+                                parseInt(
+                                    stats.totalHumanScores / stats.nrHumanScores
+                                )
+                            }}% over
+                            {{ stats.nrHumanScores }} evaluations.&nbsp;
+                        </div>
+                        <div v-if="stats.nrAIScores > 0">
+                            The average AI score is
+                            {{
+                                parseInt(
+                                    stats.totalAIScores / stats.nrAIScores
+                                )
+                            }}% over {{ stats.nrAIScores }} evaluations.&nbsp;
                         </div>
                     </div>
                 </div>
