@@ -38,17 +38,10 @@ const isRoundManager = usePage().props.isRoundManager;
                 </div>
                 <div v-if="isRoundManager">
                     <Link
-                        :href="route('round.roles.show', round)"
+                        :href="route('round.settings.show', round)"
                         class="text-blue-500 hover:underline"
                     >
-                        Users
-                    </Link>
-                    |
-                    <Link
-                        :href="route('round.evaluation.show', round)"
-                        class="text-blue-500 hover:underline"
-                    >
-                        Round Evaluation Criteria
+                        Settings
                     </Link>
                 </div>
             </div>
