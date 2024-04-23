@@ -237,6 +237,15 @@ const openPublicView = (round) => {
         "_blank"
     );
 };
+
+const downloadReviewsCSV = async () => {
+    window.open(
+        route("round.reviews.csv", {
+            round: round.value.uuid,
+        }),
+        "_blank"
+    );
+};
 </script>
 
 <template>
@@ -641,10 +650,19 @@ const openPublicView = (round) => {
                             </tbody>
                         </table>
 
-                        <Pagination
-                            :links="applications.links"
-                            @pagination-changed="applications = $event"
-                        />
+                        <div class="mb-5">
+                            <Pagination
+                                :links="applications.links"
+                                @pagination-changed="applications = $event"
+                            />
+                        </div>
+
+                        <Link
+                            @click="downloadReviewsCSV"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-5"
+                        >
+                            Export user reviews .csv
+                        </Link>
                     </div>
                 </div>
             </div>

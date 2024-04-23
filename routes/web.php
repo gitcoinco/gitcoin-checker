@@ -124,6 +124,8 @@ Route::middleware([
             Route::get('/{round}/settings', [RoundController::class, 'settings'])->name('round.settings.show');
             Route::post('/{round}/settings', [RoundController::class, 'settingsUpdate'])->name('round.settings.update');
 
+            Route::get('/{round}/review-csv', [RoundController::class, 'exportReviewCSV'])->name('round.reviews.csv');
+
 
             Route::post('/{round}/roundroles/upsert', [RoundRoleController::class, 'upsert'])->name('round.role.upsert');
             Route::delete('/{roundRole}/roundroles/delete', [RoundRoleController::class, 'destroy'])->name('round.role.delete');

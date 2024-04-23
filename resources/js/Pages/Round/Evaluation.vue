@@ -82,7 +82,7 @@ const isRoundManager = usePage().props.isRoundManager;
                             you specify.
                         </p>
                     </div>
-                    <div class="mb-5">
+                    <!-- <div class="mb-5">
                         <Link
                             :href="route('round.evaluation.show.qa', round)"
                             class="text-blue-500 hover:underline"
@@ -96,7 +96,7 @@ const isRoundManager = usePage().props.isRoundManager;
                             the round. You can also set your own criteria by
                             overriding the default questions.
                         </p>
-                    </div>
+                    </div> -->
                     <div class="mb-5">
                         <Link
                             :href="route('round.evaluation.setup', round)"

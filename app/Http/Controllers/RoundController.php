@@ -26,6 +26,74 @@ class RoundController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function exportReviewCSV(Round $round)
+    {
+        $this->authorize('update', $round);
+
+        // Find the headers
+        $headers = [];
+        $headers[] = 'Date';
+        $headers[] = 'Score';
+        $headers[] = 'Project';
+        $headers[] = 'Reviewer';
+
+        $evaluationQuestions = $round->evaluationQuestions;
+        $questions = json_decode($evaluationQuestions->questions, true);
+
+        foreach ($questions as $question) {
+            $text = $question['text'];
+            $words = explode(' ', $text);
+            $words = array_slice($words, 0, 7); // Limit to first 10 words
+            $text = implode(' ', $words);
+            $headers[] = $text;
+        }
+        $headers[] = 'Notes';
+        $headers[] = 'Project Address';
+
+        $rows = [];
+
+        $applications = $round->applications()->get();
+        foreach ($applications as $application) {
+            $evaluationAnswers = $application->evaluationAnswers()->get();
+
+            foreach ($evaluationAnswers as $evaluationAnswer) {
+                $row = [];
+
+                $row[] = $evaluationAnswer->created_at->format('d M Y H:i');
+                $row[] = $evaluationAnswer->score;
+                $row[] = $application->project->title;
+                $row[] = $evaluationAnswer->user->name;
+
+                $answers = json_decode($evaluationAnswer->answers, true);
+                foreach ($answers as $answer) {
+                    $row[] = $answer;
+                }
+                $row[] = $evaluationAnswer->notes;
+                $row[] = $application->project->id_addr;
+
+                $rows[] = $row;
+            }
+        }
+
+
+        $date = date('Y-m-d_H-i-s');
+        $filename = 'round-' . $round->id . '-review_' . $date . '.csv';
+
+        $handle = fopen('php://output', 'w');
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        fputcsv($handle, $headers);
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        fclose($handle);
+
+        exit();
+    }
+
+
+
+
     public function settingsUpdate(Round $round)
     {
         $this->authorize('update', $round);
@@ -159,7 +227,7 @@ class RoundController extends Controller
         // has of request inputs
         $requestHash = md5(json_encode($request->all()));
 
-        $cacheName = 'RoundController->show(' . $requestHash . ',' . $round->uuid . ')';
+        $cacheName = 'RoundController->show1(' . $requestHash . ',' . $round->uuid . ')';
 
         $applications = Cache::remember($cacheName . '-applications', 60, function () use ($round) {
             return $round->applications()->with([
