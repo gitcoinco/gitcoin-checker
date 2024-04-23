@@ -271,7 +271,10 @@ const hasGPTEvaluation = (results, questionText) => {
                                 </template>
                             </AccordionItem>
 
-                            <AccordionItem name="item4">
+                            <AccordionItem
+                                name="item4"
+                                v-if="application.project.description"
+                            >
                                 <template #heading>
                                     <i
                                         class="fa fa-star mr-1 text-orange-500"
