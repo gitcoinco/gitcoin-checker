@@ -591,6 +591,33 @@ rounds(filter: {
     }
 
     /**
+     * In some cases, a project returns multiple records.  Try and find the one with metadata.
+     */
+    private function getProjectDetails($address)
+    {
+        $query = '
+        projects(filter: {id: {equalTo: "' . $address . '"}}) {
+            id
+            name
+            metadata
+          }
+        ';
+
+        $projectData = $this->graphQLQuery($query);
+
+        if (count($projectData['projects']) > 0) {
+            // return the project that has metadata
+            foreach ($projectData['projects'] as $key => $data) {
+                if (isset($data['metadata'])) {
+                    return $data;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Update project data by pulling projects for a specific round
      */
     private function updateProjects($round)
@@ -598,7 +625,7 @@ rounds(filter: {
         $cacheName = $this->cacheName . 'IngestData::updateProjects(' . $round->id . ')';
 
         $query = '
-        applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}}) {
+        applications(filter: {roundId: {equalTo: "' . $round->round_addr . '"}, chainId: {equalTo: ' . $round->chain->chain_id . '}}) {
             id
             statusSnapshots
             project {
@@ -609,6 +636,7 @@ rounds(filter: {
             }
           }
         ';
+
         $applicationData = $this->graphQLQuery($query);
 
         $hash = HashService::hashMultidimensionalArray($applicationData);
@@ -623,6 +651,14 @@ rounds(filter: {
                 if (isset($data['project']) && count($data['project']) > 0) {
 
                     $metadata = $data['project']['metadata'];
+
+                    if (!isset($metadata['description'])) {
+                        // If we can't find the metadata, try and make a direct query for the project metadata
+                        $projectData = $this->getProjectDetails($data['project']['id']);
+                        if ($projectData) {
+                            $metadata = $projectData['metadata'];
+                        }
+                    }
 
                     $description = null;
                     if (isset($metadata['description'])) {
@@ -640,7 +676,6 @@ rounds(filter: {
                     }
 
                     $title = isset($data['project']['name']) ? $data['project']['name'] : (isset($metadata['title']) ? $metadata['title'] : null);
-
 
                     $project = Project::updateOrCreate(
                         ['id_addr' => Str::lower($data['project']['id'])],

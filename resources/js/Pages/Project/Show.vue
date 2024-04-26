@@ -141,13 +141,9 @@ const applications = ref(usePage().props.applications.valueOf());
                                 </a>
                             </div>
                             <div
-                                v-if="project.metadata.description"
+                                v-if="project.description"
                                 class="text-xs mt-5 markdown"
-                                v-html="
-                                    markdown.render(
-                                        project.metadata.description
-                                    )
-                                "
+                                v-html="markdown.render(project.description)"
                             ></div>
                         </div>
                     </div>
