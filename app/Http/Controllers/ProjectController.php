@@ -410,7 +410,7 @@ class ProjectController extends Controller
         ];
 
         $gptResponse = $open_ai->chat([
-            'model' => 'gpt-4-1106-preview',
+            'model' => 'gpt-4o-2024-05-13', // gpt-4-1106-preview
             'messages' => $messages,
             'temperature' => 1.0,
             'max_tokens' => 4000,
