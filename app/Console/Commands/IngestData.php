@@ -68,7 +68,7 @@ class IngestData extends Command
         $this->blockTimeService = $blockTimeService;
         $this->metabaseService = $metabaseService;
 
-        $this->fromDate = now()->subDays(30)->timestamp;
+        $this->fromDate = now()->subDays(365)->timestamp;
         $this->toDate = now()->addDays(60)->timestamp;
 
         $this->notificationService = $notificationService;
@@ -117,8 +117,8 @@ class IngestData extends Command
      */
     private function longRunningTasks()
     {
+        // Loop through all the chains and update project owners
         $this->processAll(false);
-
 
         // Loop through all the chains and update project owners
         $chains = Chain::all();
@@ -301,8 +301,13 @@ class IngestData extends Command
 
         $donorAmountUSD = $this->metabaseService->getDonorAmountUSD($round->round_addr, $application->application_id);
         $application->donor_amount_usd = $donorAmountUSD;
-        $application->donor_contributions_count = $metabase['contributionsCount'];
-        $application->match_amount_usd = $metabase['matchAmountUSD'];
+
+        if (isset($metabase['matchAmountUSD'])) {
+            $application->match_amount_usd = $metabase['matchAmountUSD'];
+        }
+        if (isset($metabase['contributionsCount'])) {
+            $application->donor_contributions_count = $metabase['contributionsCount'];
+        }
         $application->save();
 
         $this->info("Successfully updated application id: {$application->id}");
