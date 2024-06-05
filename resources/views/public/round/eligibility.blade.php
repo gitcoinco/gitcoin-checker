@@ -22,7 +22,7 @@ Eligibility criteria for the {{ $round->name }} round on the {{ $round->chain->n
                     ?>
 
                     @if (isset($eligibility['name']))
-                    <h1 class="card-title">{{ $eligibility['name'] }} Eligibility</h1>
+                    <h1 class="card-title"><a href="{{ route('public.round.show', $round) }}" title="{{ $eligibility['name'] }}">{{ $eligibility['name'] }}</a> Eligibility</h1>
                     @endif
 
                     @if (isset($eligibility['eligibility']['description']))
@@ -37,6 +37,7 @@ Eligibility criteria for the {{ $round->name }} round on the {{ $round->chain->n
                         @endforeach
                     </ul>
                     @endif
+
                 </div>
             </div>
         </div>
