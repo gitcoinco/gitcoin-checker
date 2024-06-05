@@ -54,25 +54,34 @@ class RoundApplicationController extends Controller
                 return [$status => ['count' => 0, 'avgGPTScore' => 0]];
             })->toArray();
 
-            $applications = RoundApplication::whereHas('results')
-                ->with(['results' => function ($query) {
-                    $query->selectRaw('application_id, AVG(score) as avgScore, COUNT(*) as count')
-                        ->groupBy('application_id');
-                }])
-                ->get();
+            try {
 
-            foreach ($applications as $application) {
-                $status = strtoupper($application->status);
-                if (array_key_exists($status, $applicationStats) && !empty($application->results->first())) {
-                    $applicationStats[$status]['count'] += $application->results->first()->count;
-                    $applicationStats[$status]['avgGPTScore'] += $application->results->first()->avgScore * $application->results->first()->count;
-                }
-            }
+                // Use chunking to process large datasets
+                RoundApplication::whereHas('results')
+                    ->with(['results' => function ($query) {
+                        $query->selectRaw('application_id, AVG(score) as avgScore, COUNT(*) as count')
+                            ->groupBy('application_id');
+                    }])
+                    ->chunk(100, function ($applications) use (&$applicationStats) {
+                        foreach ($applications as $application) {
+                            $status = strtoupper($application->status);
+                            if (array_key_exists($status, $applicationStats) && !empty($application->results->first())) {
+                                $applicationStats[$status]['count'] += $application->results->first()->count;
+                                $applicationStats[$status]['avgGPTScore'] += $application->results->first()->avgScore * $application->results->first()->count;
+                            }
+                        }
+                    });
 
-            foreach ($statuses as $status) {
-                if ($applicationStats[$status]['count'] > 0) {
-                    $applicationStats[$status]['avgGPTScore'] /= $applicationStats[$status]['count'];
+                // Calculate average GPT scores
+                foreach ($statuses as $status) {
+                    if ($applicationStats[$status]['count'] > 0) {
+                        $applicationStats[$status]['avgGPTScore'] /= $applicationStats[$status]['count'];
+                    }
                 }
+            } catch (\Exception $e) {
+                Log::error('Error fetching applications: ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
+                throw $e;  // Optionally, rethrow the exception if you want it to be handled by Laravel's global exception handler
             }
 
             return $applicationStats;
