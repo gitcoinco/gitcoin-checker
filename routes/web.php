@@ -69,6 +69,7 @@ Route::prefix('public')->group(
 
         Route::get('/rounds/list', [RoundController::class, 'listPublic'])->name('public.rounds.list');
         Route::get('/round/{round}/show', [RoundController::class, 'showPublic'])->name('public.round.show');
+        Route::get('/round/{round}/eligibility', [RoundController::class, 'eligibilityPublic'])->name('public.round.eligibility');
         Route::get('/application/{application}/show', [RoundApplicationController::class, 'showPublic'])->name('public.application.show');
 
         Route::get('/projects/sitemap.xml', [ProjectController::class, 'sitemapPublic'])->name('public.projects.sitemap');

@@ -10,7 +10,11 @@ The {{ $round->name }} round was ran on {{ $round->donations_start_time }}.
 
 @section('breadcrumbExtra')
 <div>
-    <i class="text-muted">{{ $round->name }}</i>
+    <i class="text-muted">
+        <a href="{{route('public.round.eligibility', $round->uuid)}}" title="Eligibility Criteria for {{ $round->name }}">
+            Eligibility Criteria
+        </a>
+    </i>
 </div>
 @endsection
 

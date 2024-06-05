@@ -26,6 +26,7 @@ class RoundController extends Controller
         $this->notificationService = $notificationService;
     }
 
+
     public function exportReviewCSV(Round $round)
     {
         $this->authorize('update', $round);
@@ -368,6 +369,15 @@ class RoundController extends Controller
             'rounds' => $rounds,
             'search' => $search,
             'spotlightRound' => $spotlightRound,
+        ]);
+    }
+
+    public function eligibilityPublic(Round $round)
+    {
+        $round->load(['chain']);
+
+        return view('public.round.eligibility', [
+            'round' => $round,
         ]);
     }
 
