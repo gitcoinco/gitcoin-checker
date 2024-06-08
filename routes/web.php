@@ -13,6 +13,7 @@ use App\Http\Controllers\RoundApplicationEvaluationAnswersController;
 use App\Http\Controllers\GPTController;
 use App\Http\Controllers\NotificationSetupController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\RedisController;
 use App\Http\Controllers\RoundRoleController;
 use App\Http\Middleware\CheckAccessControl;
 use App\Models\AccessControl;
@@ -182,4 +183,6 @@ Route::middleware([
         Route::get('/round/toggle/{round}', [UserPreferenceController::class, 'roundToggle'])->name('user-preferences.round.toggle');
         Route::get('/rounds/selectedApplicationRoundType', [UserPreferenceController::class, 'selectedApplicationRoundType'])->name('user-preferences.rounds.selectedApplicationRoundType');
     });
+
+    Route::get('/test/redis', [RedisController::class, 'test'])->name('test-redis');
 });
