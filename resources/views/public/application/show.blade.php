@@ -151,7 +151,13 @@
                         <div class="accordion-content" style="<?php if (count($promptResults) + count($evaluationAnswers) > 2) {
                                                                     echo 'display: none;';
                                                                 } ?>">
+
                             @foreach(json_decode($result->results_data) as $data)
+                            <?php
+                            if (!isset($data->score)) {
+                                continue;
+                            }
+                            ?>
                             <div class="mb-3">
                                 <div>
                                     <div>
