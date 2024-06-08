@@ -49,12 +49,6 @@ make in                             # SSH into the php container
 make test                           # Run phpunit tests
 ```
 
-## node_app
-
-This is a small nodejs application that can take an application address and return the match funding for the address.
-
-http://localhost:3000
-
 ### Icons
 
 Use the font-awesome 4 library:
