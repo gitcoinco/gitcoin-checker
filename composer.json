@@ -26,6 +26,7 @@
         "league/commonmark": "^2.4",
         "meilisearch/meilisearch-php": "^1.5",
         "orhanerday/open-ai": "^4.9",
+        "predis/predis": "^2.2",
         "simplito/elliptic-php": "^1.0",
         "snowfire/beautymail": "^1.1",
         "symfony/dom-crawler": "^6.3",
