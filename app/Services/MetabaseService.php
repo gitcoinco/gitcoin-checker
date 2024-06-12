@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Chain;
+use App\Models\Project;
+use App\Models\Round;
+use App\Models\RoundApplication;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -50,6 +54,16 @@ class MetabaseService
      */
     public function getDonorAmountUSD($roundId, $applicationId)
     {
+        $round = Round::where('id', $roundId)->first();
+        if (!$round) {
+            return null;
+        }
+
+        $application = RoundApplication::where('id', $applicationId)->first();
+        if (!$application) {
+            return null;
+        }
+
         $cacheName = 'MetabaseService::getDonorAmountUSD(' . $roundId . ', ' . $applicationId . ')';
 
         // Check if the donor amount is already cached
@@ -107,6 +121,12 @@ class MetabaseService
      */
     public function getMatchingDistribution($chainId, $projectId, $applicationId)
     {
+
+        $project = Project::where('id', $projectId)->first();
+        if (!$project) {
+            return null;
+        }
+
         $cacheName = 'MetabaseService::getMatchingDistribution1(' . $chainId . ', ' . $projectId . ', ' . $applicationId . ')';
 
         // Check if the matching distribution is already cached
@@ -163,7 +183,10 @@ class MetabaseService
                 return null;
             }
         } catch (\Exception $e) {
-            Log::error("Error fetching matching distribution: " . $e->getMessage());
+            $chain = Chain::where('id', $chainId)->first();
+            $project = Project::where('id', $projectId)->first();
+            $application = RoundApplication::where('id', $applicationId)->first();
+            Log::error("Error fetching matching distribution: " . $e->getMessage() . " Chain: " . $chain->name . " Project: " . $project->title . " Round id: " . $application->round_id);
             echo "Error fetching matching distribution: " . $e->getMessage();
             return null;
         }
