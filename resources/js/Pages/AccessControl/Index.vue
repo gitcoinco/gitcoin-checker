@@ -42,7 +42,7 @@ const deleteAccessControl = async (accessControl) => {
 </script>
 
 <template>
-    <AuthenticatedLayout title="Profile">
+    <AuthenticatedLayout title="Admins">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Admins

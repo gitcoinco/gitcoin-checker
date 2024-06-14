@@ -48,7 +48,7 @@ const deleteMe = (notificationSetup) => {
 </script>
 
 <template>
-    <AuthenticatedLayout title="Profile">
+    <AuthenticatedLayout title="Notifications">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Notifications

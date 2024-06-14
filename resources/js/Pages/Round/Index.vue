@@ -89,7 +89,7 @@ const flagRound = async (round) => {
 </script>
 
 <template>
-    <AuthenticatedLayout title="Profile">
+    <AuthenticatedLayout title="Rounds">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Rounds
