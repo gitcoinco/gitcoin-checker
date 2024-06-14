@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccessControlController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\DashboardController;
@@ -100,6 +101,10 @@ Route::middleware([
         Route::prefix('chain')->group(function () {
             Route::get('/', [ChainController::class, 'index'])->name('chain.index');
             Route::post('/update-all', [ChainController::class, 'updateAll'])->name('chain.update-all');
+        });
+
+        Route::prefix('analytics')->group(function () {
+            Route::get('/', [AnalyticsController::class, 'index'])->name('analytics.index');
         });
     });
 

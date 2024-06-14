@@ -112,6 +112,14 @@ const logout = () => {
                                     <i class="fa fa-circle-o-notch mr-1"></i>
                                     Rounds
                                 </NavLink>
+                                <NavLink
+                                    :href="route('analytics.index')"
+                                    :active="route().current('analytics.index')"
+                                    v-if="$page.props.auth.user.is_admin"
+                                >
+                                    <i class="fa fa-line-chart mr-1"></i>
+                                    Analytics
+                                </NavLink>
                             </div>
                         </div>
 
