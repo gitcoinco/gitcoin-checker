@@ -13,6 +13,9 @@ class AnalyticsController extends Controller
 {
     public function index()
     {
+        $this->authorize('update', AccessControl::class);
+
+        $cacheName = 'AnalyticsController::index';
 
         $roundsInThePastYear = cache()->remember('rounds_in_the_past_year', 86400, function () {
             return Round::where('created_at', '>=', now()->subYear())
@@ -21,7 +24,8 @@ class AnalyticsController extends Controller
                 ->get(['id', 'uuid', 'name']);
         });
 
-        $stats = cache()->remember('analytics_stats', 86400, function () use ($roundsInThePastYear) {
+
+        $stats = cache()->remember($cacheName, 86400, function () use ($roundsInThePastYear) {
             $stats = [
                 'rounds' => 0,
                 'applications' => 0,
@@ -61,10 +65,17 @@ class AnalyticsController extends Controller
             return $stats;
         });
 
+        // Get a list of rounds that have human evaluators, and pull out the round, together with the humans
+        $roundsEvaluatedByHumans = Round::whereHas('evaluationAnswers', function ($query) {
+            $query->with('user');
+        })->with(['evaluationAnswers' => function ($query) {
+            $query->with('user')->select('user_id', 'round_id')->groupBy('user_id', 'round_id');
+        }])->get(['id', 'uuid', 'chain_id', 'name']);
 
         return Inertia::render('Analytics/Index', [
             'roundsInThePastYear' => $roundsInThePastYear,
             'stats' => $stats,
+            'roundsEvaluatedByHumans' => $roundsEvaluatedByHumans,
         ]);
     }
 }

@@ -75,6 +75,11 @@ class Round extends Model
         return $this->hasOne(RoundApplicationEvaluationQuestions::class);
     }
 
+    public function evaluationAnswers()
+    {
+        return $this->hasMany(RoundApplicationEvaluationAnswers::class);
+    }
+
     public function gptRoundEligibilityScores()
     {
         return $this->hasMany(GptRoundEligibilityScore::class);

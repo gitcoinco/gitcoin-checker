@@ -220,7 +220,6 @@ class RoundController extends Controller
 
     public function show(Request $request, Round $round)
     {
-
         $this->authorize('view', $round);
 
         $user = auth()->user();

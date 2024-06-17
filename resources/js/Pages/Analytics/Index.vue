@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm, usePage, Link } from "@inertiajs/vue3";
 
 const stats = ref(usePage().props.stats.valueOf());
+const roundsEvaluatedByHumans = ref(usePage().props.roundsEvaluatedByHumans);
 </script>
 
 <template>
@@ -39,13 +40,33 @@ const stats = ref(usePage().props.stats.valueOf());
                     using Checker.
                 </p>
 
-                <p>
+                <p class="mb-5">
                     {{ stats.roundsEvaluatedByAI }} rounds were evaluated by AI,
                     evaluating a total of ~{{
                         stats.roundApplicationsEvaluatedByAI
                     }}
                     applications.
                 </p>
+
+                <div>
+                    <h1 class="text-2xl">Round evaluated by humans</h1>
+                    <div
+                        v-for="round in roundsEvaluatedByHumans"
+                        :key="round.uuid"
+                        class="mb-3"
+                    >
+                        <h3>{{ round.name }}</h3>
+
+                        <ul class="text-xs">
+                            <li
+                                v-for="answer in round.evaluation_answers"
+                                :key="answer.user.id"
+                            >
+                                {{ answer.user.name }} - {{ answer.user.email }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

@@ -76,6 +76,7 @@ class ProjectController extends Controller
             $projects = $this->getProjectData();
         }
 
+
         $projects = $projects->paginate();
 
         return Inertia::render('Project/Index', [
