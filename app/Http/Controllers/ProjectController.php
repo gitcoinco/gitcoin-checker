@@ -125,7 +125,11 @@ class ProjectController extends Controller
             $query->where('title', 'like', ' test%')->orWhere('title', 'like', '% test %');
         })->pluck('id')->toArray();
 
-        $search = $request->query('search');
+        $search = $request->query('search', '');
+        if (is_array($search)) {
+            $search = implode(',', $search);
+        }
+
         if ($search) {
             $projects = Project::search($search)->paginate();
         } else {
