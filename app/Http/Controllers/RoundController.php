@@ -191,6 +191,10 @@ class RoundController extends Controller
     {
         $showTestRounds = filter_var(request('showTestRounds', false), FILTER_VALIDATE_BOOLEAN);
 
+        if (is_array($search)) {
+            $search = implode(',', $search);
+        }
+
         $rounds = Round::where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('round_addr', 'like', '%' . $search . '%');
