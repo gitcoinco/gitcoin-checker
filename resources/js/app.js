@@ -8,11 +8,16 @@ import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import moment from "moment";
 import Bugsnag from "@bugsnag/js";
 import BugsnagPluginVue from "@bugsnag/plugin-vue";
+import posthog from "posthog-js";
 
 import "font-awesome/css/font-awesome.css";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 const bugsnagApiKey = import.meta.env.VITE_BUGSNAG_API_KEY;
+
+posthog.init(import.meta.env.VITE_POSTHOG_API_KEY, {
+    api_host: import.meta.env.VITE_POSTHOG_HOST,
+});
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -52,6 +57,14 @@ if (process.env.NODE_ENV === "production") {
     router.on("navigate", (event) => {
         gtag("event", "page_view", {
             page_location: event.detail.page.url,
+        });
+    });
+
+    router.on("navigate", (event) => {
+        posthog.capture("$pageview", {
+            distinct_id: posthog.get_distinct_id(),
+            url: event.detail.page.url,
+            referrer: document.referrer,
         });
     });
 }
