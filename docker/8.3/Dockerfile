@@ -25,6 +25,7 @@ RUN apt-get update \
     php8.3-imap php8.3-mysql php8.3-mbstring \
     php8.3-xml php8.3-zip php8.3-bcmath php8.3-soap \
     php8.3-intl php8.3-readline \
+    php8.3-gmp \
     php8.3-ldap \
     php8.3-redis \
     # php8.3-msgpack php8.3-igbinary php8.3-redis php8.3-swoole \
