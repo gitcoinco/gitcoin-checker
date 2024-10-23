@@ -290,6 +290,10 @@ class ProjectController extends Controller
 
     public function showPublic(Project $project)
     {
+        if (!$project->is_public) {
+            return redirect()->route('public.home');
+        }
+
         $cacheTimeout = 60 * 60;
         $cacheName = 'ProjectController::showPublic(' . $project->uuid . ')';
         $applications = $project->applications()->orderBy('id', 'desc')->with('round')->paginate();
